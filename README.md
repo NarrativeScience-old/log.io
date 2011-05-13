@@ -10,55 +10,68 @@ Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 ## Requirements
 
 [node.js](http://nodejs.org)
+
 [socket.io](http://socket.io)
+
 [connect](http://senchalabs.github.com/connect/)
-[underscore][(http://documentcloud.github.com/underscore/)
+
+[underscore](http://documentcloud.github.com/underscore/)
+
 [socket.io-Client](https://github.com/remy/Socket.io-node-client)
 
 ## Compatibility
 
 Harvesters & server have been tested on *Ubuntu 10.10*
-Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
-## Installation
+Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
 # Install log server on Machine A
 
-1.  Download source
-        git clone git://github.com/NarrativeScience/Log.io.git log.io
+1. Download source
 
-2.  Verify dependencies
-        cd log.io/bin
-        ./configure
+    git clone git://github.com/NarrativeScience/Log.io.git log.io
 
-3.  Install & launch server
-        sudo ./install/server
+2. Verify dependencies
 
-4.  Browse to:
-        http://<machine_a.host.com>:8998
+    cd log.io/bin
 
-5.  (Optional) Configure port, add HTTP basic auth
+    ./configure
+
+3. Install & launch server
+
+    sudo ./install/server
+
+4. Browse to:
+
+    http://<machine_a.host.com>:8998
+
+5. (Optional) Configure port, add HTTP basic auth
     - Modify /etc/log.io/server.conf
         sudo /etc/init.d/log.io-server restart
 
 # Install log harvester on Machine B
 
-1.  Download source
-        git clone git://github.com/NarrativeScience/Log.io.git log.io
+1. Download source
 
-2.  Verify dependencies
-        cd log.io/bin
-        ./configure
+    git clone git://github.com/NarrativeScience/Log.io.git log.io
 
-3.  Install harvester
-        sudo ./install/harvester
+2. Verify dependencies
 
-4.  Configure harvester (modify /etc/log.io/harvester.conf)
+    cd log.io/bin
+
+    ./configure
+
+3. Install harvester
+
+    sudo ./install/harvester
+
+4. Configure harvester (modify /etc/log.io/harvester.conf)
     - Server host
     - Local log files
 
-5.  Start harvester
-        sudo /etc/init.d/log.io-harvester start
+5. Start harvester
+
+    sudo /etc/init.d/log.io-harvester start
 
 ## Credits
 
