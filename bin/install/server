@@ -1,0 +1,46 @@
+#! /bin/sh
+#
+# Log.io server install script (run as root)
+#
+
+# Copy log.io source to /usr/local/include
+
+echo "Copying source to /usr/local/lib/node/log.io/";
+mkdir -p /usr/local/lib/node/log.io
+cp -r `dirname $0`/../../lib/server/ /usr/local/lib/node/log.io/
+cp -r `dirname $0`/../../lib/client/ /usr/local/lib/node/log.io/
+
+# Copy run_server to /usr/local/bin
+echo "Copying bin/run_server to /usr/local/bin";
+cp `dirname $0`/../run_server /usr/local/bin/log-server
+
+# Copy init.d script to /etc/init.d
+echo "Copying init.d script to /etc/init.d";
+cp `dirname $0`/../../etc/init.d/log.io-server /etc/init.d/log.io-server
+chmod +x /etc/init.d/log.io-server
+chown root:root /etc/init.d/log.io-server
+
+# Copy server config to /etc/log.io/
+if [ ! -f /etc/log.io/server.conf ];
+then
+  echo "Copying server.conf to /etc/log.io/";
+  mkdir -p /etc/log.io/
+  cp `dirname $0`/../../etc/conf/server.conf /etc/log.io/
+fi
+
+# Create logio user
+echo "Creating logio user..."
+yes | adduser --disabled-password logio > /dev/null
+
+# Create log file
+if [ ! -f /var/log/log.io/server.log ];
+then
+  echo "Creating /var/log/log.io/server.log";
+  mkdir -p /var/log/log.io/
+  touch /var/log/log.io/server.log
+  chmod 755 /var/log/log.io/server.log
+  chown logio:root /var/log/log.io/server.log
+fi
+
+# Start log server
+/etc/init.d/log.io-server start

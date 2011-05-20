@@ -1,0 +1,15 @@
+#! /bin/sh
+#
+# Checks environment for dependencies
+#
+
+# Check for node.js installation
+echo "Checking for node.js";
+if ! which node >/dev/null; then
+  echo "ERROR: Could not locate node.js installation (via which)";
+  echo "Check out http://www.nodejs.org/#download";
+  exit 1;
+fi
+
+# Check node.js dependencies
+node `dirname $0`/configure.js

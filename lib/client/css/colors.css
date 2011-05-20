@@ -1,0 +1,64 @@
+
+.labelcolor1 {
+  color: #f33;
+}
+.statuscolor1 {
+  background-color: #f33 !important;
+}
+.labelcolor2 {
+  color: #66f;
+}
+.statuscolor2 {
+  background-color: #66f !important;
+}
+.labelcolor3 {
+  color: #f39;
+}
+.statuscolor3 {
+  background-color: #f39 !important;
+}
+.labelcolor4 {
+  color: #6ff;
+}
+.statuscolor4 {
+  background-color: #6ff !important;
+}
+.labelcolor5 {
+  color: #ff6;
+}
+.statuscolor5 {
+  background-color: #ff6 !important;
+}
+.labelcolor6 {
+  color: #fcc;
+}
+.statuscolor6 {
+  background-color: #fcc !important;
+}
+.labelcolor7 {
+  color: #ccf;
+}
+.statuscolor7 {
+  background-color: #ccf !important;
+}
+.labelcolor8 {
+  color: #c06;
+}
+.statuscolor8 {
+  background-color: #c06 !important;
+}
+.labelcolor9 {
+  color: #cff;
+}
+.statuscolor9 {
+  background-color: #cff !important;
+}
+.labelcolor10 {
+  color: #ffc;
+}
+.statuscolor10 {
+  background-color: #ffc !important;
+}
+.ping {
+  background-color: #33ff33 !important;
+}
