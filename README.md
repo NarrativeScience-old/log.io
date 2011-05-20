@@ -5,7 +5,9 @@ Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
 ## How does it work?
 
-*Harvesters* watch log files for changes, send new log messages to the *server*, which broadcasts to *web clients*. Users create *stream* and *history* screens to view and search log messages.
+*Harvesters* watch log files for changes, send new log messages to the *server*, which broadcasts to *web clients*.
+
+Users create *stream* and *history* screens to view and search log messages.
 
 ## Requirements
 
@@ -42,7 +44,7 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
 4. Browse to:
 
-    http://<machine_a.host.com>:8998
+    http://&lt;machine_a.host.com&gt;:8998
 
 5. (Optional) Configure port, add HTTP basic auth
 
@@ -80,13 +82,13 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
 - Mike Smathers &lt;msmathers@narrativescience.com&gt; ([msmathers](http://github.com/msmathers))
 
-- Narrative Science &lt;http://narrativescience.com&gt; ([NarrativeScience](http://github.com/NarrativeScience))
+- Narrative Science http://narrativescience.com ([NarrativeScience](http://github.com/NarrativeScience))
 
 ## Acknowledgements
 
 - Guillermo Rauch &lt;guillermo@learnboost.com&gt; ([Guille](http://github.com/guille))
 
-- Ryan Dahl &lt;ry at tiny clouds dot org&gt; ([ry](https://github.com/ry)) + Joyent &lt;http://www.joyent.com/&gt; ([joyent](https://github.com/joyent/))
+- Ryan Dahl &lt;ry at tiny clouds dot org&gt; ([ry](https://github.com/ry)) + Joyent http://www.joyent.com/ ([joyent](https://github.com/joyent/))
 
 ## License 
 
