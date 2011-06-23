@@ -3,11 +3,24 @@ var e = console.log;
 try {
   e("Checking for node.js package 'socket.io'...");
   var io = require('socket.io');
+  var version = io.version;
+  if (version.indexOf("0.7") >= 0) {
+    e("ERROR: Log.io is currently incompatible with socket.io v0.7");
+    e("Be sure to use v0.6.17");
+    e("");
+    e("npm install socket.io@0.6.17");
+    e("... or ...");
+    e("https://github.com/LearnBoost/Socket.IO-node/tree/0.6.17");
+    process.exit(1);
+  }
 } catch (err) {
   e("ERROR: Could not find socket.io package");
-  e("npm install socket.io");
+  e("npm install socket.io@0.6.17");
   e("... or ...");
-  e("https://github.com/LearnBoost/Socket.IO-node.git");
+  e("https://github.com/LearnBoost/Socket.IO-node/tree/0.6.17");
+  e("");
+  e("WARNING: Log.io is currently incompatible with socket.io v0.7");
+  e("Be sure to use v0.6.17");
   process.exit(1);
 }
 

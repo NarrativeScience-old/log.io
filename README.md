@@ -11,7 +11,7 @@ Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
 [node.js](http://nodejs.org)
 
-[socket.io](http://socket.io)
+[socket.io (v0.6.17)](http://socket.io) (WARNING: Log.io is currently incompatible with socket.io v0.7)
 
 [connect](http://senchalabs.github.com/connect/)
 
