@@ -6,7 +6,7 @@
 var fs = require('fs');
 var __ = require('underscore');
 var testCase = require('nodeunit').testCase;
-var io = require('socket.io.client/io-client.js').io;
+var io = require('Socket.io-node-client/io-client.js').io;
 var lf = require('../../lib/harvester/log_file.js');
 var LogHarvester = require('../../lib/harvester/log_harvester.js').LogHarvester;
 

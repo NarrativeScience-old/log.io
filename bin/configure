@@ -12,4 +12,4 @@ if ! which node >/dev/null; then
 fi
 
 # Check node.js dependencies
-node `dirname $0`/configure.js
+env NODE_PATH=/usr/local/lib/node_modules/ node `dirname $0`/configure.js

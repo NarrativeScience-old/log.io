@@ -13,17 +13,17 @@ Users create *stream* and *history* screens to view and search log messages.
 
 [node.js](http://nodejs.org)
 
-[socket.io (v0.6.17)](http://socket.io) (WARNING: Log.io is currently incompatible with socket.io v0.7)
+[socket.io (v0.6.17)](http://socket.io) (Log.io is currently incompatible with socket.io v0.7.x)
 
 [connect](http://senchalabs.github.com/connect/)
 
 [underscore](http://documentcloud.github.com/underscore/)
 
-[socket.io-Client](https://github.com/remy/Socket.io-node-client)
+[Socket.io-node-client](https://github.com/msmathers/Socket.io-node-client)
 
 ## Compatibility
 
-Harvesters & server have been tested on *Ubuntu 10.10*
+Harvesters & server have been tested on *Ubuntu 11.04*
 
 Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
@@ -90,6 +90,8 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 - Guillermo Rauch &lt;guillermo@learnboost.com&gt; ([Guille](http://github.com/guille))
 
 - Ryan Dahl &lt;ry at tiny clouds dot org&gt; ([ry](https://github.com/ry)) + Joyent http://www.joyent.com/ ([joyent](https://github.com/joyent/))
+
+- Remy Sharp &lt;remy@leftlogic.com&gt; ([remy](https://github.com/remy))
 
 ## License 
 

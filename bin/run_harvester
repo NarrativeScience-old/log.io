@@ -11,7 +11,7 @@ var fd = fs.openSync('/var/log/log.io/harvester.log', 'a');
 console.log = function(msg) { fs.writeSync(fd, msg + "\n"); }
 
 // Paths
-var node_lib = '/usr/local/lib/node/';
+var node_lib = '/usr/local/lib/node_modules/';
 var path = node_lib + 'log.io/harvester/log_harvester.js';
 
 try {
