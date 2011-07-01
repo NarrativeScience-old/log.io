@@ -1,0 +1,23 @@
+{
+  "name": "Log.io",
+  "version": "0.1.2",
+  "description": "Real-time log monitoring in your browser",
+  "homepage": "http://logio.org",
+  "keywords": ["logs", "monitoring", "realtime", "socket.io", "node.js", "ajax"],
+  "author": "Mike Smathers <msmathers@narrativescience.com>",
+  "contributors": [
+    { "name": "Mike Smathers", "email": "msmathers@narrativescience.com" }
+  ],
+  "repository":{
+    "type": "git",
+    "url": "https://github.com/NarrativeScience/Log.io"
+  },
+  "dependencies": {
+    "socket.io": "0.6.17",
+    "connect": "1.5.1",
+    "underscore": "1.1.6",
+    "Socket.io-node-client": ">= 0.0.0"
+  },
+  "main": "index",
+  "engines": { "node": ">= 0.4.9" }
+}

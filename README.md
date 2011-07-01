@@ -13,7 +13,7 @@ Users create *stream* and *history* screens to view and search log messages.
 
 [node.js](http://nodejs.org)
 
-[socket.io (v0.6.17)](http://socket.io) (Log.io is currently incompatible with socket.io v0.7.x)
+[socket.io v0.6.17](http://socket.io) (Log.io is currently incompatible with socket.io v0.7.x)
 
 [connect](http://senchalabs.github.com/connect/)
 
@@ -44,11 +44,11 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
 4) Browse to:
 
-    http://&lt;machine_a.host.com&gt;:8998
+    http://machine_a.host.com:8998
 
 5) Configure port, add HTTP basic auth  (Optional)
 
-- Modify /etc/log.io/server.conf
+Modify /etc/log.io/server.conf
     
     sudo /etc/init.d/log.io-server restart
 
