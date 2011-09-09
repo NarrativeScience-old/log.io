@@ -3,13 +3,13 @@
 # Log.io server install script (run as user that will own the process)
 #
 # ARGUMENTS (in that order $1, $2, ...)
-# LOG_PATH (defaults to /var/log/log.io)
+# LOG_FILENAME (defaults to /var/log/log.io/server.log)
 
 NODE_MODULES_PATH=`dirname \`which node\``/../lib/node_modules
 BIN_PATH=`dirname \`which node\``/..
 
-LOG_PATH=$1
-[ "$LOG_PATH" = "" ] &&  LOG_PATH=/var/log/log.io
+LOG_FILENAME=$1
+[ "$LOG_FILENAME" = "" ] && LOG_FILENAME=/var/log/log.io/server.log
 
 echo "Copying source to $NODE_MODULES_PATH/log.io/";
 mkdir -p $NODE_MODULES_PATH/log.io
@@ -22,12 +22,12 @@ cp `dirname $0`/../run_server $BIN_PATH/log-server
 echo "... done."
 
 # Create log file
-if [ ! -f $LOG_PATH/server.log ] ; then
-  echo "Creating $LOG_PATH/server.log";
-  mkdir -p $LOG_PATH/
-  touch $LOG_PATH/server.log
-  chmod 755 $LOG_PATH/server.log
+if [ ! -f $LOG_FILENAME ] ; then
+  echo "Creating $LOG_FILENAME";
+  mkdir -p `dirname $LOG_FILENAME`
+  touch $LOG_FILENAME
+  chmod 755 $LOG_FILENAME
 	echo "... done."
 else
-	echo "Log file $LOG_PATH/server.log already exists";
+	echo "Log file $LOG_FILENAME already exists";
 fi
