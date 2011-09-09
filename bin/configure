@@ -11,5 +11,8 @@ if ! which node >/dev/null; then
   exit 1;
 fi
 
+NODE_PATH=`which node`/../../lib/node_modules/
+echo "Checking dependencies in $NODE_PATH";
+
 # Check node.js dependencies
-env NODE_PATH=/usr/local/lib/node_modules/ node `dirname $0`/configure.js
+env NODE_PATH=$NODE_PATH node `dirname $0`/configure.js
