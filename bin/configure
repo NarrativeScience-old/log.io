@@ -11,7 +11,7 @@ if ! which node >/dev/null; then
   exit 1;
 fi
 
-NODE_PATH=`which node`/../../lib/node_modules/
+NODE_PATH=`dirname \`which node\``/../lib/node_modules/
 echo "Checking dependencies in $NODE_PATH";
 
 # Check node.js dependencies
