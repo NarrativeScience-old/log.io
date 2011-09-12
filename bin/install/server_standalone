@@ -20,14 +20,3 @@ echo "... done."
 echo "Copying bin/run_server to $BIN_PATH/log.io-server";
 cp `dirname $0`/../run_server $BIN_PATH/log.io-server
 echo "... done."
-
-# Create log file
-if [ ! -f $LOG_FILENAME ] ; then
-  echo "Creating $LOG_FILENAME";
-  mkdir -p `dirname $LOG_FILENAME`
-  touch $LOG_FILENAME
-  chmod 755 $LOG_FILENAME
-	echo "... done."
-else
-	echo "Log file $LOG_FILENAME already exists";
-fi
