@@ -6,7 +6,7 @@
 # LOG_FILENAME (defaults to /var/log/log.io/server.log)
 
 NODE_MODULES_PATH=`dirname \`which node\``/../lib/node_modules
-BIN_PATH=`dirname \`which node\``/..
+BIN_PATH=`dirname \`which node\``
 
 LOG_FILENAME=$1
 [ "$LOG_FILENAME" = "" ] && LOG_FILENAME=/var/log/log.io/server.log
@@ -17,7 +17,7 @@ cp -r `dirname $0`/../../lib/server/ $NODE_MODULES_PATH/log.io/server/
 cp -r `dirname $0`/../../lib/client/ $NODE_MODULES_PATH/log.io/client/
 echo "... done."
 
-echo "Copying bin/run_server to $BIN_PATH";
+echo "Copying bin/run_server to $BIN_PATH/log-server";
 cp `dirname $0`/../run_server $BIN_PATH/log-server
 echo "... done."
 
