@@ -13,8 +13,8 @@ LOG_FILENAME=$1
 
 echo "Copying source to $NODE_MODULES_PATH/log.io/";
 mkdir -p $NODE_MODULES_PATH/log.io
-cp -r `dirname $0`/../../lib/server/ $NODE_MODULES_PATH/log.io/
-cp -r `dirname $0`/../../lib/client/ $NODE_MODULES_PATH/log.io/
+cp -r `dirname $0`/../../lib/server/ $NODE_MODULES_PATH/log.io/server/
+cp -r `dirname $0`/../../lib/client/ $NODE_MODULES_PATH/log.io/client/
 echo "... done."
 
 echo "Copying bin/run_server to $BIN_PATH";
