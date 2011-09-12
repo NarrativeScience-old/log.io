@@ -17,8 +17,8 @@ cp -r `dirname $0`/../../lib/server/ $NODE_MODULES_PATH/log.io/server/
 cp -r `dirname $0`/../../lib/client/ $NODE_MODULES_PATH/log.io/client/
 echo "... done."
 
-echo "Copying bin/run_server to $BIN_PATH/log-server";
-cp `dirname $0`/../run_server $BIN_PATH/log-server
+echo "Copying bin/run_server to $BIN_PATH/log.io-server";
+cp `dirname $0`/../run_server $BIN_PATH/log.io-server
 echo "... done."
 
 # Create log file
