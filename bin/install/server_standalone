@@ -1,15 +1,9 @@
 #! /bin/sh
 #
 # Log.io server install script (run as user that will own the process)
-#
-# ARGUMENTS (in that order $1, $2, ...)
-# LOG_FILENAME (defaults to /var/log/log.io/server.log)
 
 NODE_MODULES_PATH=`dirname \`which node\``/../lib/node_modules
 BIN_PATH=`dirname \`which node\``
-
-LOG_FILENAME=$1
-[ "$LOG_FILENAME" = "" ] && LOG_FILENAME=/var/log/log.io/server.log
 
 echo "Copying source to $NODE_MODULES_PATH/log.io/";
 mkdir -p $NODE_MODULES_PATH/log.io

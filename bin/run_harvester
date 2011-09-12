@@ -1,24 +1,29 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
 
 /*
  * Runs Log.IO harvester
- * Reads configuration from /etc/log.io/harvester.conf
+ * Reads configuration from /etc/log.io/harvester.conf or first argument 
  */
+
+var config_path = process.argv[2] || "/etc/log.io/harvester.conf";
+console.log("About to load config path " + config_path);
+var config = require(config_path).config;
+console.log("... done (all subsequent logs will be found in "+ config.log_filename +")")
 
 // Hack console.log for logging
 var fs = require('fs');
-var fd = fs.openSync('/var/log/log.io/harvester.log', 'a');
+var fd = fs.openSync( config.log_filename , 'a');
 console.log = function(msg) { fs.writeSync(fd, msg + "\n"); }
 
 // Paths
-var node_lib = '/usr/local/lib/node_modules/';
-var path = node_lib + 'log.io/harvester/log_harvester.js';
+var path = config.node_lib + '/log.io/harvester/log_harvester.js';
+
+console.log("The Log Harvester Path: " + path);
 
 try {
 
   // Import LogHarvester, config
   var LogHarvester = require(path).LogHarvester;
-  var config = require('/etc/log.io/harvester.conf').config;
 
   // Import config, determine harvester instance name
   if (process.env.LOGIO_HARVESTER_INSTANCE_NAME && !config.instance_name) {
