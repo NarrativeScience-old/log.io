@@ -10,7 +10,7 @@ cp -r `dirname $0`/../../lib/harvester/ /usr/local/lib/node_modules/log.io/
 
 # Copy run_harvester to /usr/local/bin
 echo "Copying bin/run_harvester to /usr/local/bin";
-cp `dirname $0`/../run_harvester /usr/local/bin/log-harvester
+cp `dirname $0`/../run_harvester /usr/local/bin/log.io-harvester
 
 # Copy init.d script to /etc/init.d
 echo "Copying init.d script to /etc/init.d";

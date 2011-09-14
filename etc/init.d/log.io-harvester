@@ -19,7 +19,7 @@ USERNAME=logio
 # PATH should only include /usr/* if it runs after the mountnfs.sh script.
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 DESC="log.io"
-NAME=log-harvester
+NAME=log.io-harvester
 DAEMON=$(which $NAME)
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/log.io-harvester
