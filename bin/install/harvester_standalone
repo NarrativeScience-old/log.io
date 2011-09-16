@@ -1,0 +1,15 @@
+#! /bin/sh
+#
+# Log.io harvester install script (run as user that will own the process)
+
+NODE_MODULES_PATH=`dirname \`which node\``/../lib/node_modules
+BIN_PATH=`dirname \`which node\``
+
+echo "Copying source to $NODE_MODULES_PATH/log.io/";
+mkdir -p $NODE_MODULES_PATH/log.io
+cp -r `dirname $0`/../../lib/harvester/ $NODE_MODULES_PATH/log.io/harvester/
+echo "... done."
+
+echo "Copying bin/run_harvester to $BIN_PATH/log.io-server";
+cp `dirname $0`/../run_harvester $BIN_PATH/log.io-harvester
+echo "... done."

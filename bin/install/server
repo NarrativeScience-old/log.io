@@ -12,7 +12,7 @@ cp -r `dirname $0`/../../lib/client/ /usr/local/lib/node_modules/log.io/
 
 # Copy run_server to /usr/local/bin
 echo "Copying bin/run_server to /usr/local/bin";
-cp `dirname $0`/../run_server /usr/local/bin/log-server
+cp `dirname $0`/../run_server /usr/local/bin/log.io-server
 
 # Copy init.d script to /etc/init.d
 echo "Copying init.d script to /etc/init.d";

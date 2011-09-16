@@ -1,25 +1,30 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
 
 /*
  * Runs Log.IO server
- * Reads configuration from /etc/log.io/server.conf
+ * Reads configuration from /etc/log.io/server.conf or first argument 
  */
+
+var config_path = process.argv[2] || "/etc/log.io/server.conf";
+console.log("About to load config path " + config_path);
+var config = require(config_path).config;
+console.log("... done (all subsequent logs will be found in "+ config.log_filename +")")
 
 // Hack console.log for logging
 var fs = require('fs');
-var fd = fs.openSync('/var/log/log.io/server.log', 'a');
+var fd = fs.openSync( config.log_filename , 'a');
 console.log = function(msg) { fs.writeSync(fd, msg + "\n"); }
 
 // Paths
-var node_lib = '/usr/local/lib/node_modules/';
-var http_path = node_lib + 'log.io/server/http_server.js';
-var log_path = node_lib + 'log.io/server/log_server.js';
-var config_path = '/etc/log.io/server.conf';
+var http_path = config.node_lib + '/log.io/server/http_server.js';
+var log_path = config.node_lib + '/log.io/server/log_server.js';
+
+console.log("The HTTP Path: " + http_path);
+console.log("The Log Path: " + log_path);
 
 try {
 
   // Import config, create HTTPServer
-  var config = require(config_path).config;
   var http_server = require(http_path);
   if (config.basic_auth) {
     var user = config.basic_auth.username;

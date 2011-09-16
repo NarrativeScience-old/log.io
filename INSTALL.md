@@ -56,5 +56,5 @@ Check server and harvester application logs:
 
 To manually run server or harvester daemon processes:
 
-    /usr/local/bin/log-harvester
-    /usr/local/bin/log-server
+    /usr/local/bin/log.io-harvester
+    /usr/local/bin/log.io-server
