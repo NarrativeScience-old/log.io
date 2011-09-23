@@ -11,7 +11,7 @@ var testCase = require('nodeunit').testCase;
 var LogServer = require('../../lib/server/log_server.js').LogServer;
 
 // Stub out console.log()
-console.log = function(){}
+//console.log = function(){}
 
 // Unit Tests
 module.exports = testCase({
@@ -76,8 +76,15 @@ module.exports = testCase({
     // Test socket.io client
     var test_client = {
       sent_messages: [],
-      send: function(msg) {
-        this.sent_messages.push(msg);
+      events: {},
+      emit: function(event, msg) {
+        this.sent_messages.push([event, msg]);
+      },
+      on: function(event, callback) {
+        this.events[event] = callback;
+      },
+      trigger_event: function(event, data) {
+        this.events[event](data);
       },
       nlabel: 'node1'
     }
@@ -112,9 +119,8 @@ module.exports = testCase({
       new_node_created = true;
     }
     this.obj_ut.announce_node(test_client, server_message);
-    test.deepEqual([{
-      type: 'node_already_exists'
-    }], test_client.sent_messages);
+    test.deepEqual([['node_already_exists', undefined]],
+      test_client.sent_messages);
     test.ok(!new_node_created);
     test.done();
   },
@@ -122,9 +128,10 @@ module.exports = testCase({
   test_announce_web_client: function(test) {
     // Stub out models.WebClient()
     _wc.WebClient = function(web_client, log_server) {
-      this.web_client = web_client;
+      this.socket = web_client;
       this.log_server = log_server;
       this.nodes = [];
+      this.id = web_client.id;
       this.add_node = function(node) {
         this.nodes.push(node);
       }
@@ -132,7 +139,18 @@ module.exports = testCase({
 
     // Test socket.io client
     var test_client = {
-      sessionId: 666
+      id: 666,
+      sent_messages: [],
+      events: {},
+      emit: function(event, msg) {
+        this.sent_messages.push([event, msg]);
+      },
+      on: function(event, callback) {
+        this.events[event] = callback;
+      },
+      trigger_event: function(event, data) {
+        this.events[event](data);
+      }
     }
 
     // Fake nodes
@@ -143,7 +161,7 @@ module.exports = testCase({
 
     this.obj_ut.announce_web_client(test_client);
     var web_client = this.obj_ut.web_clients[666];
-    test.deepEqual(test_client, web_client.web_client);
+    test.deepEqual(test_client, web_client.socket);
     test.deepEqual(this.obj_ut, web_client.log_server);
     test.deepEqual(['node1_object','node2_object'], web_client.nodes);
     test.done();
@@ -152,10 +170,8 @@ module.exports = testCase({
   test_register: function(test) {
     // Stub out client callbacks
     var fake_client = {
-      sessionId: 666,
+      id: 666,
       events: {},
-      nlabel: 'node1',
-      ctype: 'node',
       on: function(event, callback) {
         this.events[event] = callback;
       },
@@ -165,17 +181,29 @@ module.exports = testCase({
     }
 
     // Stub out connection callback
+    var t = this;
     this.obj_ut.io = {
-      events: {},
-      broadcasts: [],
-      on: function(event, callback) {
-        this.events[event] = callback;
-      },
-      broadcast: function(message) {
-        this.broadcasts.push(message);
-      },
-      trigger_event: function(event, data) {
-        this.events[event](data);
+      sockets: {
+        events: {},
+        broadcasts: [],
+        room_broadcasts: {},
+        on: function(event, callback) {
+          this.events[event] = callback;
+        },
+        in: function(room) {
+          t.obj_ut.io.sockets.room_broadcasts[room] = [];
+          return {
+            emit: function(event, message) {
+              t.obj_ut.io.sockets.room_broadcasts[room] = [event, message];
+            }
+          }
+        },
+        emit: function(event, message) {
+          this.broadcasts.push([event, message]);
+        },
+        trigger_event: function(event, data) {
+          this.events[event](data);
+        }
       }
     }
 
@@ -186,7 +214,7 @@ module.exports = testCase({
     }
 
     this.obj_ut.register();
-    this.obj_ut.io.trigger_event('connection', fake_client);
+    this.obj_ut.io.sockets.trigger_event('connection', fake_client);
 
     // Stub out announce_node
     var n_announce_client;
@@ -203,27 +231,21 @@ module.exports = testCase({
     }
 
     // Announce web client
-    var wc_announce_message = {type: 'announce', client_type: 'web_client'};
-    fake_client.trigger_event('message', wc_announce_message);
+    var wc_announce_message = {};
+    fake_client.trigger_event('announce_web_client');
     test.deepEqual(fake_client, w_announce_client);
 
     // Announce node
-    var announce_message = {type: 'announce', client_type: 'node'};
-    fake_client.trigger_event('message', announce_message);
+    var announce_message = {client_type: 'node'};
+    fake_client.trigger_event('announce_node', announce_message);
     test.deepEqual(fake_client, n_announce_client);
     test.deepEqual(announce_message, n_announce_message);
 
-    // Ensure clients are removed from pools
-    this.obj_ut.nodes['node1'] = 'stuff';
-    fake_client.trigger_event('disconnect');
-    test.deepEqual({}, this.obj_ut.nodes);
-
     // Ensure stats & heartbeats are being broadcasted
-    test.deepEqual([{
-      type: 'stats',
-      message_count: 0,
-    },{ type: 'heartbeat' }], this.obj_ut.io.broadcasts);
-
+    test.deepEqual([['heartbeat', undefined]],
+      this.obj_ut.io.sockets.broadcasts);
+    test.deepEqual({web_clients: ['stats', {message_count: 0}]},
+      this.obj_ut.io.sockets.room_broadcasts)
     // Restore setInterval
     setInterval = _orig_setInterval;
     test.done();
