@@ -21,8 +21,14 @@ module.exports = testCase({
       on: function(event, callback) {
         this.events[event] = callback;
       },
-      send: function(msg) {
-        this.sent_messages.push(msg);
+      emit: function(event, msg) {
+        this.sent_messages.push([event, msg]);
+      },
+      join: function(room) {
+        this.joined_room = room;
+      },
+      leave: function(room) {
+        this.left_room = room;
       },
       trigger_event: function(event, data) {
         this.events[event](data);
@@ -52,22 +58,22 @@ module.exports = testCase({
 
   test_constructor: function(test) {
     test.equal(this._label, this.obj_ut.label);
-    test.deepEqual(this._client, this.obj_ut.client);
+    test.deepEqual(this._client, this.obj_ut.socket);
     test.deepEqual(this._server, this.obj_ut.log_server);
     test.deepEqual({
       'log1': this.obj_ut.log_files['log1'],
       'log2': this.obj_ut.log_files['log2']
     }, this.obj_ut.log_files);
+    test.equal('nodes', this._client.joined_room);
     test.done();
   },
 
   test_socket_log_message: function(test) {
     var test_log_message = {
-      type: 'log',
       log_file: 'log1',
       msg: 'this is log message'
     };
-    this._client.trigger_event('message', test_log_message);
+    this._client.trigger_event('log', test_log_message);
     test.deepEqual([test_log_message],
       this.obj_ut.log_files['log1'].broadcasted_logs);
     test.deepEqual([], this.obj_ut.log_files['log2'].broadcasted_logs);
@@ -76,10 +82,9 @@ module.exports = testCase({
 
   test_socket_ping_message: function(test) {
     var test_ping_message = {
-      type: 'ping',
       log_file: 'log1'
     };
-    this._client.trigger_event('message', test_ping_message);
+    this._client.trigger_event('ping', test_ping_message);
     test.equal(1, this.obj_ut.log_files['log1'].broadcasted_pings);
     test.equal(0, this.obj_ut.log_files['log2'].broadcasted_pings);
     test.done();
@@ -88,11 +93,11 @@ module.exports = testCase({
   test_socket_history_response_message: function(test) {
     var test_response_message = {
       client_id: 666,
-      type: 'history_response'
     };
-    this._server.web_clients = {666: {client: this._client}};
-    this._client.trigger_event('message', test_response_message);
-    test.deepEqual([test_response_message], this._client.sent_messages);
+    this._server.web_clients = {666: {socket: this._client}};
+    this._client.trigger_event('history_response', test_response_message);
+    test.deepEqual([['history_response', test_response_message]],
+      this._client.sent_messages);
     test.done();
   },
 
@@ -108,6 +113,7 @@ module.exports = testCase({
     }
     this._client.trigger_event('disconnect');
     test.deepEqual([this.obj_ut], test_client.removed_nodes);
+    test.deepEqual('nodes', this._client.left_room);
     test.done();
   }
 });

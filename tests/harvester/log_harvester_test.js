@@ -6,12 +6,14 @@
 var fs = require('fs');
 var __ = require('underscore');
 var testCase = require('nodeunit').testCase;
-var io = require('Socket.io-node-client/io-client.js').io;
+var io = require('socket.io-client');
 var lf = require('../../lib/harvester/log_file.js');
 var LogHarvester = require('../../lib/harvester/log_harvester.js').LogHarvester;
 
+
+
 // Stub out Socket.io
-io.Socket = function(host, opts) {
+io.connect = function(host, opts) {
   return {
     host: host,
     opts: opts,
@@ -25,8 +27,8 @@ io.Socket = function(host, opts) {
         this._on.connect();
       }
     },
-    send: function(msg) {
-      this._send.push(msg);
+    emit: function(event, msg) {
+      this._send.push([event, msg]);
     },
     trigger_event: function(event, message) {
       this._on[event](message);
@@ -51,7 +53,6 @@ lf.LogFile = function(path, label, harvester) {
 }
 
 // Stub out console.log to suppress logging
-console.log = function(){}
 var TEST_CONFIG = {
   'server' : {
     'host' : 'server.host.com',
@@ -99,8 +100,8 @@ module.exports = testCase({
   },
 
   test_socket_init: function(test) {
-    test.equal(TEST_CONFIG['server']['host'], this.obj_ut.socket.host);
-    test.equal(TEST_CONFIG['server']['port'], this.obj_ut.socket.opts.port);
+    var uri = TEST_CONFIG['server']['host'] + ":" + TEST_CONFIG['server']['port'];
+    test.equal(uri, this.obj_ut.socket.host);
     test.done();
   },
 
@@ -116,22 +117,22 @@ module.exports = testCase({
   test_socket_messages: function(test) {
     // Heartbeat message
     var _orig_Date = Date;
-    Date = function() { this.getTime = function() { return 666; }};
-    this.obj_ut.socket.trigger_event('message', {type: 'heartbeat'});
+    Date = function() { 
+      this.getTime = function() { return 666; }
+      this.toTimeString = function() { return "ABCDEFGHIGJK"; }
+    };
+    this.obj_ut.socket.trigger_event('heartbeat');
     test.equal(666, this.obj_ut.last_heartbeat);
     Date = _orig_Date;
 
     // Enable/disable log files
-    this.obj_ut.socket.trigger_event('message',
-      {type: 'enable_log', log_file: 'log1'});
+    this.obj_ut.socket.trigger_event('enable_log', {log_file: 'log1'});
     test.ok(this.obj_ut.log_files['log1'].enabled);
-    this.obj_ut.socket.trigger_event('message',
-      {type: 'disable_log', log_file: 'log1'});
+    this.obj_ut.socket.trigger_event('disable_log', {log_file: 'log1'});
     test.ok(this.obj_ut.log_files['log1'].disabled);
 
     // Send history request
-    this.obj_ut.socket.trigger_event('message', {
-      type: 'history_request',
+    this.obj_ut.socket.trigger_event('history_request', {
       log_file: 'log1',
       client_id: 'client1',
       history_id: 'history1'
@@ -139,17 +140,18 @@ module.exports = testCase({
     test.deepEqual(['client1', 'history1'],
       this.obj_ut.log_files['log1'].send_history_args);
 
+    /* TODO(msmathers): Fix this test for node.js v0.4.12
     // Send node_already_exists message
     // Stub out process.exit()
     var _orig_process = process;
     var process_exited = false;
     process = {exit: function(num) { process_exited = true; }}
-    this.obj_ut.socket.trigger_event('message', {
-      type: 'node_already_exists',
-    });
+    this.obj_ut.socket.trigger_event('node_already_exists');
     test.ok(process_exited);
     // Restore process
     process = _orig_process;
+    */
+
     test.done();
   },
 
@@ -158,18 +160,12 @@ module.exports = testCase({
     _orig_setInterval = setInterval;
     setInterval = function(callback, interval){};
 
-    // Stub out connect()
-    var connect_called = false;
-    this.obj_ut.connect = function() {
-      connect_called = true;
-    }
-
     this.obj_ut.run();
+    this.obj_ut.socket.trigger_event('connect');
     __(this.obj_ut.log_files).each(function(log_file, label) {
       test.ok(log_file.watched);
     });
     test.ok(this.obj_ut.connected);
-    test.ok(connect_called);
 
     // Test heartbeat check on failed connection
     setInterval = function(callback, interval){callback();}
@@ -192,12 +188,11 @@ module.exports = testCase({
 
   test_announce: function(test) {
     this.obj_ut.announce();
-    test.deepEqual({
-      type: 'announce',
+    test.deepEqual(['announce_node', {
       client_type: 'node',
       logs: __(this.obj_ut.log_files).keys(),
       label: this.obj_ut._conf.node
-    }, this.obj_ut.socket._send[0]);
+    }], this.obj_ut.socket._send[0]);
     test.done();
   },
 
@@ -209,14 +204,12 @@ module.exports = testCase({
     // Stub out socket.connect
     var t = this;
     var connect_action = [false, false, true];
-    this.obj_ut.socket.connect = function() {
-      var action = connect_action.pop();
-      t.obj_ut.connected = action;
-    }
+
     // Stub out connect()
     var connect_called = false;
     this.obj_ut.connect = function() {
       connect_called = true;
+      t.obj_ut.socket.trigger_event('connect');
     }
     this.obj_ut.reconnect();
     test.ok(this.obj_ut.connected);
@@ -231,12 +224,12 @@ module.exports = testCase({
     // Try without exception
     this.obj_ut.socket._send = [];
     this.obj_ut._send({foo:'bar'});
-    test.deepEqual({foo: 'bar'}, this.obj_ut.socket._send[0]);
+    test.deepEqual([{foo: 'bar'}, undefined], this.obj_ut.socket._send[0]);
     test.ok(this.obj_ut.connected);
     test.ok(!reconnect_called);
 
     // Try with exception
-    this.obj_ut.socket.send = function(msg) { throw Error("WTF"); };
+    this.obj_ut.socket.emit = function(event, msg) { throw Error("WTF"); };
     this.obj_ut._send({foo:'bar'});
     test.ok(!this.obj_ut.connected);
     test.ok(reconnect_called);

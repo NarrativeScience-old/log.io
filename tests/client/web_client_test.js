@@ -28,7 +28,7 @@ module.exports = testCase({
 
     // Fake Socket.io
     var io = {
-      Socket: function(host, opts) {
+      connect: function(host, opts) {
         return {
           host: host,
           opts: opts,
@@ -37,19 +37,17 @@ module.exports = testCase({
           on: function(event, callback) {
             this.events[event] = callback;
           },
-          connect: function() {
-            this.trigger_event('connect');
-          },
-          send: function(msg) {
-            this.sent_messages.push(msg);
+          emit: function(event, msg) {
+            this.sent_messages.push([event, msg]);
           },
           trigger_event: function(event, data) {
             this.events[event](data);
           }
         }
       }
-    }
+    };
     this.obj_ut = new WebClient(io);
+    this.obj_ut.socket.trigger_event('connect');
     callback();
   },
 
@@ -73,20 +71,15 @@ module.exports = testCase({
   },
 
   test_socket_init: function(test) {
-    test.equal(null, this.obj_ut.socket.host);
-    test.deepEqual({
-      rememberTransport: false,
-      transports: ['websocket', 'flashsocket'],
-    }, this.obj_ut.socket.opts);
+    test.equal(undefined, this.obj_ut.socket.host);
+    test.deepEqual(undefined, this.obj_ut.socket.opts);
     test.done();
   },
 
   test_socket_connect: function(test) {
     test.ok(this.obj_ut.connected);
-    test.deepEqual([{
-      type: 'announce',
-      client_type: 'web_client'
-    }], this.obj_ut.socket.sent_messages);
+    test.deepEqual([['announce_web_client',undefined]],
+      this.obj_ut.socket.sent_messages);
     test.done();
   },
 
@@ -98,8 +91,8 @@ module.exports = testCase({
       add_node_node = node;
       add_node_logs = logs;
     }
-    var server_message = {type: 'add_node', node: 'node1', logs: 'logs1'};
-    this.obj_ut.socket.trigger_event('message', server_message);
+    var server_message = {node: 'node1', logs: 'logs1'};
+    this.obj_ut.socket.trigger_event('add_node', server_message);
     test.equal(server_message.node, add_node_node);
     test.equal(server_message.logs, add_node_logs);
     test.done();
@@ -111,15 +104,14 @@ module.exports = testCase({
     this.obj_ut.remove_node = function(node) {
       remove_node_node = node;
     }
-    var server_message = {type: 'remove_node', node: 'node1'};
-    this.obj_ut.socket.trigger_event('message', server_message);
+    var server_message = {node: 'node1'};
+    this.obj_ut.socket.trigger_event('remove_node', server_message);
     test.equal(server_message.node, remove_node_node);
     test.done();
   },
 
   test_log_message: function(test) {
-    var server_message = {type: 'log', node: 'node1',
-      log_file: 'log1', msg: 'msg1'};
+    var server_message = {node: 'node1', log_file: 'log1', msg: 'msg1'};
     // Fake LogFile
     var logged_message;
     this.obj_ut.nodes = {
@@ -133,14 +125,13 @@ module.exports = testCase({
         }
       }
     }
-    this.obj_ut.socket.trigger_event('message', server_message);
+    this.obj_ut.socket.trigger_event('log', server_message);
     test.equal('msg1', logged_message);
     test.done();
   },
 
   test_history_response: function(test) {
-    var server_message = {type: 'history_response', history_id: '123',
-      lines: ['line1', 'line2']};
+    var server_message = {history_id: '123', lines: ['line1', 'line2']};
     // Fake History Screen
     var added_lines;
     this.obj_ut.histories = {
@@ -150,15 +141,19 @@ module.exports = testCase({
         }
       }
     }
-    this.obj_ut.socket.trigger_event('message', server_message);
+    this.obj_ut.socket.trigger_event('history_response', server_message);
     test.deepEqual(server_message.lines, added_lines);
     test.done();
   },
 
   test_stats_message: function(test) {
-    var server_message = {type: 'stats', message_count: 699};
-    this.obj_ut.socket.trigger_event('message', server_message);
-    test.equal(699, this.obj_ut.stats.messages);
+    var server_message = {message_count: 699};
+    this.obj_ut.socket.trigger_event('stats', server_message);
+    test.equal(0, this.obj_ut.stats.messages);
+
+    server_message = {message_count: 701};
+    this.obj_ut.socket.trigger_event('stats', server_message);
+    test.equal(2, this.obj_ut.stats.messages);
     test.done();
   },
 

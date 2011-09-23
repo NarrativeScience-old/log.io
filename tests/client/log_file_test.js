@@ -63,8 +63,8 @@ module.exports = testCase({
           }
         },
         socket: {
-          send: function(msg) {
-            socket_send_msg = msg;
+          emit: function(event, msg) {
+            socket_send_msg = [event, msg];
           }
         }
       }
@@ -93,11 +93,10 @@ module.exports = testCase({
     test.ok(next_color_called);
     test.deepEqual([this.obj_ut], stream.log_files);
     test.deepEqual({'666': stream}, this.obj_ut.streams);
-    test.deepEqual({
-      type: 'enable_log',
+    test.deepEqual(['enable_log', {
       node: this.obj_ut.node.label,
       log_file: this.obj_ut.label
-    }, socket_send_msg);
+    }], socket_send_msg);
     test.ok(this.obj_ut._enabled);
     test.done();
   },
@@ -115,8 +114,8 @@ module.exports = testCase({
           }
         },
         socket: {
-          send: function(msg) {
-            socket_send_msg = msg;
+          emit: function(event, msg) {
+            socket_send_msg = [event, msg];
           }
         }
       }
@@ -156,11 +155,10 @@ module.exports = testCase({
     test.equal('hot pink', released_color);
     test.equal(null, this.obj_ut.color);
     test.ok(!this.obj_ut._enabled);
-    test.deepEqual({
-      type: 'disable_log',
+    test.deepEqual(['disable_log', {
       node: this.obj_ut.node.label,
       log_file: this.obj_ut.label
-    }, socket_send_msg);
+    }], socket_send_msg);
     test.done();
   },
 
