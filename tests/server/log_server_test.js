@@ -10,8 +10,13 @@ var _wc = require('../../lib/server/web_client.js');
 var testCase = require('nodeunit').testCase;
 var LogServer = require('../../lib/server/log_server.js').LogServer;
 
-// Stub out console.log()
-//console.log = function(){}
+// Stub out logger to suppress log messages
+var FAKE_LOGGER = {
+  debug: function(msg){},
+  info: function(msg){},
+  warn: function(msg){},
+  error: function(msg){}
+}
 
 // Unit Tests
 module.exports = testCase({
@@ -22,6 +27,7 @@ module.exports = testCase({
     setInterval = function(){};
     this.http_server = {};
     this.obj_ut = new LogServer(this.http_server);
+    this.obj_ut._log = FAKE_LOGGER;
     callback();
   },
 
@@ -183,6 +189,7 @@ module.exports = testCase({
     // Stub out connection callback
     var t = this;
     this.obj_ut.io = {
+      set: function(k,v){},
       sockets: {
         events: {},
         broadcasts: [],

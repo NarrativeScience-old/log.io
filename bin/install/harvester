@@ -3,10 +3,11 @@
 # Log.io harvester install script (run as root)
 #
 
-# Copy log.io source to /usr/local/include
+# Copy log.io source to /usr/local/lib
 echo "Copying source to /usr/local/lib/node_modules/log.io/";
 mkdir -p /usr/local/lib/node_modules/log.io
 cp -r `dirname $0`/../../lib/harvester/ /usr/local/lib/node_modules/log.io/
+cp -r `dirname $0`/../../lib/logging.js /usr/local/lib/node_modules/log.io/
 
 # Copy run_harvester to /usr/local/bin
 echo "Copying bin/run_harvester to /usr/local/bin";

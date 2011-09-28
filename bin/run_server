@@ -6,9 +6,14 @@
  */
 
 // Hack console.log for logging
+// TODO(msmathers): forever will handle this in v0.2.1
 var fs = require('fs');
 var fd = fs.openSync('/var/log/log.io/server.log', 'a');
-console.log = function(msg) { fs.writeSync(fd, msg + "\n"); }
+var flog = function(msg) { fs.writeSync(fd, msg + "\n"); }
+console.log = flog;
+console.info = flog;
+console.warn = flog;
+console.error = flog;
 
 // Paths
 var node_lib = '/usr/local/lib/node_modules/';

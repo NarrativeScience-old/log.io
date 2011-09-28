@@ -52,7 +52,14 @@ lf.LogFile = function(path, label, harvester) {
   }
 }
 
-// Stub out console.log to suppress logging
+// Stub out logger to suppress log messages
+var FAKE_LOGGER = {
+  debug: function(msg){},
+  info: function(msg){},
+  warn: function(msg){},
+  error: function(msg){}
+}
+
 var TEST_CONFIG = {
   'server' : {
     'host' : 'server.host.com',
@@ -71,6 +78,7 @@ module.exports = testCase({
 
   setUp: function(callback) {
     this.obj_ut = new LogHarvester(TEST_CONFIG);
+    this.obj_ut._log = FAKE_LOGGER;
     this.obj_ut.connect();
     callback();
   },
