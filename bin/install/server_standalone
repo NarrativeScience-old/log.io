@@ -5,10 +5,15 @@
 NODE_MODULES_PATH=`dirname \`which node\``/../lib/node_modules
 BIN_PATH=`dirname \`which node\``
 
+echo "Removing existing server/client code if it exists in $NODE_MODULES_PATH/log.io/";
+rm -rf $NODE_MODULES_PATH/log.io/server
+rm -rf $NODE_MODULES_PATH/log.io/client
+echo "... done"
+
 echo "Copying source to $NODE_MODULES_PATH/log.io/";
 mkdir -p $NODE_MODULES_PATH/log.io
-cp -r `dirname $0`/../../lib/server/ $NODE_MODULES_PATH/log.io/server/
-cp -r `dirname $0`/../../lib/client/ $NODE_MODULES_PATH/log.io/client/
+cp -fr `dirname $0`/../../lib/server/ $NODE_MODULES_PATH/log.io/server/
+cp -fr `dirname $0`/../../lib/client/ $NODE_MODULES_PATH/log.io/client/
 echo "... done."
 
 echo "Copying bin/run_server to $BIN_PATH/log.io-server";
