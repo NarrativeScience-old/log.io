@@ -13,13 +13,13 @@ Users create *stream* and *history* screens to view and search log messages.
 
 [node.js](http://nodejs.org)
 
-[socket.io v0.6.17](http://socket.io) (Log.io is currently incompatible with socket.io v0.7.x)
+[socket.io](http://socket.io)
+
+[socket.io-client](https://github.com/LearnBoost/socket.io-client)
 
 [connect](http://senchalabs.github.com/connect/)
 
 [underscore](http://documentcloud.github.com/underscore/)
-
-[Socket.io-node-client](https://github.com/msmathers/Socket.io-node-client)
 
 ## Compatibility
 

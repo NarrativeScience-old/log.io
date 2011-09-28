@@ -19,8 +19,8 @@ module.exports = testCase({
       },
       socket: {
         sent_messages: [],
-        send: function(msg) {
-          this.sent_messages.push(msg);
+        emit: function(event, msg) {
+          this.sent_messages.push([event, msg]);
         }
       }
     };
@@ -48,12 +48,11 @@ module.exports = testCase({
 
   test_get_history: function(test) {
     this.obj_ut.get_history(this.test_log_file);
-    test.deepEqual([{
-      type: 'history_request',
+    test.deepEqual([['history_request', {
       node: this.test_log_file.node.label,
       log_file: this.test_log_file.label,
       history_id: this.obj_ut._id
-    }], this.obj_ut.web_client.socket.sent_messages);
+    }]], this.obj_ut.web_client.socket.sent_messages);
     test.done();
   },
 

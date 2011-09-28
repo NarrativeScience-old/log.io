@@ -22,8 +22,8 @@ module.exports = testCase({
         _conf: {node: 'machineA'},
         messages_sent: 0,
         sent_messages: [],
-        _send: function(msg) {
-          this.sent_messages.push(msg);
+        _send: function(event, msg) {
+          this.sent_messages.push([event, msg]);
         }
       }
     }
@@ -121,12 +121,11 @@ module.exports = testCase({
   test_send_log: function(test) {
     var log_message = "this is log message";
     this.obj_ut.send_log(log_message);
-    test.deepEqual([{
-      type: this.obj_ut.harvester._conf.message_type,
+    test.deepEqual([[this.obj_ut.harvester._conf.message_type, {
       node: this.obj_ut.harvester._conf.node,
       log_file: this.obj_ut.label,
       msg: log_message
-    }], this.obj_ut.harvester.sent_messages);
+    }]], this.obj_ut.harvester.sent_messages);
     test.equal(1, this.obj_ut.harvester.messages_sent);
     test.done();
   },
@@ -165,24 +164,22 @@ module.exports = testCase({
     test.deepEqual(readSync_fd, {'file_descriptor': true});
     test.equal(readSync_length, lf.HISTORY_LENGTH);
     test.equal(readSync_start, 0);
-    test.deepEqual([{
-      type: 'history_response',
+    test.deepEqual([['history_response', {
       node: this.obj_ut.harvester._conf.node,
       history_id: history_id,
       client_id: client_id,
       log_file: this.obj_ut.label,
       lines: log_message.split("\n").reverse()
-    }], this.obj_ut.harvester.sent_messages);
+    }]], this.obj_ut.harvester.sent_messages);
     test.done();
   },
 
   test_ping: function(test) {
     this.obj_ut.ping();
-    test.deepEqual([{
-      type: 'ping',
+    test.deepEqual([['ping', {
       node: 'machineA',
       log_file: this.obj_ut.label
-    }], this.obj_ut.harvester.sent_messages);
+    }]], this.obj_ut.harvester.sent_messages);
     test.done();
   }
 });
