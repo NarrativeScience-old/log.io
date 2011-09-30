@@ -29,52 +29,34 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
 # Install log server on Machine A
 
-1) Download source
+1) Install via npm
 
-    git clone git://github.com/NarrativeScience/Log.io.git log.io
+    sudo npm config set unsafe-perm true 
+    sudo npm install -g Log.io
 
-2) Verify dependencies
+2) Launch server
 
-    cd log.io/bin
-    ./configure
+    sudo log.io server start
 
-3) Install & launch server
-
-    sudo ./install/server
-
-4) Browse to:
+3) Browse to:
 
     http://machine_a.host.com:8998
 
-5) Configure port, add HTTP basic auth  (Optional)
-
-Modify /etc/log.io/server.conf
-    
-    sudo /etc/init.d/log.io-server restart
-
 # Install log harvester on Machine B
 
-1) Download source
+1) Install via npm
 
-    git clone git://github.com/NarrativeScience/Log.io.git log.io
+    sudo npm config set unsafe-perm true 
+    sudo npm install -g Log.io
 
-2) Verify dependencies
-
-    cd log.io/bin
-    ./configure
-
-3) Install harvester
-
-    sudo ./install/harvester
-
-4) Configure harvester (modify /etc/log.io/harvester.conf)
+2) Configure harvester (optional; modify /etc/log.io/harvester.conf)
 
 - Server host
 - Local log files
 
-5) Start harvester
+3) Launch harvester
 
-    sudo /etc/init.d/log.io-harvester start
+    sudo log.io harvester start
 
 ## Credits
 
@@ -87,8 +69,6 @@ Modify /etc/log.io/server.conf
 - Guillermo Rauch &lt;guillermo@learnboost.com&gt; ([Guille](http://github.com/guille))
 
 - Ryan Dahl &lt;ry at tiny clouds dot org&gt; ([ry](https://github.com/ry)) + Joyent http://www.joyent.com/ ([joyent](https://github.com/joyent/))
-
-- Remy Sharp &lt;remy@leftlogic.com&gt; ([remy](https://github.com/remy))
 
 ## License 
 

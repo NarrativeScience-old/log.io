@@ -1,51 +1,33 @@
 # Install log server on Machine A
 
-1) Download source
+1) Install via npm
 
-    git clone git://github.com/NarrativeScience/Log.io.git log.io
+    sudo npm config set unsafe-perm true 
+    sudo npm install -g Log.io
 
-2) Verify dependencies
+2) Launch server
 
-    cd log.io/bin
-    ./configure
+    sudo log.io server start
 
-3) Install & launch server
+3) Browse to:
 
-    sudo ./install/server
-
-4) Browse to:
-
-    http://&lt;machine_a.host.com&gt;:8998
-
-5) Configure port, add HTTP basic auth  (Optional)
-
-- Modify /etc/log.io/server.conf
-    
-    sudo /etc/init.d/log.io-server restart
+    http://machine_a.host.com:8998
 
 # Install log harvester on Machine B
 
-1) Download source
+1) Install via npm
 
-    git clone git://github.com/NarrativeScience/Log.io.git log.io
+    sudo npm config set unsafe-perm true 
+    sudo npm install -g Log.io
 
-2) Verify dependencies
-
-    cd log.io/bin
-    ./configure
-
-3) Install harvester
-
-    sudo ./install/harvester
-
-4) Configure harvester (modify /etc/log.io/harvester.conf)
+2) Configure harvester (optional; modify /etc/log.io/harvester.conf)
 
 - Server host
 - Local log files
 
-5) Start harvester
+3) Launch harvester
 
-    sudo /etc/init.d/log.io-harvester start
+    sudo log.io harvester start
 
 # Troubleshooting
 
@@ -54,7 +36,7 @@ Check server and harvester application logs:
     /var/log/log.io/server.log
     /var/log/log.io/harvester.log
 
-To manually run server or harvester daemon processes:
+To manually run server or harvester processes:
 
-    /usr/local/bin/log-harvester
-    /usr/local/bin/log-server
+    /usr/local/bin/log.io-server
+    /usr/local/bin/log.io-harvester

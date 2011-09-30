@@ -1,0 +1,23 @@
+#!/usr/local/bin/node
+
+/*
+ * Runs Log.IO server
+ * Reads configuration from /etc/log.io/server.conf
+ */
+
+var logio = require('Log.io');
+
+// Import config, create HTTPServer
+var config = require('/etc/log.io/server.conf').config;
+
+if (config.basic_auth) {
+  var user = config.basic_auth.username;
+  var pass = config.basic_auth.password;
+  var HTTPServer = logio.http.HTTPAuthServer(user, pass);
+} else {
+  var HTTPServer = logio.http.HTTPServer();
+}
+
+// Instantiate & run
+var server = new logio.Server(HTTPServer);
+server.listen(config.port);
