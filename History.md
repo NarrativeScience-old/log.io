@@ -1,3 +1,9 @@
+# 0.2.1 / 2011-09-30
+
+- Reworked installation & daemon process using npm & forever
+- Adds custom logging module with log levels
+- Creates official 'log.io' npm package
+
 # 0.2.0 / 2011-09-23
 
 - Updates all components to use socket.io v0.8.x
