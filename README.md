@@ -34,7 +34,7 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 1) Install via npm
 
     sudo npm config set unsafe-perm true 
-    sudo npm install -g log.io
+    sudo npm install -g --prefix=/usr/local log.io
 
 2) Launch server
 
@@ -49,7 +49,7 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 1) Install via npm
 
     sudo npm config set unsafe-perm true 
-    sudo npm install -g log.io
+    sudo npm install -g --prefix=/usr/local log.io
 
 2) Configure harvester (optional; modify /etc/log.io/harvester.conf)
 
