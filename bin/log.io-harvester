@@ -5,7 +5,7 @@
  * Reads configuration from /etc/log.io/harvester.conf
  */
 
-var logio = require('Log.io');
+var logio = require('log.io');
 
 // Import config
 var config = require('/etc/log.io/harvester.conf').config;
