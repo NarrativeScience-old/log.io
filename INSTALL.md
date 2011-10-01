@@ -3,7 +3,7 @@
 1) Install via npm
 
     sudo npm config set unsafe-perm true 
-    sudo npm install -g Log.io
+    sudo npm install -g log.io
 
 2) Launch server
 
@@ -18,7 +18,7 @@
 1) Install via npm
 
     sudo npm config set unsafe-perm true 
-    sudo npm install -g Log.io
+    sudo npm install -g log.io
 
 2) Configure harvester (optional; modify /etc/log.io/harvester.conf)
 

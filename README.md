@@ -12,13 +12,10 @@ Users create *stream* and *history* screens to view and search log messages.
 ## Requirements
 
 [node.js](http://nodejs.org)
-
 [socket.io](http://socket.io)
-
 [socket.io-client](https://github.com/LearnBoost/socket.io-client)
-
+[forever](https://github.com/indexzero/forever)
 [connect](http://senchalabs.github.com/connect/)
-
 [underscore](http://documentcloud.github.com/underscore/)
 
 ## Compatibility
@@ -32,7 +29,7 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 1) Install via npm
 
     sudo npm config set unsafe-perm true 
-    sudo npm install -g Log.io
+    sudo npm install -g log.io
 
 2) Launch server
 
@@ -47,7 +44,7 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 1) Install via npm
 
     sudo npm config set unsafe-perm true 
-    sudo npm install -g Log.io
+    sudo npm install -g log.io
 
 2) Configure harvester (optional; modify /etc/log.io/harvester.conf)
 
