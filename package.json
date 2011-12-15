@@ -1,6 +1,6 @@
 {
   "name": "log.io",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Real-time log monitoring in your browser",
   "homepage": "http://logio.org",
   "keywords": ["logs", "monitoring", "realtime", "socket.io", "node.js", "ajax"],
@@ -13,7 +13,7 @@
     "url": "https://github.com/NarrativeScience/Log.io"
   },
   "dependencies": {
-    "forever": "0.6.7",
+    "forever": "0.7.5",
     "socket.io": "0.8.4",
     "socket.io-client": "0.8.4",
     "connect": "1.7.1",
@@ -24,5 +24,5 @@
      "postupdate": "bin/install.sh"
   },
   "main": "index",
-  "engines": { "node": ">= 0.4.9" }
+  "engines": { "node": "0.4.12" }
 }

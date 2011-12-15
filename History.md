@@ -1,3 +1,7 @@
+# 0.2.2 / 2011-12-15
+
+- Upgraded forever dependency to v0.7.5
+
 # 0.2.1 / 2011-09-30
 
 - Reworked installation & daemon process using npm & forever
