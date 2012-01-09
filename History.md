@@ -1,3 +1,7 @@
+# 0.2.3 / 2012-01-09
+
+- Upgraded forever dependency to v0.8.2
+
 # 0.2.2 / 2011-12-15
 
 - Upgraded forever dependency to v0.7.5
