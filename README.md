@@ -11,23 +11,25 @@ Users create *stream* and *history* screens to view and search log messages.
 
 ## Requirements
 
-[node.js](http://nodejs.org)
+[node.js](http://nodejs.org) (0.4.12)
 
-[socket.io](http://socket.io)
+[socket.io](http://socket.io) (0.8.4)
 
-[socket.io-client](https://github.com/LearnBoost/socket.io-client)
+[socket.io-client](https://github.com/LearnBoost/socket.io-client) (0.8.4)
 
-[forever](https://github.com/indexzero/forever)
+[forever](https://github.com/indexzero/forever) (0.8.2)
 
-[connect](http://senchalabs.github.com/connect/)
+[connect](http://senchalabs.github.com/connect/) (1.7.1)
 
-[underscore](http://documentcloud.github.com/underscore/)
+[underscore](http://documentcloud.github.com/underscore/) (1.1.7)
 
 ## Compatibility
 
 Harvesters & server have been tested on *Ubuntu 11.04*
 
 Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
+
+NOTE: Log.io is currently incompatible with node.js v0.6.x
 
 # Install log server on Machine A
 
