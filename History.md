@@ -1,3 +1,7 @@
+# 0.2.4 / 2012-02-20
+
+- Eased node.js version restrictions to allow v0.4.9 - v.0.4.12
+
 # 0.2.3 / 2012-01-09
 
 - Upgraded forever dependency to v0.8.2

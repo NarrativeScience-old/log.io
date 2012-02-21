@@ -11,7 +11,7 @@ Users create *stream* and *history* screens to view and search log messages.
 
 ## Requirements
 
-[node.js](http://nodejs.org) (0.4.12)
+[node.js](http://nodejs.org) (>=0.4.9 <=0.4.12)
 
 [socket.io](http://socket.io) (0.8.4)
 
