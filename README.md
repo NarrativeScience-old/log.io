@@ -11,25 +11,23 @@ Users create *stream* and *history* screens to view and search log messages.
 
 ## Requirements
 
-[node.js](http://nodejs.org) (>=0.4.9 <=0.4.12)
+[node.js](http://nodejs.org) (>=0.4.9 <=0.6.11)
 
-[socket.io](http://socket.io) (0.8.4)
+[socket.io](http://socket.io) (0.9.0)
 
-[socket.io-client](https://github.com/LearnBoost/socket.io-client) (0.8.4)
+[socket.io-client](https://github.com/LearnBoost/socket.io-client) (0.9.0)
 
 [forever](https://github.com/indexzero/forever) (0.8.2)
 
-[connect](http://senchalabs.github.com/connect/) (1.7.1)
+[connect](http://senchalabs.github.com/connect/) (>=1.7.1)
 
-[underscore](http://documentcloud.github.com/underscore/) (1.1.7)
+[underscore](http://documentcloud.github.com/underscore/) (>=1.1.7)
 
 ## Compatibility
 
-Harvesters & server have been tested on *Ubuntu 11.04*
+Harvesters & server have been tested on *Ubuntu 11.10*
 
 Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
-
-NOTE: Log.io is currently incompatible with node.js v0.6.x
 
 # Install log server on Machine A
 
@@ -74,9 +72,11 @@ NOTE: Log.io is currently incompatible with node.js v0.6.x
 
 - Ryan Dahl &lt;ry at tiny clouds dot org&gt; ([ry](https://github.com/ry)) + Joyent http://www.joyent.com/ ([joyent](https://github.com/joyent/))
 
+- P.J. Onori &lt;http://somerandomdude.com&gt; ([somerandomdude](https://github.com/somerandomdude))
+
 ## License 
 
-Copyright 2011 Narrative Science &lt;contrib@narrativescience.com&gt;
+Copyright 2012 Narrative Science &lt;contrib@narrativescience.com&gt;
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

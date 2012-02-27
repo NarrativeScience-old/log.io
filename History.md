@@ -1,3 +1,9 @@
+# 0.2.5 / 2012-02-27
+
+- Compatible with node.js v0.6.x
+  - Updated socket.io-* dependencies to v0.9.0, fixes socket.io-client bug
+- Switched to Iconic icon set in place of famfamfam silk
+
 # 0.2.4 / 2012-02-20
 
 - Eased node.js version restrictions to allow v0.4.9 - v.0.4.12
