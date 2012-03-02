@@ -1,3 +1,7 @@
+# 0.2.6 / 2012-03-02
+
+- Updated connect.js dependency to <=1.8.4
+
 # 0.2.5 / 2012-02-27
 
 - Compatible with node.js v0.6.x

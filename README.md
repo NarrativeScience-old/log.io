@@ -19,7 +19,7 @@ Users create *stream* and *history* screens to view and search log messages.
 
 [forever](https://github.com/indexzero/forever) (0.8.2)
 
-[connect](http://senchalabs.github.com/connect/) (>=1.7.1)
+[connect](http://senchalabs.github.com/connect/) (<=1.8.4)
 
 [underscore](http://documentcloud.github.com/underscore/) (>=1.1.7)
 
