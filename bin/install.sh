@@ -27,12 +27,12 @@ fi
 
 # Create logio user
 echo "Creating logio user..."
-yes | adduser --disabled-password logio > /dev/null
+yes | useradd -r -m --home "/usr/local/lib/node_modules/log.io/home" logio > /dev/null
 
 # Add user to adm group (for syslog, apache log, etc...)
 # This might not be safe...
 echo "Adding logio user to 'adm' group..."
-adduser logio adm > /dev/null
+usermod -G adm logio
 
 # Create server log file
 if [ ! -f /var/log/log.io/server.log ];
@@ -41,7 +41,7 @@ then
   mkdir -p /var/log/log.io/
   touch /var/log/log.io/server.log
   chmod 755 /var/log/log.io/server.log
-  chown logio:root /var/log/log.io/server.log
+  chown logio:logio /var/log/log.io/server.log
 fi
 
 # Create harvester log file
@@ -51,12 +51,12 @@ then
   mkdir -p /var/log/log.io/
   touch /var/log/log.io/harvester.log
   chmod 755 /var/log/log.io/harvester.log
-  chown logio:root /var/log/log.io/harvester.log
+  chown logio:logio /var/log/log.io/harvester.log
 fi
 
 # Set up logio PATH
 echo "Setting up logio user environment";
-echo "export PATH=$PATH:/usr/local/lib/node_modules/log.io/node_modules/forever/bin" >> /home/logio/.bashrc
-echo "export PATH=$PATH:/usr/local/lib/node_modules/log.io/node_modules/forever/bin" >> /home/logio/.bash_profile
+echo "export PATH=$PATH:/usr/local/lib/node_modules/log.io/node_modules/forever/bin" >> /usr/local/lib/node_modules/log.io/home/.bashrc
+echo "export PATH=$PATH:/usr/local/lib/node_modules/log.io/node_modules/forever/bin" >> /usr/local/lib/node_modules/log.io/home/.bash_profile
 
 echo "Done!"
