@@ -1,9 +1,11 @@
 # Install log server on Machine A
 
 1) Install via npm
-
+    
+    git clone git://github.com/ListenerApproved/Log.io.git
+    cd Log.io
     sudo npm config set unsafe-perm true 
-    sudo npm install -g --prefix=/usr/local log.io
+    sudo npm install -g --prefix=/usr/local
 
 2) Launch server
 
