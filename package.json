@@ -6,7 +6,8 @@
   "keywords": ["logs", "monitoring", "realtime", "socket.io", "node.js", "ajax"],
   "author": "Mike Smathers <msmathers@narrativescience.com>",
   "contributors": [
-    { "name": "Mike Smathers", "email": "msmathers@narrativescience.com" }
+    { "name": "Mike Smathers", "email": "msmathers@narrativescience.com" },
+    { "name": "Russell Perkins", "email": "russell@ListenerApproved.com" }
   ],
   "repository":{
     "type": "git",
@@ -24,5 +25,5 @@
      "postupdate": "bin/install.sh"
   },
   "main": "index",
-  "engines": { "node": ">=0.4.9 <=0.6.17" }
+  "engines": { "node": ">=0.4.9" }
 }
