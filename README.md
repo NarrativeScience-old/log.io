@@ -11,13 +11,13 @@ Users create *stream* and *history* screens to view and search log messages.
 
 ## Requirements
 
-[node.js](http://nodejs.org) (>=0.4.9 <=0.6.11)
+[node.js](http://nodejs.org) (>=0.4.9)
 
-[socket.io](http://socket.io) (0.9.0)
+[socket.io](http://socket.io) (>=0.9.0)
 
-[socket.io-client](https://github.com/LearnBoost/socket.io-client) (0.9.0)
+[socket.io-client](https://github.com/LearnBoost/socket.io-client) (>=0.9.0)
 
-[forever](https://github.com/indexzero/forever) (0.8.2)
+[forever](https://github.com/indexzero/forever) (>=0.8.2)
 
 [connect](http://senchalabs.github.com/connect/) (<=1.8.4)
 
@@ -25,7 +25,7 @@ Users create *stream* and *history* screens to view and search log messages.
 
 ## Compatibility
 
-Harvesters & server have been tested on *Ubuntu 11.10*
+Harvesters & server have been tested on *Ubuntu 12.04*
 
 Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 

@@ -1,3 +1,8 @@
+# 0.2.7 / 2012-06-18
+
+- Updated install.sh to use useradd instead of adduser for better linux support
+- Eased version restrictions on dependencies, removed upper bound of node.js version
+
 # 0.2.6 / 2012-03-02
 
 - Updated connect.js dependency to <=1.8.4
