@@ -58,5 +58,6 @@ fi
 echo "Setting up logio user environment";
 echo "export PATH=$PATH:/usr/local/lib/node_modules/log.io/node_modules/forever/bin" >> /usr/local/lib/node_modules/log.io/home/.bashrc
 echo "export PATH=$PATH:/usr/local/lib/node_modules/log.io/node_modules/forever/bin" >> /usr/local/lib/node_modules/log.io/home/.bash_profile
+echo "export PATH=$PATH:/usr/local/lib/node_modules/log.io/node_modules/forever/bin" >> /usr/local/lib/node_modules/log.io/home/.profile
 
 echo "Done!"
