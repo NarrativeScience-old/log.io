@@ -66,6 +66,8 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
 - Narrative Science http://narrativescience.com ([NarrativeScience](http://github.com/NarrativeScience))
 
+- Lars Eric Scheidler &lt;lars&#95;eric.scheidler@affinitas.de&gt;
+
 ## Acknowledgements
 
 - Guillermo Rauch &lt;guillermo@learnboost.com&gt; ([Guille](http://github.com/guille))
