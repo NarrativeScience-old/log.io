@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# brew install daemonize
+# http://software.clapper.org/daemonize/
+
+function control/help() {
+  cat <<EOF
+Usage: control [server|harvester] [start|stop] [config]
+
+Examples:
+  start server:
+    bin/control server start
+
+  start harvester with etc/osx.conf:
+    bin/control harvester start osx
+
+  stop harvester:
+    bin/control harvester stop
+EOF
+  exit 1
+}
+
+function control/stop() {
+  local _pid=${1}
+  if ! test -r "${_pid}" ; then exit 1; fi
+
+  kill $(cat "${_pid}")
+  sleep 1
+  rm "${_pid}"
+}
+
+_pwd=$(dirname ${BASH_SOURCE})
+_pwd=$(cd ${_pwd};pwd)
+
+mode=${1:-help}
+cmd=${2:-start}
+agent="${_pwd}/agent.log.io"
+
+conf=${3:-${mode}}
+conf="${_pwd}/../etc/conf/${conf}.conf"
+# TODO: /usr/local/var /var
+pid="${_pwd}/../${mode}.pid"
+
+case "${mode}" in
+  help)
+    control/help
+  ;;
+  server)
+    opt="-s"
+  ;;
+esac
+
+case "${cmd}" in
+  start)
+    daemonize -p "${pid}" "${agent}" ${opt} -c "${conf}"
+  ;;
+  stop)
+    control/stop "${pid}"
+  ;;
+esac
