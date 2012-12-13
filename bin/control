@@ -3,7 +3,7 @@
 # brew install daemonize
 # http://software.clapper.org/daemonize/
 
-function control/help() {
+function help/control() {
   cat <<EOF
 Usage: control [server|harvester] [start|stop] [config]
 
@@ -33,7 +33,7 @@ _pwd=$(dirname ${BASH_SOURCE})
 _pwd=$(cd ${_pwd};pwd)
 
 mode=${1:-help}
-cmd=${2:-start}
+cmd=${2}
 agent="${_pwd}/agent.log.io"
 
 conf=${3:-${mode}}
@@ -43,7 +43,7 @@ pid="${_pwd}/../${mode}.pid"
 
 case "${mode}" in
   help)
-    control/help
+    help/control
   ;;
   server)
     opt="-s"
@@ -51,10 +51,16 @@ case "${mode}" in
 esac
 
 case "${cmd}" in
+  pry)
+    "${agent}" ${opt} -c "${conf}"
+  ;;
   start)
-    daemonize -p "${pid}" "${agent}" ${opt} -c "${conf}"
+    daemonize -v -p "${pid}" "${agent}" ${opt} -c "${conf}"
   ;;
   stop)
     control/stop "${pid}"
+  ;;
+  help|*)
+    help/control
   ;;
 esac

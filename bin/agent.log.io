@@ -32,7 +32,7 @@ if(program.server) {
   }
 
   var server = new logio.Server(HTTPServer);
-  server.listen(config.port);
+  server.listen(config.port,config.host);
 }
 
 // log.io harvester
@@ -49,5 +49,3 @@ else {
   var harvester = new logio.Harvester(config);
   harvester.run();
 }
-
-

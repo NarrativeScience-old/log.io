@@ -1,6 +1,6 @@
 {
   "name": "log.io",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Real-time log monitoring in your browser",
   "homepage": "http://logio.org",
   "keywords": ["logs", "monitoring", "realtime", "socket.io", "node.js", "ajax"],
