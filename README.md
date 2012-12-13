@@ -1,3 +1,10 @@
+Usage
+=====
+
+    bin/control server start
+    bin/control harvester start [osx]
+
+
 Log.io - Real-time log monitoring in your browser
 =================================================
 
