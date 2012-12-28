@@ -141,6 +141,44 @@ body {
   text-decoration: none;
   outline: none;
 }
+/*.screen-filter styles*/
+.screen-filter {
+  float: right;
+}
+.screen-filter input {
+  font-size: 12px;
+  padding: 1px;
+  width: 250px;
+  border: none;
+  background: none;
+  margin-top: 0px;
+  text-align: right;
+  outline: none;
+  margin-right: 2px;
+}
+.screen-filter .inactive {
+  color: #999;
+  font-style: italic;
+}
+.screen-filter .active {
+  color: #eee;
+  font-style: normal;
+}
+.screen-filter .bad-regex {
+  color: #f00;
+}
+.screen-filter .result-count {
+  float: right;
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: normal;
+  width: 30px;
+  text-shadow: none;
+  color: #999;
+  text-decoration: none;
+  outline: none;
+}
+/*end .screen-filter styles*/
 .screen .log {
   margin-bottom: 4px;
 }
