@@ -117,3 +117,6 @@ class WebServer
       wclient.on 'unwatch', (lstream) ->
         @leave lstream.id
     @_log.info 'Server started, listening...'
+
+exports.LogServer = LogServer
+exports.WebServer = WebServer

@@ -106,17 +106,3 @@ class LogHarvester
     @socket.write "#{msg}#{@delim}"
 
 exports.LogHarvester = LogHarvester
-
-CONFIG =
-  nodeName: 'my_server01'
-  logStreams:
-    first: [
-      '/home/msmathers/first1.log',
-      '/home/msmathers/first2.log'
-    ]
-  server:
-    host: '0.0.0.0',
-    port: 28777
-
-harvester = new LogHarvester CONFIG
-harvester.run()
