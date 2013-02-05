@@ -11,10 +11,8 @@ WebServer listens for events emitted by LogServer and
 forwards them to web clients via socket.io
 
 # Usage:
-logServer = new LogServer
-  port: 28777
-webServer = new WebServer logServer,
-  port: 28778
+logServer = new LogServer port: 28777
+webServer = new WebServer logServer, port: 28778
 webServer.run()
 
 ###
@@ -41,7 +39,7 @@ log messages via TCP and emits 'receive_log' events.
 
 ###
 class LogServer extends events.EventEmitter
-  constructor: (config) ->
+  constructor: (config={}) ->
     {@port} = config
     @_log = config.logging ? winston
     @_delimiter = config.delimiter ? '\r\n'
@@ -54,7 +52,7 @@ class LogServer extends events.EventEmitter
         msgs = data.toString().split @_delimiter
         @_handle socket, msg for msg in msgs when msg
       socket.on 'error', (e) =>
-        @_log.error "Lost TCP connection..."
+        @_log.error 'Lost TCP connection...'
         @_removeLogNode socket.logNode if socket.logNode
         # Poll socket periodically to ensure health
       setInterval (-> socket.write 'ping'), 2000
@@ -62,10 +60,10 @@ class LogServer extends events.EventEmitter
 
   _handle: (socket, msg) ->
     @_log.debug "Handling message: #{msg}"
-    [mtype, arg1, arg2] = msg.split "|"
+    [mtype, args...] = msg.split '|'
     switch mtype
-      when 'announce' then @_announceLogNode socket, arg1, arg2
-      when 'log' then @_receiveLog socket, arg1, arg2
+      when 'announce' then @_announceLogNode socket, args...
+      when 'log' then @_receiveLog socket, args...
       else @_log.error "Invalid TCP message: #{msg}"
 
   _removeLogNode: (logNode) ->
@@ -75,7 +73,7 @@ class LogServer extends events.EventEmitter
 
   _announceLogNode: (socket, nodeName, streamNames) ->
     @_log.info "Announcing #{nodeName}:#{streamNames}"
-    logNode = new LogNode nodeName, streamNames.split ","
+    logNode = new LogNode nodeName, streamNames.split ','
     @logNodes[nodeName] = socket.logNode = logNode
     @emit 'announce_log_node', logNode
 
@@ -97,7 +95,7 @@ class WebServer
     @_log = config.logging ? winston
 
   run: ->
-    @_log.info "Starting Log.io Web Server..."
+    @_log.info 'Starting Log.io Web Server...'
     @logServer.run()
     @listener = io.listen(@port).sockets
 
@@ -118,4 +116,4 @@ class WebServer
         @join lstream.id
       wclient.on 'unwatch', (lstream) ->
         @leave lstream.id
-    @_log.info "Server started, listening..."
+    @_log.info 'Server started, listening...'
