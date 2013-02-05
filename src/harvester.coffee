@@ -1,12 +1,11 @@
 ### Log.io Log Harvester
 
-Watches local files defined by provided configuration,
-sends new log messages to Log.io server via TCP.
+Watches local files and sends new log message to server via TCP.
 
 # Sample configuration:
 config =
-  node_name: 'my_server01'
-  log_streams:
+  nodeName: 'my_server01'
+  logStreams:
     web_server: [
       '/var/log/nginx/access.log',
       '/var/log/nginx/error.log'
@@ -26,8 +25,8 @@ net = require 'net'
 winston = require 'winston'
 
 ###
-LogStream watches multiple files on the local filesystem
-and sends new log messages to the log harvester.
+LogStream is a group of local files paths.  It watches each file for
+changes, extracts new log messages, and sends them to a LogHarvester.
 
 ###
 class LogStream
@@ -35,10 +34,11 @@ class LogStream
     {@_log} = @harvester
 
   watch: ->
-    # Create file watchers for each file path in stream
     @_log.info "Starting log stream: '#{@name}'"
-    for path in @paths
-      @_log.info "Watching '#{path}'"
+    @_watchFile path for path in @paths
+
+  _watchFile: (path) ->
+      @_log.info "Watching file: '#{path}'"
       currSize = fs.statSync(path).size
       fs.watch path, (event, filename) =>
         if event is 'change'
@@ -55,7 +55,6 @@ class LogStream
       end: curr
     rstream.on 'data', (data) =>
       lines = data.split "\n"
-      # Always ignore last line, which is empty
       @_sendLog line for line in lines when line
 
   _sendLog: (msg) ->
@@ -68,27 +67,23 @@ LogHarvester creates LogStreams based on provided configuration.
 On startup, it opens a single TCP connection to the Log.io server
 and announces its node name and stream names.
 
-As watched files are written to, LogHarvester sends new log messages
-to the server via string-delimited TCP messages.
+Sends new log messages to the server via string-delimited TCP messages.
 
 ###
 class LogHarvester
   constructor: (config) ->
-    @nodeName = config.node_name
-    @server = config.server
+    {@nodeName, @server} = config
     @delim = config.delimiter ? '\r\n'
     @_log = config.logging ? winston
-    @logStreams = (new LogStream @, s, paths for s, paths of config.log_streams)
+    @logStreams = (new LogStream @, s, paths for s, paths of config.logStreams)
 
   run: ->
-    # Open TCP socket, announce harvester
     @_log.info "Connecting to server..."
     @socket = new net.Socket
     @socket.connect @server.port, @server.host, =>
       @_announce()
-      # Tell streams to begin watching local files for changes
       lstream.watch() for lstream in @logStreams
-      @_log.info "Harvester started, watching files..." 
+      @_log.info "Harvester started." 
 
   sendLog: (logStream, msg) ->
     @_log.debug "Sending log: (#{logStream.name}) #{msg}"
