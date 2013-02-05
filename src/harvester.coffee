@@ -22,20 +22,21 @@ harvester.run()
 
 fs = require 'fs'
 net = require 'net'
+events = require 'events'
 winston = require 'winston'
 
 ###
 LogStream is a group of local files paths.  It watches each file for
-changes, extracts new log messages, and sends them to a LogHarvester.
+changes, extracts new log messages, and emits 'send_log' events.
 
 ###
-class LogStream
-  constructor: (@harvester, @name, @paths) ->
-    {@_log} = @harvester
+class LogStream extends events.EventEmitter
+  constructor: (@name, @paths, @_log) ->
 
   watch: ->
     @_log.info "Starting log stream: '#{@name}'"
     @_watchFile path for path in @paths
+    @
 
   _watchFile: (path) ->
       @_log.info "Watching file: '#{path}'"
@@ -53,13 +54,10 @@ class LogStream
       encoding: 'utf8'
       start: prev
       end: curr
+    # Emit 'send_log' event for every captured log line
     rstream.on 'data', (data) =>
       lines = data.split "\n"
-      @_sendLog line for line in lines when line
-
-  _sendLog: (msg) ->
-    @_harvester.sendLog @, msg
-
+      @emit 'send_log', line for line in lines when line
 
 ###
 LogHarvester creates LogStreams based on provided configuration.
@@ -75,17 +73,27 @@ class LogHarvester
     {@nodeName, @server} = config
     @delim = config.delimiter ? '\r\n'
     @_log = config.logging ? winston
-    @logStreams = (new LogStream @, s, paths for s, paths of config.logStreams)
+    @logStreams = (new LogStream s, paths, @_log for s, paths of config.logStreams)
 
   run: ->
-    @_log.info "Connecting to server..."
-    @socket = new net.Socket
-    @socket.connect @server.port, @server.host, =>
-      @_announce()
-      lstream.watch() for lstream in @logStreams
-      @_log.info "Harvester started." 
+    @_connect()
+    for lstream in @logStreams
+      lstream.watch().on 'send_log', (msg) =>
+        @_sendLog lstream, msg if @_connected
 
-  sendLog: (logStream, msg) ->
+  _connect: ->
+    # Create TCP socket
+    @socket = new net.Socket
+    @socket.on 'error', (error) =>
+      @_connected = false
+      @_log.error "Unable to connect server, trying again..."
+      setTimeout (=> @_connect()), 2000
+    @_log.info "Connecting to server..."
+    @socket.connect @server.port, @server.host, =>
+      @_connected = true
+      @_announce()
+
+  _sendLog: (logStream, msg) ->
     @_log.debug "Sending log: (#{logStream.name}) #{msg}"
     @_send "log|#{logStream.name}|#{msg}"
 
@@ -95,6 +103,20 @@ class LogHarvester
     @_send "announce|#{@nodeName}|#{snames}"
 
   _send: (msg) ->
-    @socket.write("#{msg}#{@delim}")
+    @socket.write "#{msg}#{@delim}"
 
 exports.LogHarvester = LogHarvester
+
+CONFIG =
+  nodeName: 'my_server01'
+  logStreams:
+    first: [
+      '/home/msmathers/first1.log',
+      '/home/msmathers/first2.log'
+    ]
+  server:
+    host: '0.0.0.0',
+    port: 28777
+
+harvester = new LogHarvester CONFIG
+harvester.run()
