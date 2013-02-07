@@ -111,11 +111,11 @@ class WebServer
 
     # Bind web client events to new web client socket
     @listener.on 'connection', (wclient) =>
-      wclient.emit 'announce_log_node', logNode for logNode in @logNodes
+      wclient.emit 'announce_log_node', lnode for label, lnode of @logNodes
       wclient.on 'watch', (lstream) ->
-        @join lstream.id
+        wclient.join lstream.id
       wclient.on 'unwatch', (lstream) ->
-        @leave lstream.id
+        wclient.leave lstream.id
     @_log.info 'Server started, listening...'
 
 exports.LogServer = LogServer
