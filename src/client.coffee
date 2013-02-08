@@ -4,7 +4,7 @@ Listens to server for new log messages, renders them to screen "widgets".
 
 # Usage:
 wclient = new WebClient io, host: 'http://localhost:28778'
-screen = wclient.createStream 'Screen 1'
+screen = wclient.createScreen 'Screen 1'
 stream = wclient.logNodes.at(0).streams.at 0
 screen.addStream(stream)
 screen.on 'send_log', (message, lstream) ->
@@ -23,7 +23,7 @@ are destroyed.
 
 class LogStream extends backbone.Model
   constructor: (args...) ->
-    super(args...)
+    super args...
     @screens = new LogScreens
 
 class LogStreams extends backbone.Collection
@@ -32,7 +32,7 @@ class LogStreams extends backbone.Collection
 class LogNode extends backbone.Model
   idAttribute: 'name'
   constructor: (attrs, args...) ->
-    super(attrs, args...)
+    super attrs, args...
     @streams = new LogStreams (stream for l, stream of attrs.logStreams)
 
 class LogNodes extends backbone.Collection
@@ -47,12 +47,12 @@ the stream's node goes offline, and a new LogStream model is created.
 ###
 class LogScreen extends backbone.Model
   constructor: (args...) ->
-    super(args...)
+    super args...
     @streamIds = []
 
   addStream: (lstream) ->
     # Store stream_id on model
-    @streamIds.push lstream.id if lstream.id not in @streamIds
+    @streamIds.push lstream.id unless lstream.id in @streamIds
     # Tell server to relay stream to client if this is the first screen
     lstream.trigger 'watch' if lstream.screens.length is 0
     lstream.screens.update @
@@ -61,7 +61,7 @@ class LogScreen extends backbone.Model
 
   removeStream: (lstream) ->
     # Remove stream_id from model
-    @streamIds = (sid for sid in streamIds when sid is not lstream.id)
+    @streamIds = (sid for sid in streamIds when sid isnt lstream.id)
     screens = lstream.get 'screens'
     # Tell server to stop relaying stream if no other screens are connected
     lstream.trigger 'unwatch' if lstream.screens.length is 1
@@ -69,7 +69,6 @@ class LogScreen extends backbone.Model
 
 class LogScreens extends backbone.Collection
   model: LogScreen
-
 
 ###
 WebClient listens for log messages from the server via socket.io.
@@ -98,19 +97,21 @@ class WebClient
       lstream = @logNodes.get(logStream.nodeName).streams.get logStream.id
       lstream.screens.each (screen) ->
         screen.trigger 'send_log', message, lstream
+    
+    @logNodes.on 'add', (lnode, collection) => @_bindNewLogNode lnode, collection
 
+  _bindNewLogNode: (lnode, collection) =>
     # Bind model events to new client socket
-    @logNodes.on 'add', (lnode, collection) =>
-      lnode.streams.each (lstream) =>
-        lstream.on 'watch', =>
-          @socket.emit 'watch', lstream
-        lstream.on 'unwatch', =>
-          @socket.emit 'unwatch', lstream
-        # Are any screens already bound to this stream?
-        @logScreens.each (lscreen) ->
-          lscreen.addStream lstream for sid in lscreen.stream_ids when sid is lstream.id
+    lnode.streams.each (lstream) =>
+      lstream.on 'watch', =>
+        @socket.emit 'watch', lstream
+      lstream.on 'unwatch', =>
+        @socket.emit 'unwatch', lstream
+      # Are any screens already bound to this stream?
+      @logScreens.each (lscreen) ->
+        lscreen.addStream lstream for sid in lscreen.stream_ids when sid is lstream.id
 
-    createScreen: (sname) ->
-      screen = new LogScreen name: sname
-      @logScreens.add screen
-      screen
+  createScreen: (sname) ->
+    screen = new LogScreen name: sname
+    @logScreens.add screen
+    screen
