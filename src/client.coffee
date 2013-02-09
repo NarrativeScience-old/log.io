@@ -175,7 +175,7 @@ class LogNodeControls extends backbone.View
   initialize: (opts) ->
     {@logNode, @logScreens} = opts
     @logNode.streams.each @_addLogStream
-    @listenTo @logNode, 'destroy', @remove
+    @listenTo @logNode, 'destroy', => @remove
 
   _addLogStream: (lstream) =>
     stream_view = new LogStreamControls
@@ -190,7 +190,7 @@ class LogStreamControls extends backbone.View
   className: 'log_stream'
   initialize: (opts) ->
     {@logNode, @logStream, @logScreens} = opts
-    @listenTo @logNode, 'destroy', @remove
+    @listenTo @logNode, 'destroy', => @remove
 
   render: -> @
 
@@ -211,7 +211,7 @@ class LogScreenView extends backbone.View
   className: 'log_screen'
   initialize: (opts) ->
     {@logScreen} = opts 
-    @listenTo @logScreen, 'destroy', @remove
+    @listenTo @logScreen, 'destroy', => @remove
     @listenTo @logScreen, 'send_log', @_renderNewLog
 
   _renderNewLog: (message, lstream) =>
