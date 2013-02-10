@@ -5,9 +5,10 @@ Listens to server for new log messages, renders them to screen "widgets".
 # Usage:
 wclient = new WebClient io, host: 'http://localhost:28778'
 screen = wclient.createScreen 'Screen 1'
-stream = wclient.logNodes.at(0).streams.at 0
-screen.addStream(stream)
-screen.on 'send_log', (message, lstream) ->
+stream = wclient.logStreams.at 0
+node = wclient.logNodes.at 0
+screen.addPair stream, node
+screen.on 'new_log', (stream, node, level, message) ->
  
 ###
 
@@ -16,63 +17,77 @@ $ = backbone.$ = require 'jquery'
 io = require 'socket.io-client'
 
 ### 
-Backbone models are used to represent harvester nodes and their log streams.
-When nodes go offline, their LogNode model and child LogStream models
-are destroyed.
+Backbone models are used to represent nodes and streams.  When nodes
+go offline, their LogNode model is destroyed, along with their
+stream assocations.
 
 ###
 
-class LogStream extends backbone.Model
+class _LogObject extends backbone.Model
+  idAttribute: 'name'
+  _pclass: -> new _LogObjects
+  sync: (args...) ->
   constructor: (args...) ->
     super args...
     @screens = new LogScreens
+    @pairs = @_pclass()
 
-class LogStreams extends backbone.Collection
+class _LogObjects extends backbone.Collection
+  model: _LogObject
+
+class LogStream extends _LogObject
+  _pclass: -> new LogNodes
+
+class LogStreams extends _LogObjects
   model: LogStream
 
-class LogNode extends backbone.Model
-  idAttribute: 'name'
-  constructor: (attrs, args...) ->
-    super attrs, args...
-    @streams = new LogStreams (stream for l, stream of attrs.logStreams)
+class LogNode extends _LogObject
+  _pclass: -> new LogStreams
 
-class LogNodes extends backbone.Collection
+class LogNodes extends _LogObjects
   model: LogNode
 
 ###
 LogScreen models maintain state for screen widgets in the UI.
-When streams are associated with a screen, the stream's ID is stored 
-on the LogScreen model. It uses its ID instead of the model itself in case
-the stream's node goes offline, and a new LogStream model is created.
+When (Stream, Node) pairs are associated with a screen, the pair ID
+is stored on the model.  It uses pair ID instead of models themselves
+in case a node goes offline, and a new LogNode model is created.
 
 ###
 class LogScreen extends backbone.Model
   constructor: (args...) ->
     super args...
-    @streamIds = []
+    @pairIds = []
 
-  addStream: (lstream) ->
-    # Store stream_id on model
-    @streamIds.push lstream.id unless lstream.id in @streamIds
-    # Tell server to relay stream to client if this is the first screen
-    lstream.trigger 'watch' if lstream.screens.length is 0
-    lstream.screens.update @
+  addPair: (stream, node) ->
+    pid = @_pid stream, node
+    @pairIds.push pid if pid not in @pairIds
+    # Tell server to relay stream to client if this is hte first screen
+    stream.trigger 'watch', pid if stream.screens.length is 0
+    stream.screens.update @
+    node.screens.update @
 
-  removeStream: (lstream) ->
-    # Remove stream_id from model
-    @streamIds = (sid for sid in streamIds when sid isnt lstream.id)
+  removePair: (stream, node) ->
+    pid = @_pid stream, node
+    @pairIds = (p for p in @pairIds when p isnt pid)
     # Tell server to stop relaying stream if no other screens are connected
-    lstream.trigger 'unwatch' if lstream.screens.length is 1
-    lstream.screens.remove @
+    stream.trigger 'unwatch', pid if stream.screens.length is 1
+    stream.screens.remove @
+    node.screens.remove @
+
+  hasPair: (stream, node) ->
+    pid = @_pid stream, node
+    pid in @pairIds
+
+  _pid: (stream, node) -> "#{stream.id}:#{node.id}"
 
 class LogScreens extends backbone.Collection
   model: LogScreen
 
 ###
-WebClient listens for log messages from the server via socket.io.
-It uses a LogNodes collection to store all node & stream state,
-which gets modified by socket inbound events.  It uses a LogScreens
-collection to store all screen widget information.
+WebClient listens for log messages and stream/node announcements
+from the server via socket.io.  It manipulates state in LogNodes &
+LogStreams collections, which triggers view events.
 
 ###
 
@@ -80,38 +95,57 @@ class WebClient
   constructor: (@io, config) ->
     {@host} = config
     @logNodes = new LogNodes
+    @logStreams = new LogStreams
     @logScreens = new LogScreens
     @app = new ClientApplication
       logNodes: @logNodes
+      logStreams: @logStreams
       logScreens: @logScreens
     @app.render()
     @socket = @io.connect @host
+    _on = (args...) => @socket.on args...
 
     # Bind to socket events from server
-    @socket.on 'announce_log_node', (lnode) =>
-      @logNodes.update lnode
-    @socket.on 'remove_log_node', (lnode) =>
-      @logNodes.get(lnode.id)?.destroy()
-    @socket.on 'disconnect', (e) =>
-      @logNodes.reset()
-    @socket.on 'send_log', (e) =>
-      {logStream, message} = e
-      lstream = @logNodes.get(logStream.nodeName).streams.get logStream.id
-      lstream.screens.each (screen) ->
-        screen.trigger 'send_log', message, lstream
-    
-    @logNodes.on 'add', (lnode, collection) => @_bindNewLogNode lnode, collection
+    _on 'add_node', @_addNode
+    _on 'add_stream', @_addStream
+    _on 'remove_node', @_removeNode
+    _on 'remove_stream', @_removeStream
+    _on 'add_pair', @_addPair
+    _on 'new_log', @_newLog
+    _on 'disconnect', =>
+      @logNodes.each (node) -> node.destroy()
+      @logStreams.each (stream) -> stream.destroy()
 
-  _bindNewLogNode: (lnode, collection) =>
-    # Bind model events to new client socket
-    lnode.streams.each (lstream) =>
-      lstream.on 'watch', =>
-        @socket.emit 'watch', lstream
-      lstream.on 'unwatch', =>
-        @socket.emit 'unwatch', lstream
-      # Are any screens already bound to this stream?
-      @logScreens.each (lscreen) ->
-        lscreen.addStream lstream for sid in lscreen.stream_ids when sid is lstream.id
+  _addNode: (node) =>
+    @logNodes.update node
+
+  _addStream: (stream) =>
+    @logStreams.update stream
+    stream = @logStreams.get stream.name
+    stream.on 'watch', (pid) => @socket.emit 'watch', pid
+    stream.on 'unwatch', (pid) => @socket.emit 'unwatch', pid
+
+  _removeNode: (node) =>
+    @logNodes.get(node.name)?.destroy()
+
+  _removeStream: (stream) =>
+    @logStreams.get(stream.name)?.destroy()
+
+  _addPair: (p) =>
+    stream = @logStreams.get p.stream
+    node = @logNodes.get p.node
+    stream.pairs.update node
+    node.pairs.update stream
+    @logScreens.each (screen) ->
+      screen.addPair stream, node if screen.hasPair stream, node
+
+  _newLog: (msg) =>
+    {stream, node, level, message} = msg
+    stream = @logStreams.get stream
+    node = @logNodes.get node
+    @logScreens.each (screen) ->
+      if screen.hasPair stream, node
+        screen.trigger 'new_log', stream, node, level, message
 
   createScreen: (sname) ->
     screen = new LogScreen name: sname
@@ -124,10 +158,11 @@ including the list of log nodes and screen panels.
 
 # View heirarchy:
 ClientApplication
-  LogControls
-    LogNodeControls
-      LogStreamControls
-  LogScreensView
+  LogControlPanel
+    ObjectControls
+      ObjectGroupControls
+        ObjectItemControls
+  LogScreenPanel
     LogScreenView
 
 TODO(msmathers): Build templates, fill out render() methods
@@ -138,11 +173,12 @@ class ClientApplication extends backbone.View
   el: 'body'
   id: 'web_client'
   initialize: (opts) ->
-    {@logNodes, @logScreens} = opts
-    @controls = new LogControls
+    {@logNodes, @logStreams, @logScreens} = opts
+    @controls = new LogControlPanel
       logNodes: @logNodes
+      logStreams: @logStreams
       logScreens: @logScreens
-    @screens = new LogScreensView
+    @screens = new LogScreensPanel
       logScreens: @logScreens
 
   render: ->
@@ -150,59 +186,83 @@ class ClientApplication extends backbone.View
     @$el.append @screens.render().el
     @
 
-class LogControls extends backbone.View
-  id: 'log_controls'
+class LogControlPanel extends backbone.View
+  id: 'log_control_panel'
   initialize: (opts) ->
-    {@logNodes, @logScreens} = opts
-    @listenTo @logNodes, 'add', @_addLogNodes
+    {@logNodes, @logStreams, @logScreens} = opts
+    @streams = new ObjectControls
+      objects: @logStreams
+      id: 'log_control_streams'
+    @nodes = new ObjectControls
+      objects: @logNodes
+      id: 'log_control_node'
 
-  _addLogNode: (lnode) =>
-    @_insertLogNode new LogNodeControls
-      logNode: lnode
+  render: ->
+    @$el.append @streams.render().el
+    @$el.append @nodes.render().el
+    @
+    
+class ObjectControls extends backbone.View
+  className: 'object'
+  initialize: (opts) ->
+    {@objects} = opts
+    @listenTo @objects, 'add', @_addObject
+
+  _addObject: (obj) =>
+    @_insertObject new ObjectGroupControls
+      object: obj
       logScreens: @logScreens
 
-  _insertLogNode: (lview) ->
-    index = @logNodes.indexOf lview.logNode
+  _insertObject: (view) ->
+    view.render()
+    index = @objects.indexOf view.object
     if index > 0
-      lview.el.insertAfter @$el.find "div.log_node:eq(#{index - 1})"
-    else 
-      @$el.prepend lview.el
+      view.el.insertAfter @$el.find "div.group:eq(#{index - 1})"
+    else
+      @$el.prepend view.el
 
   render: -> @
 
-class LogNodeControls extends backbone.View
-  className: 'log_node'
+class ObjectGroupControls extends backbone.View
+  className: 'group'
   initialize: (opts) ->
-    {@logNode, @logScreens} = opts
-    @logNode.streams.each @_addLogStream
-    @listenTo @logNode, 'destroy', => @remove
+    {@object, @logScreens} = opts
+    @object.pairs.each @_addItem
+    @listenTo @object.pairs, 'add', @_addItem
+    @listenTo @object, 'destroy', => @remove()
 
-  _addLogStream: (lstream) =>
-    stream_view = new LogStreamControls
-      logStream: lstream
-      logNode: @logNode
+  _addItem: (pair) =>
+    @_insertItem new ObjectItemControls
+      item: pair
       logScreens: @logScreens
-    @$el.append stream_view.render().el
+
+  _insertItem: (view) ->
+    view.render()
+    index = @object.pairs.indexOf view.item
+    if index > 0
+      view.el.insertAfter @$el.find "div.item:eq(#{index - 1})"
+    else
+      @$el.find("div.objects").prepend view.el
 
   render: -> @
 
-class LogStreamControls extends backbone.View
-  className: 'log_stream'
+class ObjectItemControls extends backbone.View
+  className: 'item'
   initialize: (opts) ->
-    {@logNode, @logStream, @logScreens} = opts
-    @listenTo @logNode, 'destroy', => @remove
+    {@item, @logScreens} = opts
+    @listenTo @item, 'destroy', => @remove()
 
   render: -> @
 
-class LogScreensView extends backbone.View
-  id: 'log_screens'
+class LogScreensPanel extends backbone.View
+  id: 'log_screen_panel'
   initialize: (opts) ->
     {@logScreens} = opts
     @listenTo @logScreens, 'add', @_addLogScreen
 
-  _addLogScreen: (lscreen) =>
+  _addLogScreen: (screen) =>
     screen = new LogScreenView
-      logScreen: lscreen
+      logScreen: screen
     @$el.append screen.render().el
 
   render: -> @
@@ -211,10 +271,13 @@ class LogScreenView extends backbone.View
   className: 'log_screen'
   initialize: (opts) ->
     {@logScreen} = opts 
-    @listenTo @logScreen, 'destroy', => @remove
-    @listenTo @logScreen, 'send_log', @_renderNewLog
+    @listenTo @logScreen, 'destroy', => @remove()
+    @listenTo @logScreen, 'new_log', @_renderNewLog
 
-  _renderNewLog: (message, lstream) =>
-    # Render log line template, append to @$el
+  _renderNewLog: (stream, node, level, message) =>
+    @$el.append "#{stream.id}|#{node.id}|#{message}"
 
   render: -> @
+
+exports.WebClient = WebClient
+exports.$ = $

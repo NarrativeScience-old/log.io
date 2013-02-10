@@ -14,6 +14,11 @@ config =
     host: '0.0.0.0',
     port: 28777
 
+# Sends the following TCP messages to the server:
+"+node|my_server01|web_server\r\n"
+"+bind|node|my_server01\r\n"
+"+log|web_server|my_server01|info|this is log messages\r\n"
+
 # Usage:
 harvester = new LogHarvester config
 harvester.run()
@@ -27,7 +32,7 @@ winston = require 'winston'
 
 ###
 LogStream is a group of local files paths.  It watches each file for
-changes, extracts new log messages, and emits 'send_log' events.
+changes, extracts new log messages, and emits 'new_log' events.
 
 ###
 class LogStream extends events.EventEmitter
@@ -54,18 +59,16 @@ class LogStream extends events.EventEmitter
       encoding: 'utf8'
       start: prev
       end: curr
-    # Emit 'send_log' event for every captured log line
+    # Emit 'new_log' event for every captured log line
     rstream.on 'data', (data) =>
       lines = data.split "\n"
-      @emit 'send_log', line for line in lines when line
+      @emit 'new_log', line for line in lines when line
 
 ###
-LogHarvester creates LogStreams based on provided configuration.
+LogHarvester creates LogStreams and opens a persistent TCP connection to the server.
 
-On startup, it opens a single TCP connection to the Log.io server
-and announces its node name and stream names.
-
-Sends new log messages to the server via string-delimited TCP messages.
+On startup it announces itself as Node with Stream associations.
+Log messages are sent to the server via string-delimited TCP messages
 
 ###
 class LogHarvester
@@ -77,9 +80,9 @@ class LogHarvester
 
   run: ->
     @_connect()
-    for lstream in @logStreams
-      lstream.watch().on 'send_log', (msg) =>
-        @_sendLog lstream, msg if @_connected
+    for stream in @logStreams
+      stream.watch().on 'new_log', (msg) =>
+        @_sendLog stream, msg if @_connected
 
   _connect: ->
     # Create TCP socket
@@ -93,16 +96,17 @@ class LogHarvester
       @_connected = true
       @_announce()
 
-  _sendLog: (logStream, msg) ->
-    @_log.debug "Sending log: (#{logStream.name}) #{msg}"
-    @_send "log|#{logStream.name}|#{msg}"
+  _sendLog: (stream, msg) ->
+    @_log.debug "Sending log: (#{stream.name}) #{msg}"
+    @_send '+log', stream.name, @nodeName, 'info', msg 
 
   _announce: ->
     snames = (l.name for l in @logStreams).join ","
     @_log.info "Announcing: #{@nodeName} (#{snames})"
-    @_send "announce|#{@nodeName}|#{snames}"
+    @_send '+node', @nodeName, snames
+    @_send '+bind', 'node', @nodeName
 
-  _send: (msg) ->
-    @socket.write "#{msg}#{@delim}"
+  _send: (mtype, args...) ->
+    @socket.write "#{mtype}|#{args.join '|'}#{@delim}"
 
 exports.LogHarvester = LogHarvester
