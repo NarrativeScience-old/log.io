@@ -29,6 +29,7 @@ webServer.run()
 
 net = require 'net'
 io = require 'socket.io'
+connect = require 'connect'
 events = require 'events'
 winston = require 'winston'
 
@@ -151,12 +152,16 @@ class WebServer
   constructor: (@logServer, config) ->
     {@port} = config
     {@logNodes, @logStreams} = @logServer
+    @staticPath = config.staticPath ? '/../'
     @_log = config.logging ? winston
+    @http = connect.createServer connect.static __dirname + @staticPath
 
   run: ->
     @_log.info 'Starting Log.io Web Server...'
     @logServer.run()
-    @listener = io.listen(@port).sockets
+    @http = @http.listen @port
+    @listener = io.listen(@http).sockets
+    
     _on = (args...) => @logServer.on args...
     _emit = (_event, msg) => 
       @_log.debug "Relaying: #{_event}"

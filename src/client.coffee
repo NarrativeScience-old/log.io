@@ -12,9 +12,15 @@ screen.on 'new_log', (stream, node, level, message) ->
  
 ###
 
+if process.browser
+  $ = require 'jquery-browserify'
+else
+  $ = eval "require('jquery')"
 backbone = require 'backbone'
-$ = backbone.$ = require 'jquery'
+backbone.$ = $
 io = require 'socket.io-client'
+_ = require 'underscore'
+templates = require './templates'
 
 ### 
 Backbone models are used to represent nodes and streams.  When nodes
@@ -36,12 +42,14 @@ class _LogObjects extends backbone.Collection
   model: _LogObject
 
 class LogStream extends _LogObject
+  _type: 'logStream'
   _pclass: -> new LogNodes
 
 class LogStreams extends _LogObjects
   model: LogStream
 
 class LogNode extends _LogObject
+  _type: 'logNode'
   _pclass: -> new LogStreams
 
 class LogNodes extends _LogObjects
@@ -92,8 +100,7 @@ LogStreams collections, which triggers view events.
 ###
 
 class WebClient
-  constructor: (@io, config) ->
-    {@host} = config
+  constructor: ->
     @logNodes = new LogNodes
     @logStreams = new LogStreams
     @logScreens = new LogScreens
@@ -102,7 +109,7 @@ class WebClient
       logStreams: @logStreams
       logScreens: @logScreens
     @app.render()
-    @socket = @io.connect @host
+    @socket = io.connect()
     _on = (args...) => @socket.on args...
 
     # Bind to socket events from server
@@ -172,6 +179,7 @@ TODO(msmathers): Build templates, fill out render() methods
 class ClientApplication extends backbone.View
   el: 'body'
   id: 'web_client'
+  template: _.template templates.clientApplication
   initialize: (opts) ->
     {@logNodes, @logStreams, @logScreens} = opts
     @controls = new LogControlPanel
@@ -182,30 +190,36 @@ class ClientApplication extends backbone.View
       logScreens: @logScreens
 
   render: ->
+    @$el.html @template()
     @$el.append @controls.render().el
     @$el.append @screens.render().el
     @
 
 class LogControlPanel extends backbone.View
-  id: 'log_control_panel'
+  id: 'log_controls'
+  template: _.template templates.logControlPanel
   initialize: (opts) ->
     {@logNodes, @logStreams, @logScreens} = opts
     @streams = new ObjectControls
       objects: @logStreams
+      logScreens: @logScreens
       id: 'log_control_streams'
     @nodes = new ObjectControls
       objects: @logNodes
+      logScreens: @logScreens
       id: 'log_control_node'
 
   render: ->
+    @$el.html @template()
     @$el.append @streams.render().el
     @$el.append @nodes.render().el
     @
     
 class ObjectControls extends backbone.View
-  className: 'object'
+  className: 'object_controls'
+  template: _.template templates.objectControls
   initialize: (opts) ->
-    {@objects} = opts
+    {@objects, @logScreens} = opts
     @listenTo @objects, 'add', @_addObject
 
   _addObject: (obj) =>
@@ -217,14 +231,18 @@ class ObjectControls extends backbone.View
     view.render()
     index = @objects.indexOf view.object
     if index > 0
-      view.el.insertAfter @$el.find "div.group:eq(#{index - 1})"
+      view.el.insertAfter @$el.find "div.groups div.group:eq(#{index - 1})"
     else
-      @$el.prepend view.el
+      @$el.find("div.groups").prepend view.el
 
-  render: -> @
+  render: ->
+    @$el.html @template
+      title: @id
+    @
 
 class ObjectGroupControls extends backbone.View
   className: 'group'
+  template: _.template templates.objectGroupControls
   initialize: (opts) ->
     {@object, @logScreens} = opts
     @object.pairs.each @_addItem
@@ -234,41 +252,77 @@ class ObjectGroupControls extends backbone.View
   _addItem: (pair) =>
     @_insertItem new ObjectItemControls
       item: pair
+      object: @object
       logScreens: @logScreens
 
   _insertItem: (view) ->
     view.render()
     index = @object.pairs.indexOf view.item
     if index > 0
-      view.el.insertAfter @$el.find "div.item:eq(#{index - 1})"
+      view.el.insertAfter @$el.find "div.items div.item:eq(#{index - 1})"
     else
-      @$el.find("div.objects").prepend view.el
+      @$el.find("div.items").prepend view.el
 
-  render: -> @
+  render: ->
+    @$el.html @template
+      object: @object
+      logScreens: @logScreens
+    @
 
 class ObjectItemControls extends backbone.View
   className: 'item'
+  template: _.template templates.objectItemControls
   initialize: (opts) ->
-    {@item, @logScreens} = opts
+    {@item, @object, @logScreens} = opts
+    @listenTo @logScreens, 'add', => @render()
     @listenTo @item, 'destroy', => @remove()
 
-  render: -> @
+  events:
+    "click input": "_toggleScreen"
+
+  _toggleScreen: (e) =>
+    checkbox = $ e.currentTarget
+    screen_id = checkbox.attr('title').replace /screen-/ig, ''
+    screen = @logScreens.get screen_id
+    [stream, node] = if @item_type is 'logStream' then [@item, @object] else [@object, @item]
+    if checkbox.is ':checked'
+      screen.addPair stream, node
+    else
+      screen.removePair stream, node
+
+  render: ->
+    @$el.html @template
+      item: @item
+      logScreens: @logScreens
+    @
 
 class LogScreensPanel extends backbone.View
-  id: 'log_screen_panel'
+  template: _.template templates.logScreensPanel
+  id: 'log_screens'
   initialize: (opts) ->
     {@logScreens} = opts
     @listenTo @logScreens, 'add', @_addLogScreen
 
+  events:
+    "click #new_screen_button": "_newButton"
+
+  _newButton: (e) ->
+    @logScreens.add new @logScreens.model name: 'Screen1'
+    false
+
   _addLogScreen: (screen) =>
     screen = new LogScreenView
       logScreen: screen
-    @$el.append screen.render().el
+    @$el.find("div.log_screens").append screen.render().el
 
-  render: -> @
+  render: ->
+    @$el.html @template()
+    @
 
 class LogScreenView extends backbone.View
   className: 'log_screen'
+  template: _.template templates.logScreenView
+  log_template: _.template templates.logMessage
   initialize: (opts) ->
     {@logScreen} = opts 
     @listenTo @logScreen, 'destroy', => @remove()
@@ -277,7 +331,8 @@ class LogScreenView extends backbone.View
   _renderNewLog: (stream, node, level, message) =>
     @$el.append "#{stream.id}|#{node.id}|#{message}"
 
-  render: -> @
+  render: ->
+    @$el.html @template()
+    @
 
 exports.WebClient = WebClient
-exports.$ = $
