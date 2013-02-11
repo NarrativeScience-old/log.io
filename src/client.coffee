@@ -284,7 +284,7 @@ class ObjectItemControls extends backbone.View
     checkbox = $ e.currentTarget
     screen_id = checkbox.attr('title').replace /screen-/ig, ''
     screen = @logScreens.get screen_id
-    [stream, node] = if @item_type is 'logStream' then [@item, @object] else [@object, @item]
+    [stream, node] = if @item._type is 'logStream' then [@item, @object] else [@object, @item]
     if checkbox.is ':checked'
       screen.addPair stream, node
     else
