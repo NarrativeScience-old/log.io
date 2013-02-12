@@ -4,7 +4,7 @@ Listens to server for new log messages, renders them to screen "widgets".
 
 # Usage:
 wclient = new WebClient io, host: 'http://localhost:28778'
-screen = wclient.createScreen 'Screen 1'
+screen = wclient.createScreen
 stream = wclient.logStreams.at 0
 node = wclient.logNodes.at 0
 screen.addPair stream, node
@@ -42,14 +42,12 @@ class _LogObjects extends backbone.Collection
   model: _LogObject
 
 class LogStream extends _LogObject
-  _type: 'logStream'
   _pclass: -> new LogNodes
 
 class LogStreams extends _LogObjects
   model: LogStream
 
 class LogNode extends _LogObject
-  _type: 'logNode'
   _pclass: -> new LogStreams
 
 class LogNodes extends _LogObjects
@@ -63,6 +61,7 @@ in case a node goes offline, and a new LogNode model is created.
 
 ###
 class LogScreen extends backbone.Model
+  idAttribute: null
   constructor: (args...) ->
     super args...
     @pairIds = []
@@ -70,16 +69,14 @@ class LogScreen extends backbone.Model
   addPair: (stream, node) ->
     pid = @_pid stream, node
     @pairIds.push pid if pid not in @pairIds
-    # Tell server to relay stream to client if this is hte first screen
-    stream.trigger 'watch', pid if stream.screens.length is 0
+    stream.trigger 'watch', stream, node, @
     stream.screens.update @
     node.screens.update @
 
   removePair: (stream, node) ->
     pid = @_pid stream, node
     @pairIds = (p for p in @pairIds when p isnt pid)
-    # Tell server to stop relaying stream if no other screens are connected
-    stream.trigger 'unwatch', pid if stream.screens.length is 1
+    stream.trigger 'unwatch', stream, node, @
     stream.screens.remove @
     node.screens.remove @
 
@@ -124,13 +121,17 @@ class WebClient
       @logStreams.each (stream) -> stream.destroy()
 
   _addNode: (node) =>
-    @logNodes.update node
+    @logNodes.add node
 
   _addStream: (stream) =>
-    @logStreams.update stream
+    @logStreams.add stream
     stream = @logStreams.get stream.name
-    stream.on 'watch', (pid) => @socket.emit 'watch', pid
-    stream.on 'unwatch', (pid) => @socket.emit 'unwatch', pid
+    stream.on 'watch', (stream, node, screen) =>
+      if stream.screens.length is 0
+        @socket.emit 'watch', screen._pid stream, node
+    stream.on 'unwatch', (stream, node, screen) =>
+      if stream.screens.length is 1
+        @socket.emit 'unwatch', screen._pid stream, node
 
   _removeNode: (node) =>
     @logNodes.get(node.name)?.destroy()
@@ -203,11 +204,24 @@ class LogControlPanel extends backbone.View
     @streams = new ObjectControls
       objects: @logStreams
       logScreens: @logScreens
+      getPair: (object, item) -> [object, item]
       id: 'log_control_streams'
     @nodes = new ObjectControls
       objects: @logNodes
       logScreens: @logScreens
-      id: 'log_control_node'
+      getPair: (object, item) -> [item, object]
+      id: 'log_control_nodes'
+      attributes:
+        style: 'display: none'
+
+  events:
+    "click a.select_mode": "_toggleMode"
+
+  _toggleMode: (e) =>
+    target = $ e.currentTarget
+    tid = target.attr 'href'
+    @$el.find(tid).show().siblings('.object_controls').hide()
+    false
 
   render: ->
     @$el.html @template()
@@ -219,19 +233,20 @@ class ObjectControls extends backbone.View
   className: 'object_controls'
   template: _.template templates.objectControls
   initialize: (opts) ->
-    {@objects, @logScreens} = opts
+    {@objects, @getPair, @logScreens} = opts
     @listenTo @objects, 'add', @_addObject
 
   _addObject: (obj) =>
     @_insertObject new ObjectGroupControls
       object: obj
+      getPair: @getPair
       logScreens: @logScreens
 
   _insertObject: (view) ->
     view.render()
     index = @objects.indexOf view.object
     if index > 0
-      view.el.insertAfter @$el.find "div.groups div.group:eq(#{index - 1})"
+      view.$el.insertAfter @$el.find "div.groups div.group:eq(#{index - 1})"
     else
       @$el.find("div.groups").prepend view.el
 
@@ -244,7 +259,7 @@ class ObjectGroupControls extends backbone.View
   className: 'group'
   template: _.template templates.objectGroupControls
   initialize: (opts) ->
-    {@object, @logScreens} = opts
+    {@object, @getPair, @logScreens} = opts
     @object.pairs.each @_addItem
     @listenTo @object.pairs, 'add', @_addItem
     @listenTo @object, 'destroy', => @remove()
@@ -252,6 +267,7 @@ class ObjectGroupControls extends backbone.View
   _addItem: (pair) =>
     @_insertItem new ObjectItemControls
       item: pair
+      getPair: @getPair
       object: @object
       logScreens: @logScreens
 
@@ -259,7 +275,7 @@ class ObjectGroupControls extends backbone.View
     view.render()
     index = @object.pairs.indexOf view.item
     if index > 0
-      view.el.insertAfter @$el.find "div.items div.item:eq(#{index - 1})"
+      view.$el.insertAfter @$el.find "div.items div.item:eq(#{index - 1})"
     else
       @$el.find("div.items").prepend view.el
 
@@ -274,8 +290,10 @@ class ObjectItemControls extends backbone.View
   template: _.template templates.objectItemControls
   initialize: (opts) ->
     {@item, @object, @logScreens} = opts
+    [@stream, @node] = opts.getPair @object, @item
     @listenTo @logScreens, 'add', => @render()
     @listenTo @item, 'destroy', => @remove()
+    @listenTo @stream, 'watch unwatch', => @render()
 
   events:
     "click input": "_toggleScreen"
@@ -284,15 +302,16 @@ class ObjectItemControls extends backbone.View
     checkbox = $ e.currentTarget
     screen_id = checkbox.attr('title').replace /screen-/ig, ''
     screen = @logScreens.get screen_id
-    [stream, node] = if @item._type is 'logStream' then [@item, @object] else [@object, @item]
     if checkbox.is ':checked'
-      screen.addPair stream, node
+      screen.addPair @stream, @node
     else
-      screen.removePair stream, node
+      screen.removePair @stream, @node
 
   render: ->
     @$el.html @template
       item: @item
+      stream: @stream
+      node: @node
       logScreens: @logScreens
     @
 
@@ -304,16 +323,16 @@ class LogScreensPanel extends backbone.View
     @listenTo @logScreens, 'add', @_addLogScreen
 
   events:
-    "click #new_screen_button": "_newButton"
+    "click #new_screen_button": "_newScreen"
 
-  _newButton: (e) ->
+  _newScreen: (e) ->
     @logScreens.add new @logScreens.model name: 'Screen1'
     false
 
   _addLogScreen: (screen) =>
-    screen = new LogScreenView
-      logScreen: screen
-    @$el.find("div.log_screens").append screen.render().el
+    view = new LogScreenView logScreen: screen
+    @$el.find("div.log_screens").append view.render().el
+    false
 
   render: ->
     @$el.html @template()

@@ -1,4 +1,4 @@
 <b><%= item.get('name') %></b>
 <% logScreens.each(function(screen) { %>
-  <input type='checkbox' title='screen-<%= screen.cid %>'/>
-<% }) %>
+  <input type='checkbox' <% if (screen.hasPair(stream, node)) { %>checked='checked'<% } %>title='screen-<%= screen.cid %>'/>
+<% }); %>
