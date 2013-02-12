@@ -2,7 +2,7 @@
 homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 webConf = require(homeDir + '/.log.io/web_server.conf').config;
 logConf = require(homeDir + '/.log.io/log_server.conf').config;
-server = require('../lib/server.js');
+server = require('Log.io');
 logServer = new server.LogServer(logConf);
 webServer = new server.WebServer(logServer, webConf);
 webServer.run();

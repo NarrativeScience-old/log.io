@@ -4,7 +4,7 @@ fs = require 'fs'
 ENV = '/usr/bin/env'
 BROWSERIFY = "#{ ENV } browserify"
 COFFEE = "#{ ENV } coffee"
-LESS = "./node_modules/.bin/lessc"
+LESS = "#{ ENV } lessc"
 
 TEMPLATE_SRC = "#{ __dirname }/templates"
 TEMPLATE_OUTPUT = "#{ __dirname }/src/templates.coffee"
@@ -35,6 +35,16 @@ task 'less', "Compiles less templates to CSS", ->
 task 'templates', "Compiles templates/*.html to src/templates.coffee", ->
   console.log "Generating src/templates.coffee from templates/*.html"
   buildTemplate()
+
+task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
+  homedir = process.env[if process.platform is 'win32' then 'USERPROFILE' else 'HOME']
+  for c in ['harvester', 'log_server', 'web_server']
+    path = homedir + "/.log.io/#{c}.conf"
+    if not fs.existsSync path
+      copyFile "./conf/#{c}.conf", path
+
+copyFile = (from, to) ->
+  fs.createReadStream(from).pipe fs.createWriteStream to
 
 exportify = (f) ->
   templateName = f.replace '.html', ''
