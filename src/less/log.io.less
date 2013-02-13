@@ -1,10 +1,135 @@
 * {
 	padding: 0px;
 	margin: 0px;
-	font-family: 'Helvetica Neue', Verdana, sans-serif;
+	font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
+	font-weight: 400;
 }
 
 body {
 	color: #eee;
 	background-color: #000;
+	overflow: hidden;
+}
+
+#web_client {
+	position: relative;
+}
+
+#log_controls {
+	vertical-align: top;
+	background-color: #222;
+	position: absolute;
+	border-right: 1px solid #333;
+	width: 250px;
+
+	a.select_mode {
+		display: block;
+		float: left;
+		width: 125px;
+		padding: 10px 0px;
+		text-align: center;
+		background-color: #000;
+		border-bottom: 1px solid #333;
+
+		text-decoration: none;
+		color: #aaa;
+		font-weight: 600;
+		font-size: 14px;
+
+		&.active {
+			color: #eee;
+			background-color: #222;
+			border-bottom: 1px solid #222;
+		}
+	}
+
+	.object_controls {
+		clear: left;
+	}
+
+	.group {
+		h3 {
+			padding: 5px 10px;
+			font-size: 12px;
+			background-color: #111;
+			//border-top: 1px solid #333;
+			border-bottom: 1px solid #333;
+			color: #eee;
+		}
+
+		.screen_buttons {
+			float: right;
+		}
+
+		.item {
+			color: #aaa;
+			font-size: 12px;
+			font-weight: normal;
+			border-bottom: 1px solid #333;
+			padding: 5px 10px;
+
+		}
+	}
+
+	input.filter {
+		border: none;
+		padding: 4px;
+		margin: 10px;
+		width: 225px;
+		font-size: 12px;
+		background-color: #333;
+		color: #ccc;
+	}
+
+}
+
+#log_screens {
+	vertical-align: top;
+	float: left;
+	margin-left: 250px;
+	background-color: #111;
+
+	.log_screen {
+
+		margin: 10px;
+
+		.top_bar {
+			height: 20px;
+			border-top-left-radius: 3px;
+			border-top-right-radius: 3px;
+			background-color: #222;
+		}
+
+		.messages {
+			color: #0e0;
+			background-color: #000;
+			border: 1px solid #222;
+			word-wrap: break-word;
+			overflow: auto;
+			font-size: 12px;
+			line-height: 16px;
+			font-family: 'PT Mono', Courier, sans-serif;
+			padding: 10px;
+		}
+	}
+
+	.status_bar {
+
+		.button {
+			background-color: #333;
+			border: 1px solid #444;
+			border-bottom: 1px solid #222;
+			border-right: 1px solid #222;
+			border-radius: 2px;
+			text-decoration: none;
+
+			font-size: 14px;
+			font-weight: 600;
+			color: #ccc;
+			padding: 5px 10px;
+			margin: 0px 10px 10px;
+			display: block;
+			float: left;
+		}
+	}
 }

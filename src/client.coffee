@@ -106,6 +106,7 @@ class WebClient
       logStreams: @logStreams
       logScreens: @logScreens
     @app.render()
+    @logScreens.add new @logScreens.model name: 'Screen1'
     @socket = io.connect()
     _on = (args...) => @socket.on args...
 
@@ -178,8 +179,7 @@ TODO(msmathers): Build templates, fill out render() methods
 ###
 
 class ClientApplication extends backbone.View
-  el: 'body'
-  id: 'web_client'
+  el: '#web_client'
   template: _.template templates.clientApplication
   initialize: (opts) ->
     {@logNodes, @logStreams, @logScreens} = opts
@@ -189,11 +189,20 @@ class ClientApplication extends backbone.View
       logScreens: @logScreens
     @screens = new LogScreensPanel
       logScreens: @logScreens
+    $(window).resize @_resize
+    @listenTo @logStreams, 'add remove', @_resize
+
+  _resize: =>
+    width = $(window).width() - @$el.find("#log_controls").width()
+    height = $(window).height()
+    @$el.find("#log_screens").width width
+    @$el.find("#log_controls").height height
 
   render: ->
     @$el.html @template()
     @$el.append @controls.render().el
     @$el.append @screens.render().el
+    @_resize()
     @
 
 class LogControlPanel extends backbone.View
@@ -219,6 +228,7 @@ class LogControlPanel extends backbone.View
 
   _toggleMode: (e) =>
     target = $ e.currentTarget
+    target.addClass('active').siblings().removeClass 'active'
     tid = target.attr 'href'
     @$el.find(tid).show().siblings('.object_controls').hide()
     false
@@ -263,6 +273,10 @@ class ObjectGroupControls extends backbone.View
     @object.pairs.each @_addItem
     @listenTo @object.pairs, 'add', @_addItem
     @listenTo @object, 'destroy', => @remove()
+    @header_view = new ObjectGroupHeader
+      object: @object
+      logScreens: @logScreens
+    @header_view.render()
 
   _addItem: (pair) =>
     @_insertItem new ObjectItemControls
@@ -278,6 +292,20 @@ class ObjectGroupControls extends backbone.View
       view.$el.insertAfter @$el.find "div.items div.item:eq(#{index - 1})"
     else
       @$el.find("div.items").prepend view.el
+
+  render: ->
+    @$el.html @template()
+    @$el.prepend @header_view.el
+    @
+
+class ObjectGroupHeader extends backbone.View
+  className: 'header'
+  template: _.template templates.objectGroupHeader
+
+  initialize: (opts) ->
+    {@object, @getPair, @logScreens} = opts
+    @listenTo @logScreens, 'add', => @render()
+    @listenTo @object, 'destroy', => @remove()
 
   render: ->
     @$el.html @template
@@ -321,6 +349,8 @@ class LogScreensPanel extends backbone.View
   initialize: (opts) ->
     {@logScreens} = opts
     @listenTo @logScreens, 'add', @_addLogScreen
+    @listenTo @logScreens, 'add remove', @_resize
+    $(window).resize @_resize
 
   events:
     "click #new_screen_button": "_newScreen"
@@ -334,8 +364,16 @@ class LogScreensPanel extends backbone.View
     @$el.find("div.log_screens").append view.render().el
     false
 
+  _resize: =>
+    lscreens = @logScreens
+    if lscreens.length
+      height = $(window).height() - @$el.find("div.status_bar").height() - 10
+      @$el.find(".log_screen .messages").each ->
+        $(@).height (height/lscreens.length) - 32 - 20
+
   render: ->
     @$el.html @template()
+    @_resize()
     @
 
 class LogScreenView extends backbone.View
@@ -346,12 +384,20 @@ class LogScreenView extends backbone.View
     {@logScreen} = opts 
     @listenTo @logScreen, 'destroy', => @remove()
     @listenTo @logScreen, 'new_log', @_renderNewLog
+    @forceScroll = true
+
+  _recordScroll: (e) =>
+    msgs = @$el.find '.messages'
+    @forceScroll = (msgs.height() + 20 + msgs[0].scrollTop) is msgs[0].scrollHeight
 
   _renderNewLog: (stream, node, level, message) =>
-    @$el.append "#{stream.id}|#{node.id}|#{message}"
+    msgs = @$el.find '.messages'
+    msgs.append "#{stream.id}|#{node.id}|#{message}"
+    msgs[0].scrollTop = msgs[0].scrollHeight if @forceScroll
 
   render: ->
     @$el.html @template()
+    @$el.find(".messages").scroll @_recordScroll
     @
 
 exports.WebClient = WebClient
