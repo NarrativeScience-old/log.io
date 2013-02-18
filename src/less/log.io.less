@@ -67,12 +67,53 @@ body {
 			}
 
 			.diode {
-					width: 8px;
-					height: 8px;
-					margin: 4px 6px 0px 0px;
-					background-color: #999;
-					border-radius: 4px;
+				width: 8px;
+				height: 8px;
+				margin: 4px 6px 0px 0px;
+				background-color: #555;
+				border-radius: 4px;
+
+				&.ping {
+					background-color: #0e0;
+					&.active {
+						background-color: #222;
+					}
 				}
+
+				&.color1 {
+					background-color: #1f77b4;
+				}
+				&.color2 {
+					background-color: #aec7e8;
+				}
+				&.color3 {
+					background-color: #ff7f0e;
+				}
+				&.color4 {
+					background-color: #ffbb78;
+				}
+				&.color5 {
+					background-color: #2ca02c;
+				}
+				&.color6 {
+					background-color: #98df8a;
+				}
+				&.color7 {
+					background-color: #d62728;
+				}
+				&.color8 {
+					background-color: #ff9896;
+				}
+				&.color9 {
+					background-color: #9467bd;
+				}
+				&.color10 {
+					background-color: #c5b0d5;
+				}
+
+
+
+			}
 
 			.screen_buttons {
 				float: right;
@@ -158,7 +199,7 @@ body {
 		}
 
 		div.messages {
-			color: #0e0;
+			
 			background-color: #000;
 			border: 1px solid #333;
 			word-wrap: break-word;
@@ -166,11 +207,43 @@ body {
 
 			.msg {
 				margin: 10px;
+				color: #0e0;
 
-				p {
+				p, p * {
 					font-size: 12px;
 					line-height: 16px;
 					font-family: 'PT Mono', Courier, sans-serif;
+				}
+
+				.color1 {
+					color: #1f77b4;
+				}
+				.color2 {
+					color: #aec7e8;
+				}
+				.color3 {
+					color: #ff7f0e;
+				}
+				.color4 {
+					color: #ffbb78;
+				}
+				.color5 {
+					color: #2ca02c;
+				}
+				.color6 {
+					color: #98df8a;
+				}
+				.color7 {
+					color: #d62728;
+				}
+				.color8 {
+					color: #ff9896;
+				}
+				.color9 {
+					color: #9467bd;
+				}
+				.color10 {
+					color: #c5b0d5;
 				}
 			}
 

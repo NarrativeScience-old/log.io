@@ -1,8 +1,13 @@
 <div class='screen_buttons'>
-<% logScreens.each(function(screen) { %>
-  <input type='checkbox' <% if (screen.hasPair(stream, node)) { %>checked='checked'<% } %>title='screen-<%= screen.cid %>'/>
+<% 
+var active = false;
+logScreens.each(function(screen) {
+  var haspair = screen.hasPair(stream, node);
+  if (haspair) { active = true; }
+%>
+  <input type='checkbox' <% if (haspair) { %>checked='checked'<% } %>title='screen-<%= screen.cid %>'/>
 <% }); %>
 </div>
-<div class='diode floatl'></div>
+<div class='diode floatl <% if (active) { print('active color' + item.color); } %>'></div>
 <div class='item_name floatl'><%= item.get('name') %></div>
 <div style='clear: both;'></div>

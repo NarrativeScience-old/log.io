@@ -22,6 +22,15 @@ io = require 'socket.io-client'
 _ = require 'underscore'
 templates = require './templates'
 
+class ColorManager
+  _max: 20
+  constructor: (@_index=1) ->
+  next: ->
+    @_index = 1 if @index is @_max
+    @_index++;
+
+colors = new ColorManager
+
 ### 
 Backbone models are used to represent nodes and streams.  When nodes
 go offline, their LogNode model is destroyed, along with their
@@ -37,6 +46,7 @@ class _LogObject extends backbone.Model
     super args...
     @screens = new LogScreens
     @pairs = @_pclass()
+    @color = colors.next()
 
 class _LogObjects extends backbone.Collection
   model: _LogObject
@@ -74,14 +84,16 @@ class LogScreen extends backbone.Model
   addPair: (stream, node) ->
     pid = @_pid stream, node
     @pairIds.push pid if pid not in @pairIds
-    stream.trigger 'watch', stream, node, @
+    stream.trigger 'watch', node, @
+    node.trigger 'watch', stream, @
     stream.screens.update @
     node.screens.update @
 
   removePair: (stream, node) ->
     pid = @_pid stream, node
     @pairIds = (p for p in @pairIds when p isnt pid)
-    stream.trigger 'unwatch', stream, node, @
+    stream.trigger 'unwatch', node, @
+    node.trigger 'unwatch', stream, @
     stream.screens.remove @
     node.screens.remove @
 
@@ -90,6 +102,13 @@ class LogScreen extends backbone.Model
     pid in @pairIds
 
   _pid: (stream, node) -> "#{stream.id}:#{node.id}"
+
+  isActive: (object, getPair) ->
+    # Returns true if all object pairs are activated on screen
+    return false if not object.pairs.length
+    object.pairs.every (item) =>
+      [stream, node] = getPair object, item
+      @hasPair stream, node
 
 class LogScreens extends backbone.Collection
   model: LogScreen
@@ -122,6 +141,7 @@ class WebClient
     _on 'remove_stream', @_removeStream
     _on 'add_pair', @_addPair
     _on 'new_log', @_newLog
+    _on 'ping', @_ping
     _on 'disconnect', =>
       @logNodes.each (node) -> node.destroy()
       @logStreams.each (stream) -> stream.destroy()
@@ -132,9 +152,9 @@ class WebClient
   _addStream: (stream) =>
     @logStreams.add stream
     stream = @logStreams.get stream.name
-    stream.on 'watch', (stream, node, screen) =>
+    stream.on 'watch', (node, screen) =>
       @socket.emit 'watch', screen._pid stream, node
-    stream.on 'unwatch', (stream, node, screen) =>
+    stream.on 'unwatch', (node, screen) =>
       @socket.emit 'unwatch', screen._pid stream, node
 
   _removeNode: (node) =>
@@ -146,8 +166,8 @@ class WebClient
   _addPair: (p) =>
     stream = @logStreams.get p.stream
     node = @logNodes.get p.node
-    stream.pairs.update node
-    node.pairs.update stream
+    stream.pairs.add node
+    node.pairs.add stream
     @logScreens.each (screen) ->
       screen.addPair stream, node if screen.hasPair stream, node
 
@@ -162,6 +182,13 @@ class WebClient
           node: node
           level: level
           message: message
+
+  _ping: (msg) =>
+    {stream, node} = msg
+    stream = @logStreams.get stream
+    node = @logNodes.get node
+    stream.trigger 'ping'
+    node.trigger 'ping'
 
   createScreen: (sname) ->
     screen = new LogScreen name: sname
@@ -292,6 +319,7 @@ class ObjectGroupControls extends backbone.View
     @listenTo @object.collection, 'ui_filter', @_filter
     @header_view = new ObjectGroupHeader
       object: @object
+      getPair: @getPair
       logScreens: @logScreens
     @header_view.render()
 
@@ -317,7 +345,7 @@ class ObjectGroupControls extends backbone.View
       @$el.find("div.items").prepend view.el
 
   render: ->
-    @$el.html @template()
+    @$el.html @template
     @$el.prepend @header_view.el
     @
 
@@ -327,13 +355,36 @@ class ObjectGroupHeader extends backbone.View
 
   initialize: (opts) ->
     {@object, @getPair, @logScreens} = opts
-    @listenTo @logScreens, 'add', => @render()
+    @listenTo @logScreens, 'add remove', => @render()
+    @listenTo @object, 'watch unwatch', => @render()
     @listenTo @object, 'destroy', => @remove()
+    @listenTo @object.collection, 'add', => @render()
+    @listenTo @object, 'ping', @_ping
 
-  render: ->
+  events:
+    "click input": "_toggleScreen"
+
+  _toggleScreen: (e) =>
+    checkbox = $ e.currentTarget
+    screen_id = checkbox.attr('title').replace /screen-/ig, ''
+    screen = @logScreens.get screen_id
+    @object.pairs.forEach (item) =>
+      [stream, node] = @getPair @object, item
+      if checkbox.is ':checked'
+        screen.addPair stream, node
+      else
+        screen.removePair stream, node
+
+  _ping: =>
+    @diode.addClass 'ping'
+    setTimeout (=> @diode.removeClass 'ping'), 20
+
+  render: =>
     @$el.html @template
+      getPair: @getPair
       object: @object
       logScreens: @logScreens
+    @diode = @$el.find '.diode'
     @
 
 class ObjectItemControls extends backbone.View
@@ -342,9 +393,10 @@ class ObjectItemControls extends backbone.View
   initialize: (opts) ->
     {@item, @object, @logScreens} = opts
     [@stream, @node] = opts.getPair @object, @item
-    @listenTo @logScreens, 'add', => @render()
+    @listenTo @logScreens, 'add remove', => @render()
     @listenTo @item, 'destroy', => @remove()
     @listenTo @stream, 'watch unwatch', => @render()
+    @listenTo @item, 'ping', @_ping
 
   events:
     "click input": "_toggleScreen"
@@ -358,12 +410,17 @@ class ObjectItemControls extends backbone.View
     else
       screen.removePair @stream, @node
 
+  _ping: =>
+    @diode.addClass 'ping'
+    setTimeout (=> @diode.removeClass 'ping'), 20
+
   render: ->
     @$el.html @template
       item: @item
       stream: @stream
       node: @node
       logScreens: @logScreens
+    @diode = @$el.find '.diode'
     @
 
 class LogScreensPanel extends backbone.View
@@ -404,7 +461,7 @@ class LogScreensPanel extends backbone.View
 class LogScreenView extends backbone.View
   className: 'log_screen'
   template: _.template templates.logScreenView
-  log_template: _.template templates.logMessage
+  logTemplate: _.template templates.logMessage
   initialize: (opts) ->
     {@logScreen} = opts 
     @logMessages = new LogMessages
@@ -446,7 +503,9 @@ class LogScreenView extends backbone.View
     if @filter
       msg = if msg.match @filter then msg.replace @filter, '<span class="highlight">$1</span>' else null
     if msg
-      @msgs.append "<p>#{lmessage.get('stream').id}|#{lmessage.get('node').id}|#{msg}</p>"
+      @msgs.append @logTemplate
+        lmessage: lmessage
+        msg: msg
       @$el.find('.messages')[0].scrollTop = @$el.find('.messages')[0].scrollHeight if @forceScroll
 
   _renderMessages: =>
