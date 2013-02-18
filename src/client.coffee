@@ -53,6 +53,11 @@ class LogNode extends _LogObject
 class LogNodes extends _LogObjects
   model: LogNode
 
+class LogMessage extends backbone.Model
+
+class LogMessages extends backbone.Collection
+  model: LogMessage
+
 ###
 LogScreen models maintain state for screen widgets in the UI.
 When (Stream, Node) pairs are associated with a screen, the pair ID
@@ -128,11 +133,9 @@ class WebClient
     @logStreams.add stream
     stream = @logStreams.get stream.name
     stream.on 'watch', (stream, node, screen) =>
-      if stream.screens.length is 0
-        @socket.emit 'watch', screen._pid stream, node
+      @socket.emit 'watch', screen._pid stream, node
     stream.on 'unwatch', (stream, node, screen) =>
-      if stream.screens.length is 1
-        @socket.emit 'unwatch', screen._pid stream, node
+      @socket.emit 'unwatch', screen._pid stream, node
 
   _removeNode: (node) =>
     @logNodes.get(node.name)?.destroy()
@@ -154,7 +157,11 @@ class WebClient
     node = @logNodes.get node
     @logScreens.each (screen) ->
       if screen.hasPair stream, node
-        screen.trigger 'new_log', stream, node, level, message
+        screen.trigger 'new_log', new LogMessage
+          stream: stream
+          node: node
+          level: level
+          message: message
 
   createScreen: (sname) ->
     screen = new LogScreen name: sname
@@ -190,7 +197,7 @@ class ClientApplication extends backbone.View
     @screens = new LogScreensPanel
       logScreens: @logScreens
     $(window).resize @_resize
-    @listenTo @logStreams, 'add remove', @_resize
+    @listenTo @logScreens, 'add remove', @_resize
 
   _resize: =>
     width = $(window).width() - @$el.find("#log_controls").width()
@@ -245,6 +252,7 @@ class ObjectControls extends backbone.View
   initialize: (opts) ->
     {@objects, @getPair, @logScreens} = opts
     @listenTo @objects, 'add', @_addObject
+    @filter = null
 
   _addObject: (obj) =>
     @_insertObject new ObjectGroupControls
@@ -253,6 +261,7 @@ class ObjectControls extends backbone.View
       logScreens: @logScreens
 
   _insertObject: (view) ->
+    view._filter @filter if @filter
     view.render()
     index = @objects.indexOf view.object
     if index > 0
@@ -260,9 +269,16 @@ class ObjectControls extends backbone.View
     else
       @$el.find("div.groups").prepend view.el
 
+  _filter: (e) =>
+    input = $ e.currentTarget
+    filter = input.val()
+    @filter = if filter then new RegExp "(#{filter})", 'ig' else null
+    @objects.trigger 'ui_filter', @filter
+
   render: ->
     @$el.html @template
       title: @id
+    @$el.find('.filter').keyup @_filter
     @
 
 class ObjectGroupControls extends backbone.View
@@ -273,10 +289,17 @@ class ObjectGroupControls extends backbone.View
     @object.pairs.each @_addItem
     @listenTo @object.pairs, 'add', @_addItem
     @listenTo @object, 'destroy', => @remove()
+    @listenTo @object.collection, 'ui_filter', @_filter
     @header_view = new ObjectGroupHeader
       object: @object
       logScreens: @logScreens
     @header_view.render()
+
+  _filter: (filter) =>
+    if filter and not @object.get('name').match filter
+      @$el.hide()
+    else
+      @$el.show()
 
   _addItem: (pair) =>
     @_insertItem new ObjectItemControls
@@ -360,7 +383,9 @@ class LogScreensPanel extends backbone.View
     false
 
   _addLogScreen: (screen) =>
-    view = new LogScreenView logScreen: screen
+    view = new LogScreenView
+      logScreens: @logScreens
+      logScreen: screen
     @$el.find("div.log_screens").append view.render().el
     false
 
@@ -369,7 +394,7 @@ class LogScreensPanel extends backbone.View
     if lscreens.length
       height = $(window).height() - @$el.find("div.status_bar").height() - 10
       @$el.find(".log_screen .messages").each ->
-        $(@).height (height/lscreens.length) - 32 - 20
+        $(@).height (height/lscreens.length) - 12
 
   render: ->
     @$el.html @template()
@@ -382,22 +407,59 @@ class LogScreenView extends backbone.View
   log_template: _.template templates.logMessage
   initialize: (opts) ->
     {@logScreen} = opts 
+    @logMessages = new LogMessages
     @listenTo @logScreen, 'destroy', => @remove()
-    @listenTo @logScreen, 'new_log', @_renderNewLog
+    @listenTo @logScreen, 'new_log', @_addNewLogMessage
     @forceScroll = true
+    @filter = null
+
+  events:
+    "click .controls .close": "_close"
+    "click .controls .clear": "_clear"
+
+  _close: =>
+    @logMessages.reset()
+    @logScreen.destroy()
+    false
+
+  _clear: =>
+    @logMessages.reset()
+    @_renderMessages()
+    false
+
+  _filter: (e) =>
+    input = $ e.currentTarget
+    filter = input.val()
+    @filter = if filter then new RegExp "(#{filter})", 'ig' else null
+    @_renderMessages()
+
+  _addNewLogMessage: (lmessage) =>
+    @logMessages.add lmessage
+    @_renderNewLog lmessage
 
   _recordScroll: (e) =>
     msgs = @$el.find '.messages'
-    @forceScroll = (msgs.height() + 20 + msgs[0].scrollTop) is msgs[0].scrollHeight
+    @forceScroll = (msgs.height() + msgs[0].scrollTop) is msgs[0].scrollHeight
 
-  _renderNewLog: (stream, node, level, message) =>
-    msgs = @$el.find '.messages'
-    msgs.append "#{stream.id}|#{node.id}|#{message}"
-    msgs[0].scrollTop = msgs[0].scrollHeight if @forceScroll
+  _renderNewLog: (lmessage) =>
+    msg = lmessage.get 'message'
+    if @filter
+      msg = if msg.match @filter then msg.replace @filter, '<span class="highlight">$1</span>' else null
+    if msg
+      @msgs.append "<p>#{lmessage.get('stream').id}|#{lmessage.get('node').id}|#{msg}</p>"
+      @$el.find('.messages')[0].scrollTop = @$el.find('.messages')[0].scrollHeight if @forceScroll
+
+  _renderMessages: =>
+    @msgs.html ''
+    @logMessages.forEach @_renderNewLog
 
   render: ->
     @$el.html @template()
-    @$el.find(".messages").scroll @_recordScroll
+    @$el.find('.messages').scroll @_recordScroll
+    @$el.find('.controls .filter input').keyup @_filter
+    @msgs = @$el.find '.msg'
+    @_renderMessages()
     @
+    
 
 exports.WebClient = WebClient

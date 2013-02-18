@@ -1,3 +1,10 @@
+@controlWidth: 230px;
+@headerSize: 16px;
+@fontSize: 12px;
+
+.floatl { float: left; }
+.floatr { float: right; }
+
 * {
 	padding: 0px;
 	margin: 0px;
@@ -17,29 +24,27 @@ body {
 
 #log_controls {
 	vertical-align: top;
-	background-color: #222;
+	background-color: #333;
 	position: absolute;
 	border-right: 1px solid #333;
-	width: 250px;
+	width: @controlWidth;
 
 	a.select_mode {
 		display: block;
 		float: left;
-		width: 125px;
-		padding: 10px 0px;
+		width: @controlWidth / 2;
+		padding: 8px 0px;
 		text-align: center;
 		background-color: #000;
-		border-bottom: 1px solid #333;
 
 		text-decoration: none;
-		color: #aaa;
+		color: #666;
 		font-weight: 600;
-		font-size: 14px;
+		font-size: @headerSize;
 
 		&.active {
 			color: #eee;
-			background-color: #222;
-			border-bottom: 1px solid #222;
+			background-color: #333;
 		}
 	}
 
@@ -47,37 +52,54 @@ body {
 		clear: left;
 	}
 
-	.group {
-		h3 {
-			padding: 5px 10px;
-			font-size: 12px;
-			background-color: #111;
-			//border-top: 1px solid #333;
-			border-bottom: 1px solid #333;
-			color: #eee;
-		}
+	.groups {
 
-		.screen_buttons {
-			float: right;
-		}
+		overflow: auto;
 
-		.item {
-			color: #aaa;
-			font-size: 12px;
-			font-weight: normal;
-			border-bottom: 1px solid #333;
-			padding: 5px 10px;
+		.group {
+			.header {
+				padding: 8px 10px;
+				font-size: @fontSize;
+				background-color: #000;
+				//border-top: 1px solid #333;
+				border-bottom: 1px solid #333;
+				color: #eee;
+			}
 
+			.diode {
+					width: 8px;
+					height: 8px;
+					margin: 4px 6px 0px 0px;
+					background-color: #999;
+					border-radius: 4px;
+				}
+
+			.screen_buttons {
+				float: right;
+
+				input {
+					margin-left: 3px;
+				}
+			}
+
+			.item {
+				color: #aaa;
+				font-size: @fontSize;
+				border-bottom: 1px solid #333;
+				background-color: #222;
+				padding: 6px 10px;
+			}
 		}
 	}
 
 	input.filter {
 		border: none;
-		padding: 4px;
-		margin: 10px;
-		width: 225px;
+		padding: 6px;
+		width: @controlWidth - 12 - 16;
 		font-size: 12px;
-		background-color: #333;
+		margin: 8px;
+		border: 1px solid #000;
+		background-color: #111;
 		color: #ccc;
 	}
 
@@ -86,30 +108,80 @@ body {
 #log_screens {
 	vertical-align: top;
 	float: left;
-	margin-left: 250px;
+	margin-left: @controlWidth;
 	background-color: #111;
 
-	.log_screen {
-
+	div.log_screen {
 		margin: 10px;
+		position: relative;
 
-		.top_bar {
-			height: 20px;
-			border-top-left-radius: 3px;
-			border-top-right-radius: 3px;
-			background-color: #222;
+		&:hover div.controls {
+			display: block;
 		}
 
-		.messages {
+		div.controls {
+			position: absolute;
+			top: 0px;
+			right: 0px;
+			padding: 5px;
+			float: left;
+			font-size: 12px;
+			display: none;
+
+			a {
+				float: right;
+				padding: 4px 6px;
+				text-decoration: none;
+				margin-left: 5px;
+				font-size: 12px;
+				background-color: #333;
+				border-radius: 2px;
+				border: 1px solid #444;
+				border-bottom: 1px solid #222;
+				border-right: 1px solid #222;
+				color: #eee;
+			}
+
+			a.filter {
+				padding: 3px 4px 3px 6px;
+
+				input {
+					font-size: 12px;
+					border: none;
+					background-color: #111;
+					color: #ccc;
+					padding: 1px;
+					width: 100px;
+					margin-left: 5px;
+				}
+			}
+		}
+
+		div.messages {
 			color: #0e0;
 			background-color: #000;
-			border: 1px solid #222;
+			border: 1px solid #333;
 			word-wrap: break-word;
 			overflow: auto;
-			font-size: 12px;
-			line-height: 16px;
-			font-family: 'PT Mono', Courier, sans-serif;
-			padding: 10px;
+
+			.msg {
+				margin: 10px;
+
+				p {
+					font-size: 12px;
+					line-height: 16px;
+					font-family: 'PT Mono', Courier, sans-serif;
+				}
+			}
+
+			&:hover .controls {
+				display: block;
+			}
+
+			span.highlight {
+				background-color: #0e0;
+				color: #000;
+			}
 		}
 	}
 
