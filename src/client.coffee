@@ -463,7 +463,7 @@ class LogScreenView extends backbone.View
   template: _.template templates.logScreenView
   logTemplate: _.template templates.logMessage
   initialize: (opts) ->
-    {@logScreen} = opts 
+    {@logScreen, @logScreens} = opts 
     @logMessages = new LogMessages
     @listenTo @logScreen, 'destroy', => @remove()
     @listenTo @logScreen, 'new_log', @_addNewLogMessage
@@ -513,7 +513,8 @@ class LogScreenView extends backbone.View
     @logMessages.forEach @_renderNewLog
 
   render: ->
-    @$el.html @template()
+    @$el.html @template
+      logScreens: @logScreens
     @$el.find('.messages').scroll @_recordScroll
     @$el.find('.controls .filter input').keyup @_filter
     @msgs = @$el.find '.msg'
