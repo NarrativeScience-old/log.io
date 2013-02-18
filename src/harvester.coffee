@@ -80,7 +80,7 @@ class LogHarvester
 
   run: ->
     @_connect()
-    for stream in @logStreams
+    @logStreams.forEach (stream) =>
       stream.watch().on 'new_log', (msg) =>
         @_sendLog stream, msg if @_connected
 
