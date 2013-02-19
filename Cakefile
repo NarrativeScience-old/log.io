@@ -38,10 +38,11 @@ task 'templates', "Compiles templates/*.html to src/templates.coffee", ->
 
 task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
   homedir = process.env[if process.platform is 'win32' then 'USERPROFILE' else 'HOME']
+  ldir = homedir + '/.log.io/'
+  fs.mkdir ldir if not fs.existsSync ldir
   for c in ['harvester', 'log_server', 'web_server']
-    path = homedir + "/.log.io/#{c}.conf"
-    if not fs.existsSync path
-      copyFile "./conf/#{c}.conf", path
+    path = ldir + "#{c}.conf"
+    copyFile "./conf/#{c}.conf", path if not fs.existsSync path
 
 copyFile = (from, to) ->
   fs.createReadStream(from).pipe fs.createWriteStream to
