@@ -248,7 +248,7 @@ class ClientApplication extends backbone.View
     width = $(window).width() - @$el.find("#log_controls").width()
     height = $(window).height()
     @$el.find("#log_screens").width width
-    @$el.find("#log_controls").height height
+    @$el.find("#log_controls .groups").height height - 80;
 
   render: ->
     @$el.html @template()

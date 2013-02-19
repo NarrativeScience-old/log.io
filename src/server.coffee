@@ -118,7 +118,8 @@ class LogServer extends events.EventEmitter
   _removeStream: (sname) ->
     @__remove sname, @logStreams, 'stream'
 
-  _newLog: (sname, nname, logLevel, message) ->
+  _newLog: (sname, nname, logLevel, message...) ->
+    message = message.join '|'
     @_log.debug "Log message: (#{sname}, #{nname}, #{logLevel}) #{message}"
     node = @logNodes[nname] or @_addNode nname, sname
     stream = @logStreams[sname] or @_addStream sname, nname

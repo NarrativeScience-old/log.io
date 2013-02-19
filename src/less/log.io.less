@@ -25,6 +25,24 @@
 
 .floatl { float: left; }
 .floatr { float: right; }
+.scrollr {
+	overflow: auto;
+
+	&::-webkit-scrollbar {
+	    width: 10px;
+	    background-color: #333;
+	}
+	 
+	&::-webkit-scrollbar-track {
+	    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+	    border-radius: 8px;
+	}
+	 
+	&::-webkit-scrollbar-thumb {
+	    border-radius: 8px;
+	    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+	}
+}
 
 * {
 	padding: 0px;
@@ -75,7 +93,8 @@ body {
 	}
 
 	.groups {
-		overflow: auto;
+		.scrollr;
+
 		.group {
 			.header {
 				position: relative;
@@ -89,7 +108,7 @@ body {
 			.diode {
 				width: 8px;
 				height: 8px;
-				margin: 4px 6px 0px 0px;
+				margin: 4px 8px 0px 0px;
 				background-color: #555;
 				border-radius: 4px;
 
@@ -172,7 +191,7 @@ body {
 		div.controls {
 			position: absolute;
 			top: 0px;
-			right: 0px;
+			right: 10px;
 			padding: 5px;
 			float: left;
 			font-size: 12px;
@@ -212,7 +231,7 @@ body {
 			background-color: #111;
 			border: 1px solid #333;
 			word-wrap: break-word;
-			overflow: auto;
+			.scrollr;
 
 			.msg {
 				margin: 10px;
