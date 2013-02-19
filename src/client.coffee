@@ -203,8 +203,8 @@ class WebClient
     {stream, node} = msg
     stream = @logStreams.get stream
     node = @logNodes.get node
-    stream.trigger 'ping'
-    node.trigger 'ping'
+    stream.trigger 'ping', node
+    node.trigger 'ping', stream
     @stats.messages++
 
   _disconnect: =>
@@ -438,9 +438,10 @@ class ObjectItemControls extends backbone.View
     else
       screen.removePair @stream, @node
 
-  _ping: =>
-    @diode.addClass 'ping'
-    setTimeout (=> @diode.removeClass 'ping'), 20
+  _ping: (object) =>
+    if object is @object
+      @diode.addClass 'ping'
+      setTimeout (=> @diode.removeClass 'ping'), 20
 
   render: ->
     @$el.html @template
