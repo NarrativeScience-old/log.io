@@ -22,6 +22,12 @@ io = require 'socket.io-client'
 _ = require 'underscore'
 templates = require './templates'
 
+###
+ColorManager acts as a circular queue for color values.
+Every new Stream or Node is assigned a color value on instantiation.
+
+###
+
 class ColorManager
   _max: 20
   constructor: (@_index=1) ->
@@ -122,6 +128,11 @@ LogStreams collections, which triggers view events.
 
 class WebClient
   constructor: ->
+    @stats =
+      nodes: 0
+      streams: 0
+      messages: 0
+      start: new Date().getTime()
     @logNodes = new LogNodes
     @logStreams = new LogStreams
     @logScreens = new LogScreens
@@ -129,6 +140,7 @@ class WebClient
       logNodes: @logNodes
       logStreams: @logStreams
       logScreens: @logScreens
+      webClient: @
     @app.render()
     @logScreens.add new @logScreens.model name: 'Screen1'
     @socket = io.connect()
@@ -148,9 +160,11 @@ class WebClient
 
   _addNode: (node) =>
     @logNodes.add node
+    @stats.nodes++
 
   _addStream: (stream) =>
     @logStreams.add stream
+    @stats.streams++
     stream = @logStreams.get stream.name
     stream.on 'watch', (node, screen) =>
       @socket.emit 'watch', screen._pid stream, node
@@ -159,9 +173,11 @@ class WebClient
 
   _removeNode: (node) =>
     @logNodes.get(node.name)?.destroy()
+    @stats.nodes--
 
   _removeStream: (stream) =>
     @logStreams.get(stream.name)?.destroy()
+    @stats.streams--
 
   _addPair: (p) =>
     stream = @logStreams.get p.stream
@@ -189,6 +205,7 @@ class WebClient
     node = @logNodes.get node
     stream.trigger 'ping'
     node.trigger 'ping'
+    @stats.messages++
 
   createScreen: (sname) ->
     screen = new LogScreen name: sname
@@ -216,13 +233,14 @@ class ClientApplication extends backbone.View
   el: '#web_client'
   template: _.template templates.clientApplication
   initialize: (opts) ->
-    {@logNodes, @logStreams, @logScreens} = opts
+    {@logNodes, @logStreams, @logScreens, @webClient} = opts
     @controls = new LogControlPanel
       logNodes: @logNodes
       logStreams: @logStreams
       logScreens: @logScreens
     @screens = new LogScreensPanel
       logScreens: @logScreens
+      webClient: @webClient
     $(window).resize @_resize
     @listenTo @logScreens, 'add remove', @_resize
 
@@ -427,10 +445,11 @@ class LogScreensPanel extends backbone.View
   template: _.template templates.logScreensPanel
   id: 'log_screens'
   initialize: (opts) ->
-    {@logScreens} = opts
+    {@logScreens, @webClient} = opts
     @listenTo @logScreens, 'add', @_addLogScreen
     @listenTo @logScreens, 'add remove', @_resize
     $(window).resize @_resize
+    @statsView = new LogStatsView stats: @webClient.stats
 
   events:
     "click #new_screen_button": "_newScreen"
@@ -455,6 +474,7 @@ class LogScreensPanel extends backbone.View
 
   render: ->
     @$el.html @template()
+    @$el.find('.stats').append @statsView.render().el
     @_resize()
     @
 
@@ -521,5 +541,18 @@ class LogScreenView extends backbone.View
     @_renderMessages()
     @
     
+class LogStatsView extends backbone.View
+  template: _.template templates.logStatsView
+  className: 'stats'
+  initialize: (opts) ->
+    {@stats} = opts
+    @rendered = false
+    setInterval (=> @render() if @rendered), 1000
+
+  render: ->
+    @$el.html @template
+      stats: @stats
+    @rendered = true
+    @
 
 exports.WebClient = WebClient

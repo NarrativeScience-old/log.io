@@ -1,4 +1,4 @@
-@controlWidth: 230px;
+@controlWidth: 250px;
 @headerSize: 16px;
 @fontSize: 12px;
 
@@ -9,7 +9,6 @@
 	padding: 0px;
 	margin: 0px;
 	font-family: 'Source Sans Pro', Verdana, Arial, sans-serif;
-	font-weight: 400;
 }
 
 body {
@@ -46,6 +45,10 @@ body {
 			color: #eee;
 			background-color: #333;
 		}
+
+		&:hover {
+			color: #eee;
+		}
 	}
 
 	.object_controls {
@@ -57,8 +60,10 @@ body {
 		overflow: auto;
 
 		.group {
+
 			.header {
-				padding: 8px 10px;
+				position: relative;
+				padding: 6px 10px;
 				font-size: @fontSize;
 				background-color: #000;
 				//border-top: 1px solid #333;
@@ -116,8 +121,9 @@ body {
 			}
 
 			.screen_buttons {
-				float: right;
-
+				position: absolute;
+				top: 6px;
+				right: 5px;
 				input {
 					margin-left: 3px;
 				}
@@ -129,6 +135,7 @@ body {
 				border-bottom: 1px solid #333;
 				background-color: #222;
 				padding: 6px 10px;
+				position: relative;
 			}
 		}
 	}
@@ -150,7 +157,7 @@ body {
 	vertical-align: top;
 	float: left;
 	margin-left: @controlWidth;
-	background-color: #111;
+	background-color: #000;
 
 	div.log_screen {
 		margin: 10px;
@@ -200,7 +207,7 @@ body {
 
 		div.messages {
 			
-			background-color: #000;
+			background-color: #111;
 			border: 1px solid #333;
 			word-wrap: break-word;
 			overflow: auto;
@@ -276,6 +283,23 @@ body {
 			margin: 0px 10px 10px;
 			display: block;
 			float: left;
+		}
+
+		.stats {
+			float: right;
+			.stat {
+				float: right;
+				margin: 0px 30px 0px 0px;
+				line-height: 30px;
+				.num {
+					font-size: 32px;
+					color: #eee;
+				}
+				.label {
+					font-size: 12px;
+					color: #666;
+				}
+			}
 		}
 	}
 }
