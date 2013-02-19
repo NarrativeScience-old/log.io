@@ -32,7 +32,7 @@ class ColorManager
   _max: 20
   constructor: (@_index=1) ->
   next: ->
-    @_index = 1 if @index is @_max
+    @_index = 1 if @_index is @_max
     @_index++;
 
 colors = new ColorManager
@@ -208,10 +208,8 @@ class WebClient
     @stats.messages++
 
   _disconnect: =>
-    @logNodes.forEach (node) ->
-      node.pairs.forEach (stream) ->
-        stream.destroy()
-      node.destroy()
+    @logNodes.reset()
+    @logStreams.reset()
 
   createScreen: (sname) ->
     screen = new LogScreen name: sname
@@ -253,9 +251,7 @@ class ClientApplication extends backbone.View
 
   _resize: =>
     width = $(window).width() - @$el.find("#log_controls").width()
-    height = $(window).height()
     @$el.find("#log_screens").width width
-    @$el.find("#log_controls .groups").height height - 80;
 
   render: ->
     @$el.html @template()
@@ -304,6 +300,8 @@ class ObjectControls extends backbone.View
   initialize: (opts) ->
     {@objects, @getPair, @logScreens} = opts
     @listenTo @objects, 'add', @_addObject
+    @listenTo @objects, 'reset', => @render()
+    $(window).resize @_resize
     @filter = null
 
   _addObject: (obj) =>
@@ -327,10 +325,15 @@ class ObjectControls extends backbone.View
     @filter = if filter then new RegExp "(#{filter})", 'ig' else null
     @objects.trigger 'ui_filter', @filter
 
+  _resize: =>
+    height = $(window).height()
+    @$el.find(".groups").height height - 80;
+
   render: ->
     @$el.html @template
       title: @id
     @$el.find('.filter').keyup @_filter
+    @_resize()
     @
 
 class ObjectGroupControls extends backbone.View
