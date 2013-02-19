@@ -56,6 +56,8 @@ class _LogObject extends backbone.Model
 
 class _LogObjects extends backbone.Collection
   model: _LogObject
+  comparator: (obj) ->
+    obj.get 'name'
 
 class LogStream extends _LogObject
   _pclass: -> new LogNodes
@@ -154,9 +156,7 @@ class WebClient
     _on 'add_pair', @_addPair
     _on 'new_log', @_newLog
     _on 'ping', @_ping
-    _on 'disconnect', =>
-      @logNodes.each (node) -> node.destroy()
-      @logStreams.each (stream) -> stream.destroy()
+    _on 'disconnect', @_disconnect
 
   _addNode: (node) =>
     @logNodes.add node
@@ -207,6 +207,12 @@ class WebClient
     node.trigger 'ping'
     @stats.messages++
 
+  _disconnect: =>
+    @logNodes.forEach (node) ->
+      node.pairs.forEach (stream) ->
+        stream.destroy()
+      node.destroy()
+
   createScreen: (sname) ->
     screen = new LogScreen name: sname
     @logScreens.add screen
@@ -224,6 +230,7 @@ ClientApplication
         ObjectItemControls
   LogScreenPanel
     LogScreenView
+    LogStatsView
 
 TODO(msmathers): Build templates, fill out render() methods
 

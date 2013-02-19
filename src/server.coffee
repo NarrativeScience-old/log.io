@@ -48,7 +48,7 @@ class _LogObject
     if not pair = @pairs[pname]
       if not pair = @pcollection[pname]
         pair = @pcollection[pname] = new @pclass @logServer, pname
-        pair.pairs[@name] = @
+      pair.pairs[@name] = @
       @pairs[pname] = pair
       @logServer.emit "add_#{@_type}_pair", @, pname
 
