@@ -9,7 +9,7 @@ Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
 Users define log streams by mapping file paths to a stream name. Browse streams and nodes in the web UI, and activate (stream, node) pairs to view and search log messages.
 
-### Install
+#3 Install
 
 1) Install via npm
 
@@ -29,25 +29,25 @@ Users define log streams by mapping file paths to a stream name. Browse streams 
 
 5) Browse to http://localhost:28778
 
-### Simple TCP Interface
+#3 Simple TCP Interface
 
 Harvesters connect to the server via TCP, and write properly formatted strings to the socket.  Third party harvesters can send messages to the server using the following commands:
 
 Send a log message
 
-    +log|my_stream|my_node|info|this is log message\\r\\n
+    +log|my_stream|my_node|info|this is log message\r\n
 
 Register a new node
 
-    +node|my_node\\r\\n
+    +node|my_node\r\n
 
 Register a new node, with stream associations
 
-    +node|my_node|my_stream1,my_stream2\\r\\n
+    +node|my_node|my_stream1,my_stream2\r\n
 
 Remove a node
 
-    -node|my_node\\r\\n
+    -node|my_node\r\n
 
 ## Credits
 
