@@ -7,11 +7,11 @@ Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
 *Harvesters* watch log files for changes, send new log messages to the *server* via TCP, which broadcasts to *web clients* via socket.io.
 
-Define log streams by mapping file paths to a stream name in harvester configuration.
+Log streams are defined by mapping file paths to a stream name in harvester configuration.
 
 Users browse streams and nodes in the web UI, and activate (stream, node) pairs to view and search log messages in screen widgets.
 
-## Install
+## Install Server & Harvester
 
 1) Install via npm
 
@@ -31,7 +31,7 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
 
 5) Browse to http://localhost:28778
 
-## Simple TCP Interface
+## Server TCP Interface
 
 Harvesters connect to the server via TCP, and write properly formatted strings to the socket.  Third party harvesters can send messages to the server using the following commands:
 
