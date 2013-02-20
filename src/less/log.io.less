@@ -1,6 +1,14 @@
+/*
+ * Log.io Web Client styles
+ */
+
+// Defaults
+
 @controlWidth: 250px;
 @headerSize: 16px;
 @fontSize: 12px;
+
+// Colors
 
 @color1: #1f77b4;
 @color2: #aec7e8;
@@ -23,6 +31,8 @@
 @color19: #17becf;
 @color20: #9edae5;
 
+// General purpose
+
 .floatl { float: left; }
 .floatr { float: right; }
 .scrollr {
@@ -44,6 +54,8 @@
 	}
 }
 
+// Globals
+
 * {
 	padding: 0px;
 	margin: 0px;
@@ -59,6 +71,8 @@ body {
 #web_client {
 	position: relative;
 }
+
+// Control panel
 
 #log_controls {
 	vertical-align: top;
@@ -104,20 +118,11 @@ body {
 				border-top: 1px solid #333;
 				color: #eee;
 
-				/* Safari 4+, Chrome 1-9 */
-				background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#000), to(#111));
-
-				/* Safari 5.1+, Mobile Safari, Chrome 10+ */
-				background-image: -webkit-linear-gradient(top, #000, #111); 
-
-				/* Firefox 3.6+ */
-				background-image: -moz-linear-gradient(top, #000, #111);
-
-				/* IE 10+ */
-				background-image: -ms-linear-gradient(top, #000, #111);
-
-				/* Opera 11.10+ */
-				background-image: -o-linear-gradient(top, #000, #111);
+				background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#111), to(#000));
+				background-image: -webkit-linear-gradient(top, #111, #000); 
+				background-image: -moz-linear-gradient(top, #111, #000);
+				background-image: -ms-linear-gradient(top, #111, #000);
+				background-image: -o-linear-gradient(top, #111, #000);
 			}
 
 			.diode {
@@ -186,8 +191,9 @@ body {
 		background-color: #111;
 		color: #ccc;
 	}
-
 }
+
+// Log Screen panel
 
 #log_screens {
 	vertical-align: top;
@@ -255,7 +261,6 @@ body {
 				p, p * {
 					font-size: 12px;
 					line-height: 16px;
-					//font-family: 'PT Mono', Courier, sans-serif;
 					font-family: Courier, sans-serif;
 				}
 
