@@ -7,7 +7,9 @@ Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
 *Harvesters* watch log files for changes, send new log messages to the *server* via TCP, which broadcasts to *web clients* via socket.io.
 
-Users define log streams by mapping file paths to a stream name. Browse streams and nodes in the web UI, and activate (stream, node) pairs to view and search log messages.
+Define log streams by mapping file paths to a stream name in harvester configuration.
+
+Users browse streams and nodes in the web UI, and activate (stream, node) pairs to view and search log messages in screen widgets.
 
 ## Install
 
