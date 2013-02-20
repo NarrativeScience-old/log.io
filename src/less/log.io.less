@@ -101,8 +101,23 @@ body {
 				padding: 6px 10px;
 				font-size: @fontSize;
 				background-color: #000;
-				border-bottom: 1px solid #333;
+				border-top: 1px solid #333;
 				color: #eee;
+
+				/* Safari 4+, Chrome 1-9 */
+				background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#000), to(#111));
+
+				/* Safari 5.1+, Mobile Safari, Chrome 10+ */
+				background-image: -webkit-linear-gradient(top, #000, #111); 
+
+				/* Firefox 3.6+ */
+				background-image: -moz-linear-gradient(top, #000, #111);
+
+				/* IE 10+ */
+				background-image: -ms-linear-gradient(top, #000, #111);
+
+				/* Opera 11.10+ */
+				background-image: -o-linear-gradient(top, #000, #111);
 			}
 
 			.diode {
@@ -153,7 +168,7 @@ body {
 			.item {
 				color: #aaa;
 				font-size: @fontSize;
-				border-bottom: 1px solid #333;
+				border-top: 1px solid #111;
 				background-color: #222;
 				padding: 6px 10px;
 				position: relative;

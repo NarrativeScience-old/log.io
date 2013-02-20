@@ -4,6 +4,7 @@ fs = require 'fs'
 ENV = '/usr/bin/env'
 BROWSERIFY = "#{ ENV } browserify"
 COFFEE = "#{ ENV } coffee"
+MOCHA = "#{ ENV } mocha"
 LESS = "#{ ENV } lessc"
 
 TEMPLATE_SRC = "#{ __dirname }/templates"
@@ -11,8 +12,9 @@ TEMPLATE_OUTPUT = "#{ __dirname }/src/templates.coffee"
 
 task 'build', "Builds Log.io package", ->
   invoke 'templates'
-  invoke 'less'
   invoke 'compile'
+  invoke 'func_test'
+  invoke 'less'
   invoke 'browserify'
 
 task 'compile', "Compiles CoffeeScript src/*.coffee to lib/*.js", ->
@@ -43,6 +45,16 @@ task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
   for c in ['harvester', 'log_server', 'web_server']
     path = ldir + "#{c}.conf"
     copyFile "./conf/#{c}.conf", path if not fs.existsSync path
+
+task 'func_test', "Compiles & runs functional tests in test/", ->
+  console.log "Compiling test/*.coffee to test/lib/*.js..."
+  exec "#{COFFEE} --compile --output #{__dirname}/test/lib/ #{__dirname}/test/", (err, stdout, stderr) ->
+    throw err if err
+    console.log stdout + stderr if stdout + stderr
+    console.log "Running tests..."
+    exec "#{MOCHA} --reporter spec test/lib/functional.js", (err, stdout, stderr) ->
+      throw err if err
+      console.log stdout + stderr if stdout + stderr
 
 copyFile = (from, to) ->
   fs.createReadStream(from).pipe fs.createWriteStream to

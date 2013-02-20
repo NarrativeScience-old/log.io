@@ -88,6 +88,7 @@ class LogScreen extends backbone.Model
   constructor: (args...) ->
     super args...
     @pairIds = []
+    @logMessages = new LogMessages
 
   addPair: (stream, node) ->
     pid = @_pid stream, node
@@ -129,7 +130,7 @@ LogStreams collections, which triggers view events.
 ###
 
 class WebClient
-  constructor: ->
+  constructor: (opts={}) ->
     @stats =
       nodes: 0
       streams: 0
@@ -145,7 +146,7 @@ class WebClient
       webClient: @
     @app.render()
     @logScreens.add new @logScreens.model name: 'Screen1'
-    @socket = io.connect()
+    @socket = io.connect opts.host ? ''
     _on = (args...) => @socket.on args...
 
     # Bind to socket events from server
@@ -246,10 +247,11 @@ class ClientApplication extends backbone.View
     @screens = new LogScreensPanel
       logScreens: @logScreens
       webClient: @webClient
-    $(window).resize @_resize
+    $(window).resize @_resize if window?
     @listenTo @logScreens, 'add remove', @_resize
 
   _resize: =>
+    return if not window?
     width = $(window).width() - @$el.find("#log_controls").width()
     @$el.find("#log_screens").width width
 
@@ -301,7 +303,7 @@ class ObjectControls extends backbone.View
     {@objects, @getPair, @logScreens} = opts
     @listenTo @objects, 'add', @_addObject
     @listenTo @objects, 'reset', => @render()
-    $(window).resize @_resize
+    $(window).resize @_resize if window?
     @filter = null
 
   _addObject: (obj) =>
@@ -326,6 +328,7 @@ class ObjectControls extends backbone.View
     @objects.trigger 'ui_filter', @filter
 
   _resize: =>
+    return if not window?
     height = $(window).height()
     @$el.find(".groups").height height - 80;
 
@@ -459,7 +462,7 @@ class LogScreensPanel extends backbone.View
     {@logScreens, @webClient} = opts
     @listenTo @logScreens, 'add', @_addLogScreen
     @listenTo @logScreens, 'add remove', @_resize
-    $(window).resize @_resize
+    $(window).resize @_resize if window?
     @statsView = new LogStatsView stats: @webClient.stats
 
   events:
@@ -477,6 +480,7 @@ class LogScreensPanel extends backbone.View
     false
 
   _resize: =>
+    return if not window?
     lscreens = @logScreens
     if lscreens.length
       height = $(window).height() - @$el.find("div.status_bar").height() - 10
@@ -495,7 +499,6 @@ class LogScreenView extends backbone.View
   logTemplate: _.template templates.logMessage
   initialize: (opts) ->
     {@logScreen, @logScreens} = opts 
-    @logMessages = new LogMessages
     @listenTo @logScreen, 'destroy', => @remove()
     @listenTo @logScreen, 'new_log', @_addNewLogMessage
     @forceScroll = true
@@ -506,12 +509,12 @@ class LogScreenView extends backbone.View
     "click .controls .clear": "_clear"
 
   _close: =>
-    @logMessages.reset()
+    @logScreen.logMessages.reset()
     @logScreen.destroy()
     false
 
   _clear: =>
-    @logMessages.reset()
+    @logScreen.logMessages.reset()
     @_renderMessages()
     false
 
@@ -522,7 +525,7 @@ class LogScreenView extends backbone.View
     @_renderMessages()
 
   _addNewLogMessage: (lmessage) =>
-    @logMessages.add lmessage
+    @logScreen.logMessages.add lmessage
     @_renderNewLog lmessage
 
   _recordScroll: (e) =>
@@ -541,7 +544,7 @@ class LogScreenView extends backbone.View
 
   _renderMessages: =>
     @msgs.html ''
-    @logMessages.forEach @_renderNewLog
+    @logScreen.logMessages.forEach @_renderNewLog
 
   render: ->
     @$el.html @template

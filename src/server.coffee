@@ -161,7 +161,9 @@ class WebServer
     @_log.info 'Starting Log.io Web Server...'
     @logServer.run()
     @http = @http.listen @port
-    @listener = io.listen(@http).sockets
+    io = io.listen(@http)
+    io.set 'log level', 1
+    @listener = io.sockets
     
     _on = (args...) => @logServer.on args...
     _emit = (_event, msg) => 
@@ -199,6 +201,7 @@ class WebServer
       for n, node of @logNodes
         for s, stream of node.pairs
           wclient.emit 'add_pair', {stream: s, node: n}
+      wclient.emit 'initialized'
       wclient.on 'watch', (pid) ->
         wclient.join pid
       wclient.on 'unwatch', (pid) ->
