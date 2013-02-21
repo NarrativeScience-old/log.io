@@ -39,9 +39,11 @@ task 'templates', "Compiles templates/*.html to src/templates.coffee", ->
   buildTemplate()
 
 task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
+  console.log "Creating ~/.log.io/ for configuration files."
+  console.log "If this fails, run npm using a specific user: npm install -g log.io --user 'ubuntu'"
   homedir = process.env[if process.platform is 'win32' then 'USERPROFILE' else 'HOME']
   ldir = homedir + '/.log.io/'
-  fs.mkdir ldir if not fs.existsSync ldir
+  fs.mkdirSync ldir if not fs.existsSync ldir
   for c in ['harvester', 'log_server', 'web_server']
     path = ldir + "#{c}.conf"
     copyFile "./conf/#{c}.conf", path if not fs.existsSync path
