@@ -22,6 +22,9 @@ io = require 'socket.io-client'
 _ = require 'underscore'
 templates = require './templates'
 
+# Cap LogMessages collection size
+MESSAGE_CAP = 5000
+
 ###
 ColorManager acts as a circular queue for color values.
 Every new Stream or Node is assigned a color value on instantiation.
@@ -75,6 +78,13 @@ class LogMessage extends backbone.Model
 
 class LogMessages extends backbone.Collection
   model: LogMessage
+  constructor: (args...) ->
+    super args...
+    @on 'add', @_capped
+
+  _capped: =>
+    @remove @at (@length - MESSAGE_CAP) if @length > MESSAGE_CAP
+      
 
 ###
 LogScreen models maintain state for screen widgets in the UI.
