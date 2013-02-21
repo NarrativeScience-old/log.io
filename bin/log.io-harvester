@@ -1,25 +1,13 @@
-#!/usr/local/bin/node
-
-/*
- * Runs Log.IO harvester
- * Reads configuration from /etc/log.io/harvester.conf
- */
-
-var logio = require('log.io');
-
-// Import config
-var config = require('/etc/log.io/harvester.conf').config;
-
-// Import config, determine harvester instance name
-if (process.env.LOGIO_HARVESTER_INSTANCE_NAME && !config.instance_name) {
-config.instance_name = process.env.LOGIO_HARVESTER_INSTANCE_NAME;
-} else if (!config.instance_name) {
-console.log("ERROR: Unable to determine harvester instance name.");
-console.log("Either set 'instance_name' in /etc/log.io/harvester.conf,");
-console.log("or defined LOGIO_HARVESTER_INSTANCE_NAME in your environment.");
-process.exit(1);
-}
-
-// Instantiate & run
-var harvester = new logio.Harvester(config);
+#!/usr/bin/env node
+winston = require('winston');
+logging = new winston.Logger({
+  transports: [ new winston.transports.Console({
+    level: 'error'
+  })]
+});
+homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+conf = require(homeDir + '/.log.io/harvester.conf').config;
+conf.logging = logging;
+harvester = require('log.io');
+harvester = new harvester.LogHarvester(conf);
 harvester.run();

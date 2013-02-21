@@ -1,3 +1,17 @@
+# 0.3.0 / 2013-02-20
+
+- Complete rewrite using CoffeeScript + Backbone.js
+- Server uses backend TCP interface
+- Server leverages EventEmitter to decouple components
+- Installs in user space, removed forever and adduser dependencies
+- No longer daemonized on install, OS-agnostic
+- Uses Cake to run builds
+- Uses mocha/chai for functional tests
+- Replaces LogFile with LogStream concept
+  - Harvester configuration maps list of file paths to stream name
+  - Web client UI displays nodes by stream name, and vice versa
+- Web client UI rebuilt using Backbone.js events, models, and views
+
 # 0.2.7 / 2012-06-18
 
 - Updated install.sh to use useradd instead of adduser for better linux support
