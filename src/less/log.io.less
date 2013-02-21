@@ -96,6 +96,11 @@ body {
 		&.active {
 			color: #eee;
 			background-color: #333;
+			background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222), to(#333));
+			background-image: -webkit-linear-gradient(top, #222, #333); 
+			background-image: -moz-linear-gradient(top, #222, #333);
+			background-image: -ms-linear-gradient(top, #222, #333);
+			background-image: -o-linear-gradient(top, #222, #333);
 		}
 		&:hover {
 			color: #eee;
@@ -256,7 +261,7 @@ body {
 
 			.msg {
 				margin: 10px;
-				color: #0c0;
+				color: #0f0;
 
 				p, p * {
 					font-size: 12px;
