@@ -15,7 +15,7 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
 
 1) Install via npm
 
-    npm install -g log.io
+    npm install -g log.io --user "ubuntu"
 
 2) Run server
 
