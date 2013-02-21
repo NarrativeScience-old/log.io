@@ -5,60 +5,51 @@ Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
 ## How does it work?
 
-*Harvesters* watch log files for changes, send new log messages to the *server*, which broadcasts to *web clients*.
+*Harvesters* watch log files for changes, send new log messages to the *server* via TCP, which broadcasts to *web clients* via socket.io.
 
-Users create *stream* and *history* screens to view and search log messages.
+Log streams are defined by mapping file paths to a stream name in harvester configuration.
 
-## Requirements
+Users browse streams and nodes in the web UI, and activate (stream, node) pairs to view and search log messages in screen widgets.
 
-[node.js](http://nodejs.org) (>=0.4.9)
-
-[socket.io](http://socket.io) (>=0.9.0)
-
-[socket.io-client](https://github.com/LearnBoost/socket.io-client) (>=0.9.0)
-
-[forever](https://github.com/indexzero/forever) (>=0.8.2)
-
-[connect](http://senchalabs.github.com/connect/) (<=1.8.4)
-
-[underscore](http://documentcloud.github.com/underscore/) (>=1.1.7)
-
-## Compatibility
-
-Harvesters & server have been tested on *Ubuntu 12.04*
-
-Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
-
-# Install log server on Machine A
+## Install Server & Harvester
 
 1) Install via npm
 
-    sudo npm config set unsafe-perm true 
-    sudo npm install -g --prefix=/usr/local log.io
+    npm install -g log.io
 
-2) Launch server
+2) Run server
 
-    sudo log.io server start
+    log.io-server
 
-3) Browse to:
+3) Configure harvester
 
-    http://machine_a.host.com:8998
+    nano ~/.log.io/harvester.conf
 
-# Install log harvester on Machine B
+4) Run harvester
 
-1) Install via npm
+    log.io-harvester
 
-    sudo npm config set unsafe-perm true 
-    sudo npm install -g --prefix=/usr/local log.io
+5) Browse to http://localhost:28778
 
-2) Configure harvester (optional; modify /etc/log.io/harvester.conf)
+## Server TCP Interface
 
-- Server host
-- Local log files
+Harvesters connect to the server via TCP, and write properly formatted strings to the socket.  Third party harvesters can send messages to the server using the following commands:
 
-3) Launch harvester
+Send a log message
 
-    sudo log.io harvester start
+    +log|my_stream|my_node|info|this is log message\r\n
+
+Register a new node
+
+    +node|my_node\r\n
+
+Register a new node, with stream associations
+
+    +node|my_node|my_stream1,my_stream2\r\n
+
+Remove a node
+
+    -node|my_node\r\n
 
 ## Credits
 
@@ -68,15 +59,19 @@ Web clients have been tested on *Chrome*, *Safari*, and *Firefox*.
 
 ## Acknowledgements
 
+- Jeremy Ashkenas ([jashkenas](https://github.com/jashkenas))
+
 - Guillermo Rauch &lt;guillermo@learnboost.com&gt; ([Guille](http://github.com/guille))
 
 - Ryan Dahl &lt;ry at tiny clouds dot org&gt; ([ry](https://github.com/ry)) + Joyent http://www.joyent.com/ ([joyent](https://github.com/joyent/))
 
-- P.J. Onori &lt;http://somerandomdude.com&gt; ([somerandomdude](https://github.com/somerandomdude))
+- [turtlebender](http://github.com/turtlebender)
+
+- [jdrake](http://github.com/jdrake)
 
 ## License 
 
-Copyright 2012 Narrative Science &lt;contrib@narrativescience.com&gt;
+Copyright 2013 Narrative Science &lt;contrib@narrativescience.com&gt;
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
