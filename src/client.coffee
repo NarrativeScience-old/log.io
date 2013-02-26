@@ -221,6 +221,8 @@ class WebClient
   _disconnect: =>
     @logNodes.reset()
     @logStreams.reset()
+    @stats.nodes = 0
+    @stats.streams = 0
 
   createScreen: (sname) ->
     screen = new LogScreen name: sname
