@@ -27,7 +27,7 @@ webServer.run()
 
 ###
 
-net = require 'net'
+nssocket = require 'nssocket'
 io = require 'socket.io'
 connect = require 'connect'
 events = require 'events'
@@ -85,8 +85,8 @@ class LogServer extends events.EventEmitter
 
   run: ->
     # Create TCP listener socket
-    @listener = net.createServer (socket) =>
-      socket.on 'data', (data) =>
+    @listener = nssocket.createServer (socket) =>
+      socket.data 'data', (data) =>
         msgs = data.toString().split @_delimiter
         @_handle socket, msg for msg in msgs when msg
       socket.on 'error', (e) =>
@@ -141,7 +141,7 @@ class LogServer extends events.EventEmitter
     if node = @logNodes[nname]
       @_log.info "Binding node '#{nname}' to TCP socket"
       socket.node = node
-      setInterval (-> socket.write 'ping'), 2000
+      setInterval (-> socket.send 'ping'), 2000
 
 
 ###
