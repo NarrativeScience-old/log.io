@@ -97,7 +97,7 @@ class LogServer extends events.EventEmitter
     part = data.toString()
     socket._buffer += part
     @_log.debug "Received TCP message: #{part}"
-    @_flush socket if part.indexOf @_delimiter >= 0
+    @_flush socket if socket._buffer.indexOf @_delimiter >= 0
 
   _flush: (socket) =>
     # Handle messages in socket buffer
