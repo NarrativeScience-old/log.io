@@ -26,7 +26,7 @@ harvester.run()
 ###
 
 fs = require 'fs'
-net = require 'net'
+nssocket = require 'nssocket'
 events = require 'events'
 winston = require 'winston'
 
@@ -86,7 +86,7 @@ class LogHarvester
 
   _connect: ->
     # Create TCP socket
-    @socket = new net.Socket
+    @socket = new nssocket.NsSocket {reconnect: true, type: 'tcp4'}
     @socket.on 'error', (error) =>
       @_connected = false
       @_log.error "Unable to connect server, trying again..."
@@ -107,6 +107,6 @@ class LogHarvester
     @_send '+bind', 'node', @nodeName
 
   _send: (mtype, args...) ->
-    @socket.write "#{mtype}|#{args.join '|'}#{@delim}"
+    @socket.send "data", "#{mtype}|#{args.join '|'}#{@delim}"
 
 exports.LogHarvester = LogHarvester
