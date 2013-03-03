@@ -86,13 +86,26 @@ class LogServer extends events.EventEmitter
   run: ->
     # Create TCP listener socket
     @listener = net.createServer (socket) =>
-      socket.on 'data', (data) =>
-        msgs = data.toString().split @_delimiter
-        @_handle socket, msg for msg in msgs when msg
+      socket._buffer = ''
+      socket.on 'data', (data) => @_receive data, socket
       socket.on 'error', (e) =>
         @_log.error 'Lost TCP connection...'
         @_removeNode socket.node.name if socket.node
     @listener.listen @port
+
+  _receive: (data, socket) =>
+    part = data.toString()
+    socket._buffer += part
+    @_log.debug "Received TCP message: #{part}"
+    @_flush socket if part.indexOf @_delimiter >= 0
+
+  _flush: (socket) =>
+    # Handle messages in socket buffer
+    # Pause socket while modifying buffer
+    socket.pause()
+    [msgs..., socket._buffer] = socket._buffer.split @_delimiter
+    socket.resume()
+    @_handle socket, msg for msg in msgs
 
   _handle: (socket, msg) ->
     @_log.debug "Handling message: #{msg}"
