@@ -77,7 +77,7 @@ inbound TCP messages, and emits events.
 ###
 class LogServer extends events.EventEmitter
   constructor: (config={}) ->
-    {@port} = config
+    {@host, @port} = config
     @_log = config.logging ? winston
     @_delimiter = config.delimiter ? '\r\n'
     @logNodes = {}
@@ -91,7 +91,7 @@ class LogServer extends events.EventEmitter
       socket.on 'error', (e) =>
         @_log.error 'Lost TCP connection...'
         @_removeNode socket.node.name if socket.node
-    @listener.listen @port
+    @listener.listen @port, @host
 
   _receive: (data, socket) =>
     part = data.toString()
@@ -164,7 +164,7 @@ WebServer relays LogServer events to web clients via socket.io.
 
 class WebServer
   constructor: (@logServer, config) ->
-    {@port} = config
+    {@host, @port} = config
     {@logNodes, @logStreams} = @logServer
     @staticPath = config.staticPath ? '/../'
     @_log = config.logging ? winston
@@ -173,8 +173,7 @@ class WebServer
   run: ->
     @_log.info 'Starting Log.io Web Server...'
     @logServer.run()
-    @http = @http.listen @port
-    io = io.listen(@http)
+    io = io.listen @http.listen @port, @host
     io.set 'log level', 1
     @listener = io.sockets
     
