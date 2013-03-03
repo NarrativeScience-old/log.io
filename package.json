@@ -17,7 +17,8 @@
     "socket.io-client": "~0.9.11",
     "connect": "~2.7.2",
     "winston": "~0.6.2",
-    "coffee-script": "~1.4.0"
+    "coffee-script": "~1.4.0",
+    "nssocket": "~0.3.8"
   },
   "devDependencies": {
     "browserify": "~1.16.6",
