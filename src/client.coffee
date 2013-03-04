@@ -103,16 +103,16 @@ class LogScreen extends backbone.Model
   addPair: (stream, node) ->
     pid = @_pid stream, node
     @pairIds.push pid if pid not in @pairIds
-    stream.trigger 'watch', node, @
-    node.trigger 'watch', stream, @
+    stream.trigger 'lwatch', node, @
+    node.trigger 'lwatch', stream, @
     stream.screens.update @
     node.screens.update @
 
   removePair: (stream, node) ->
     pid = @_pid stream, node
     @pairIds = (p for p in @pairIds when p isnt pid)
-    stream.trigger 'unwatch', node, @
-    node.trigger 'unwatch', stream, @
+    stream.trigger 'lunwatch', node, @
+    node.trigger 'lunwatch', stream, @
     stream.screens.remove @
     node.screens.remove @
 
@@ -177,9 +177,9 @@ class WebClient
     @logStreams.add stream
     @stats.streams++
     stream = @logStreams.get stream.name
-    stream.on 'watch', (node, screen) =>
+    stream.on 'lwatch', (node, screen) =>
       @socket.emit 'watch', screen._pid stream, node
-    stream.on 'unwatch', (node, screen) =>
+    stream.on 'lunwatch', (node, screen) =>
       @socket.emit 'unwatch', screen._pid stream, node
 
   _removeNode: (node) =>
@@ -399,8 +399,8 @@ class ObjectGroupHeader extends backbone.View
   initialize: (opts) ->
     {@object, @getPair, @logScreens} = opts
     @listenTo @logScreens, 'add remove', => @render()
-    @listenTo @object, 'watch unwatch', => @render()
     @listenTo @object, 'destroy', => @remove()
+    @listenTo @object, 'lwatch lunwatch', => @render()
     @listenTo @object.collection, 'add', => @render()
     @listenTo @object, 'ping', @_ping
 
@@ -438,7 +438,7 @@ class ObjectItemControls extends backbone.View
     [@stream, @node] = opts.getPair @object, @item
     @listenTo @logScreens, 'add remove', => @render()
     @listenTo @item, 'destroy', => @remove()
-    @listenTo @stream, 'watch unwatch', => @render()
+    @listenTo @stream, 'lwatch lunwatch', => @render()
     @listenTo @item, 'ping', @_ping
 
   events:

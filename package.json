@@ -9,7 +9,7 @@
     { "name": "Mike Smathers", "email": "msmathers@narrativescience.com" }
   ],
   "dependencies": {
-    "backbone": "~0.9.9",
+    "backbone": "~0.9.10",
     "underscore": "~1.4.3",
     "jquery": "~1.8.1",
     "jquery-browserify": "~1.8.1",
