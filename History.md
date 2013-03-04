@@ -1,3 +1,10 @@
+# 0.3.1 / 2013-03-03
+
+- Firefox compatibility; renamed "watch" events on backbone objects
+- Server buffers raw TCP messages, fixes #52
+- Server host binding support, fixes #53
+- Style/Less updates
+
 # 0.3.0 / 2013-02-20
 
 - Complete rewrite using CoffeeScript + Backbone.js
