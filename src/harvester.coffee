@@ -55,6 +55,7 @@ class LogStream extends events.EventEmitter
 
   _readNewLogs: (path, curr, prev) ->
     # Use file offset information to stream new log lines from file
+    return if curr < prev
     rstream = fs.createReadStream path,
       encoding: 'utf8'
       start: prev
