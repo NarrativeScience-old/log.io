@@ -164,11 +164,13 @@ WebServer relays LogServer events to web clients via socket.io.
 
 class WebServer
   constructor: (@logServer, config) ->
-    {@host, @port} = config
+    {@host, @port, @auth} = config
     {@logNodes, @logStreams} = @logServer
     @staticPath = config.staticPath ? '/../'
     @_log = config.logging ? winston
-    @http = connect.createServer connect.static __dirname + @staticPath
+    cargs = if @auth then [connect.basicAuth @auth.user, @auth.pass] else []
+    cargs.push connect.static __dirname + @staticPath
+    @http = connect.createServer cargs...
 
   run: ->
     @_log.info 'Starting Log.io Web Server...'
