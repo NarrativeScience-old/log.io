@@ -1,3 +1,8 @@
+# 0.3.2 / 2013-03-10
+
+- Harvester handles 'rename' file event, fixes log rotation bug
+- Adds HTTP basic authentication for web server
+
 # 0.3.1 / 2013-03-03
 
 - Firefox compatibility; renamed "watch" events on backbone objects
