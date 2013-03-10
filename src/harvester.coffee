@@ -44,9 +44,17 @@ class LogStream extends events.EventEmitter
     @
 
   _watchFile: (path) ->
+      if not fs.existsSync path
+        @_log.error "File doesn't exist: '#{path}'"
+        setTimeout (=> @_watchFile path), 1000
+        return
       @_log.info "Watching file: '#{path}'"
       currSize = fs.statSync(path).size
-      fs.watch path, (event, filename) =>
+      watcher = fs.watch path, (event, filename) =>
+        if event is 'rename'
+          # File has been rotated, start new watcher
+          watcher.close()
+          @_watchFile path
         if event is 'change'
           # Capture file offset information for change event
           fs.stat path, (err, stat) =>
