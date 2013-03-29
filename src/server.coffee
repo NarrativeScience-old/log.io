@@ -169,24 +169,38 @@ class WebServer
   constructor: (@logServer, config) ->
     {@host, @port, @auth} = config
     {@logNodes, @logStreams} = @logServer
-    @staticPath = config.staticPath ? __dirname + '/../'
+    @restrictSocket = config.restrictSocket ? '*:*'
     @_log = config.logging ? winston
     # Create express server
+    app = @_buildServer config
+    @http = @_createServer config, app
+
+  _buildServer: (config) ->
     app = express()
-    app.use express.static @staticPath
+    if config.restrictHTTP
+      ips = new RegExp config.restrictHTTP.join '|'
+      app.all '/', (req, res, next) =>
+        if not req.ip.match ips
+          return res.send 403, "Your IP (#{req.ip}) is not allowed to connect."
+        next()
+    staticPath = config.staticPath ? __dirname + '/../'
+    app.use express.static staticPath
+
+  _createServer: (config, app) ->
     if config.ssl
-      @http = https.createServer {
+      return https.createServer {
         key: fs.readFileSync config.ssl.key
         cert: fs.readFileSync config.ssl.cert
       }, app
     else
-      @http = http.createServer app
+      return http.createServer app
 
   run: ->
     @_log.info 'Starting Log.io Web Server...'
     @logServer.run()
     io = io.listen @http.listen @port, @host
     io.set 'log level', 1
+    io.set 'origins', @restrictSocket
     @listener = io.sockets
     
     _on = (args...) => @logServer.on args...
