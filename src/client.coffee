@@ -75,6 +75,10 @@ class LogNodes extends _LogObjects
   model: LogNode
 
 class LogMessage extends backbone.Model
+  ROPEN = new RegExp '<','ig'
+  RCLOSE = new RegExp '>','ig'
+  render_message: ->
+    @get('message').replace(ROPEN, '&lt;').replace(RCLOSE, '&gt;')
 
 class LogMessages extends backbone.Collection
   model: LogMessage
@@ -550,9 +554,10 @@ class LogScreenView extends backbone.View
     @forceScroll = (msgs.height() + msgs[0].scrollTop) is msgs[0].scrollHeight
 
   _renderNewLog: (lmessage) =>
-    msg = lmessage.get 'message'
+    _msg = lmessage.get 'message'
+    msg = lmessage.render_message()
     if @filter
-      msg = if msg.match @filter then msg.replace @filter, '<span class="highlight">$1</span>' else null
+      msg = if _msg.match @filter then msg.replace @filter, '<span class="highlight">$1</span>' else null
     if msg
       @msgs.append @logTemplate
         lmessage: lmessage
