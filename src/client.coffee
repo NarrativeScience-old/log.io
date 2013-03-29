@@ -99,30 +99,35 @@ in case a node goes offline, and a new LogNode model is created.
 ###
 class LogScreen extends backbone.Model
   idAttribute: null
+  defaults: ->
+    pairIds: []
   constructor: (args...) ->
     super args...
-    @pairIds = []
     @logMessages = new LogMessages
 
   addPair: (stream, node) ->
+    pairIds = @get 'pairIds'
     pid = @_pid stream, node
-    @pairIds.push pid if pid not in @pairIds
+    pairIds.push pid if pid not in pairIds
     stream.trigger 'lwatch', node, @
     node.trigger 'lwatch', stream, @
     stream.screens.update @
     node.screens.update @
+    @collection.trigger 'addPair'
 
   removePair: (stream, node) ->
+    pairIds = @get 'pairIds'
     pid = @_pid stream, node
-    @pairIds = (p for p in @pairIds when p isnt pid)
+    @set 'pairIds', (p for p in pairIds when p isnt pid)
     stream.trigger 'lunwatch', node, @
     node.trigger 'lunwatch', stream, @
     stream.screens.remove @
     node.screens.remove @
+    @collection.trigger 'removePair'
 
   hasPair: (stream, node) ->
     pid = @_pid stream, node
-    pid in @pairIds
+    pid in @get 'pairIds'
 
   _pid: (stream, node) -> "#{stream.id}:#{node.id}"
 
@@ -144,7 +149,7 @@ LogStreams collections, which triggers view events.
 ###
 
 class WebClient
-  constructor: (opts={host: '', secure: false}) ->
+  constructor: (opts={host: '', secure: false}, @localStorage={}) ->
     @stats =
       nodes: 0
       streams: 0
@@ -159,7 +164,7 @@ class WebClient
       logScreens: @logScreens
       webClient: @
     @app.render()
-    @logScreens.add new @logScreens.model name: 'Screen1'
+    @_initScreens()
     @socket = io.connect opts.host, secure: opts.secure
     _on = (args...) => @socket.on args...
 
@@ -172,6 +177,13 @@ class WebClient
     _on 'new_log', @_newLog
     _on 'ping', @_ping
     _on 'disconnect', @_disconnect
+
+  _initScreens: =>
+    @logScreens.on 'add remove addPair removePair', =>
+      @localStorage['logScreens'] = JSON.stringify @logScreens.toJSON()
+    screenCache = @localStorage['logScreens']
+    screens = if screenCache then JSON.parse(screenCache) else [{name: 'Screen1'}]
+    @logScreens.add new @logScreens.model screen for screen in screens
 
   _addNode: (node) =>
     @logNodes.add node
