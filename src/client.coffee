@@ -530,9 +530,14 @@ class LogScreenView extends backbone.View
     @_renderMessages()
     false
 
-  _filter: (e) =>
+  __filter: (e) =>
     input = $ e.currentTarget
-    filter = input.val()
+    _filter_buffer = input.val()
+    wait = =>
+      @_filter _filter_buffer if _filter_buffer is input.val()
+    setTimeout wait, 350
+
+  _filter: (filter) =>
     @filter = if filter then new RegExp "(#{filter})", 'ig' else null
     @_renderMessages()
 
@@ -562,7 +567,7 @@ class LogScreenView extends backbone.View
     @$el.html @template
       logScreens: @logScreens
     @$el.find('.messages').scroll @_recordScroll
-    @$el.find('.controls .filter input').keyup @_filter
+    @$el.find('.controls .filter input').keyup @__filter
     @msgs = @$el.find '.msg'
     @_renderMessages()
     @
