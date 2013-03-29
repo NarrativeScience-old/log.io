@@ -1,3 +1,12 @@
+# 0.3.3 / 2013-03-29
+
+- SSL support for WebServer, fixes #31
+- Uses localStorage to persist screen state, fixes #44
+- Restrict access to HTTP server and socket.io by IP, fixes #59
+- Escapes HTML in log messages, fixes #58
+- WebClient buffers keystrokes before filtering messages
+- Added express framework to WebServer
+
 # 0.3.2 / 2013-03-10
 
 - Harvester handles 'rename' file event, fixes log rotation bug
