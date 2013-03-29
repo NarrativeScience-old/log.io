@@ -140,7 +140,7 @@ LogStreams collections, which triggers view events.
 ###
 
 class WebClient
-  constructor: (opts={}) ->
+  constructor: (opts={host: '', secure: false}) ->
     @stats =
       nodes: 0
       streams: 0
@@ -156,7 +156,7 @@ class WebClient
       webClient: @
     @app.render()
     @logScreens.add new @logScreens.model name: 'Screen1'
-    @socket = io.connect opts.host ? ''
+    @socket = io.connect opts.host, secure: opts.secure
     _on = (args...) => @socket.on args...
 
     # Bind to socket events from server
@@ -214,8 +214,8 @@ class WebClient
     {stream, node} = msg
     stream = @logStreams.get stream
     node = @logNodes.get node
-    stream.trigger 'ping', node
-    node.trigger 'ping', stream
+    stream.trigger 'ping', node if stream
+    node.trigger 'ping', stream if node
     @stats.messages++
 
   _disconnect: =>

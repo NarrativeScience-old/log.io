@@ -27,11 +27,14 @@ webServer.run()
 
 ###
 
+fs = require 'fs'
 net = require 'net'
+http = require 'http'
+https = require 'https'
 io = require 'socket.io'
-connect = require 'connect'
 events = require 'events'
 winston = require 'winston'
+express = require 'express'
 
 class _LogObject
   _type: 'object'
@@ -166,11 +169,18 @@ class WebServer
   constructor: (@logServer, config) ->
     {@host, @port, @auth} = config
     {@logNodes, @logStreams} = @logServer
-    @staticPath = config.staticPath ? '/../'
+    @staticPath = config.staticPath ? __dirname + '/../'
     @_log = config.logging ? winston
-    cargs = if @auth then [connect.basicAuth @auth.user, @auth.pass] else []
-    cargs.push connect.static __dirname + @staticPath
-    @http = connect.createServer cargs...
+    # Create express server
+    app = express()
+    app.use express.static @staticPath
+    if config.ssl
+      @http = https.createServer {
+        key: fs.readFileSync config.ssl.key
+        cert: fs.readFileSync config.ssl.cert
+      }, app
+    else
+      @http = http.createServer app
 
   run: ->
     @_log.info 'Starting Log.io Web Server...'
