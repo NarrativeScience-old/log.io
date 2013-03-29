@@ -181,7 +181,7 @@ class WebServer
       ips = new RegExp config.restrictHTTP.join '|'
       app.all '/', (req, res, next) =>
         if not req.ip.match ips
-          return res.send 403, "Your IP (#{req.ip}) is not allowed to connect."
+          return res.send 403, "Your IP (#{req.ip}) is not allowed."
         next()
     staticPath = config.staticPath ? __dirname + '/../'
     app.use express.static staticPath
