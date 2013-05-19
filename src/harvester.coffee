@@ -30,8 +30,6 @@ net = require 'net'
 events = require 'events'
 util = require './util'
 
-class _LogObject
-
 ###
 LogStream is a group of local files paths.  It watches each file for
 changes, extracts new log messages, and emits 'new_log' events.
