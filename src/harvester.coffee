@@ -28,7 +28,9 @@ harvester.run()
 fs = require 'fs'
 net = require 'net'
 events = require 'events'
-winston = require 'winston'
+util = require './util'
+
+class _LogObject
 
 ###
 LogStream is a group of local files paths.  It watches each file for
@@ -84,7 +86,7 @@ class LogHarvester
   constructor: (config) ->
     {@nodeName, @server} = config
     @delim = config.delimiter ? '\r\n'
-    @_log = config.logging ? winston
+    @_log = config.logging ? util.logger(config.log_level ? 'info')
     @logStreams = (new LogStream s, paths, @_log for s, paths of config.logStreams)
 
   run: ->

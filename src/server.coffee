@@ -33,8 +33,8 @@ http = require 'http'
 https = require 'https'
 io = require 'socket.io'
 events = require 'events'
-winston = require 'winston'
 express = require 'express'
+util = require './util'
 
 class _LogObject
   _type: 'object'
@@ -81,12 +81,13 @@ inbound TCP messages, and emits events.
 class LogServer extends events.EventEmitter
   constructor: (config={}) ->
     {@host, @port} = config
-    @_log = config.logging ? winston
+    @_log = config.logging ? util.logger(config.log_level ? 'info')
     @_delimiter = config.delimiter ? '\r\n'
     @logNodes = {}
     @logStreams = {}
 
   run: ->
+    @_log.info "Starting Log.io TCP Server on #{@host}:#{@port}..."
     # Create TCP listener socket
     @listener = net.createServer (socket) =>
       socket._buffer = ''
@@ -170,7 +171,7 @@ class WebServer
     {@host, @port, @auth} = config
     {@logNodes, @logStreams} = @logServer
     @restrictSocket = config.restrictSocket ? '*:*'
-    @_log = config.logging ? winston
+    @_log = config.logging ? util.logger(config.log_level ? 'info')
     # Create express server
     app = @_buildServer config
     @http = @_createServer config, app
@@ -196,9 +197,9 @@ class WebServer
       return http.createServer app
 
   run: ->
-    @_log.info 'Starting Log.io Web Server...'
+    @_log.info "Starting Log.io Web Server on #{@host}:#{@port}..."
     @logServer.run()
-    io = io.listen @http.listen @port, @host
+    io = io.listen @http.listen(@port, @host), logger: @_log
     io.set 'log level', 1
     io.set 'origins', @restrictSocket
     @listener = io.sockets

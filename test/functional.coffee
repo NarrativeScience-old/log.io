@@ -17,8 +17,9 @@ should = chai.should()
 {LogHarvester} = require '../../lib/harvester.js'
 {LogServer, WebServer} = require '../../lib/server.js'
 {WebClient} = require '../../lib/client.js'
-logging = new winston.Logger
-  transports: [ new winston.transports.Console level: 'error']
+util = require '../../lib/util.js'
+
+logging = util.logger 'warn'
 
 # Configuration
 
