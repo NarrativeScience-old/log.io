@@ -7,6 +7,7 @@
 ###
 
 fs = require 'fs'
+net = require 'net'
 chai = require 'chai'
 _ = require 'underscore'
 winston = require 'winston'
@@ -85,6 +86,20 @@ describe 'LogServer', ->
     logServer.logNodes.should.have.keys 'server01', 'server02'
     logServer.logStreams.should.have.keys 'stream1', 'stream2', 'stream3'
 
+  # TCP connect
+  tcpClient = new net.Socket
+
+  it 'should accept data over tcp socket', ->
+    tcpClient.connect 28771, ->
+      tcpClient.write("+log|stream4|server01|info|test\r\n")
+      tcpClient.write("+log|stream4|server02|info|test\r\n")
+      tcpClient.end()
+
+  it 'should add nodes and streams from new logs', ->
+    tcpClient.on 'end', ->
+      logServer.logStreams.should.contain.keys 'stream4'
+      logServer.logStreams['stream4'].pairs.should.have.keys 'server01', 'server02'
+
 # Initialize client
 
 webClient = new WebClient host: 'http://0.0.0.0:28772'
@@ -98,7 +113,7 @@ describe 'WebClient', ->
       describe 'WebClient state', ->
         it 'should be notified of registered nodes & streams', ->
           webClient.logNodes.should.have.length 2
-          webClient.logStreams.should.have.length 3
+          webClient.logStreams.should.have.length 4
 
         it 'creates a log screen and actives a node/stream pair', ->
           screen1 = webClient.createScreen 'Screen 1'
