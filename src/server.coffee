@@ -139,6 +139,8 @@ class LogServer extends events.EventEmitter
     @_log.debug "Log message: (#{sname}, #{nname}, #{logLevel}) #{message}"
     node = @logNodes[nname] or @_addNode nname, sname
     stream = @logStreams[sname] or @_addStream sname, nname
+    if stream.pairs and not stream.pairs[nname]
+      @_addStream sname, nname
     @emit 'new_log', stream, node, logLevel, message
 
   __add: (name, pnames, _collection, _objClass, objName) ->
