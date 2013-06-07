@@ -18,6 +18,8 @@ process.argv.forEach(function(val,index,array){
     else
         nextArg = val;
 });
+require('util').print('web server conf:', webServerConfPath,'\n');
+require('util').print('log server conf:', logServerConfPath,'\n');
 
 webConf = require(webServerConfPath).config;
 webConf.logging = logging;

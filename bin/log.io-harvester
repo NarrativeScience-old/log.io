@@ -15,6 +15,7 @@ process.argv.forEach(function(val,index,array){
     else
         nextArg = val;
 });
+require('util').print('harvester conf:', harvesterConfPath,'\n');
 
 conf = require(harvesterConfPath).config;
 conf.logging = logging;
