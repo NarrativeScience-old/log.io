@@ -6,8 +6,19 @@ logging = new winston.Logger({
   })]
 });
 homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-conf = require(homeDir + '/.log.io/harvester.conf').config;
+
+harvesterConfPath = homeDir + '/.log.io/harvester.conf';
+nextArg = null;
+process.argv.forEach(function(val,index,array){
+    if (nextArg == '-c')
+        harvesterConfPath = val
+    else
+        nextArg = val;
+});
+
+conf = require(harvesterConfPath).config;
 conf.logging = logging;
+
 harvester = require('log.io');
 harvester = new harvester.LogHarvester(conf);
 harvester.run();

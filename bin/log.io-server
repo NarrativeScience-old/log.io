@@ -6,10 +6,24 @@ logging = new winston.Logger({
   })]
 });
 homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-webConf = require(homeDir + '/.log.io/web_server.conf').config;
+
+webServerConfPath = homeDir + '/.log.io/web_server.conf';
+logServerConfPath = homeDir + '/.log.io/log_server.conf';
+nextArg = null;
+process.argv.forEach(function(val,index,array){
+    if (nextArg == '-w')
+        webServerConfPath = val
+    else if (nextArg == '-l')
+        logServerConfPath = val
+    else
+        nextArg = val;
+});
+
+webConf = require(webServerConfPath).config;
 webConf.logging = logging;
-logConf = require(homeDir + '/.log.io/log_server.conf').config;
+logConf = require(logServerConfPath).config;
 logConf.logging = logging;
+
 server = require('log.io');
 logServer = new server.LogServer(logConf);
 webServer = new server.WebServer(logServer, webConf);
