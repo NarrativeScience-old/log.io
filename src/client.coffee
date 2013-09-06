@@ -563,7 +563,7 @@ class LogScreenView extends backbone.View
 
   _recordScroll: (e) =>
     msgs = @$el.find '.messages'
-    @forceScroll = (msgs.height() + msgs[0].scrollTop) is msgs[0].scrollHeight
+    @forceScroll = (parseInt(msgs.height(),10) + msgs[0].scrollTop) is msgs[0].scrollHeight
 
   _renderNewLog: (lmessage) =>
     _msg = lmessage.get 'message'
