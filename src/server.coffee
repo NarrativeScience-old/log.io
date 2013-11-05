@@ -177,6 +177,8 @@ class WebServer
 
   _buildServer: (config) ->
     app = express()
+    if @auth?
+      app.use express.basicAuth @auth.user, @auth.pass
     if config.restrictHTTP
       ips = new RegExp config.restrictHTTP.join '|'
       app.all '/', (req, res, next) =>
@@ -202,9 +204,9 @@ class WebServer
     io.set 'log level', 1
     io.set 'origins', @restrictSocket
     @listener = io.sockets
-    
+
     _on = (args...) => @logServer.on args...
-    _emit = (_event, msg) => 
+    _emit = (_event, msg) =>
       @_log.debug "Relaying: #{_event}"
       @listener.emit _event, msg
 
