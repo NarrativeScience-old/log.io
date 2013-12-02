@@ -70,54 +70,57 @@ logServer = new LogServer LOG_SERVER_CONFIG
 webServer = new WebServer logServer, WEB_SERVER_CONFIG
 webServer.run()
 
-describe 'LogServer', ->
-  it 'should have no nodes or streams initially', ->
-    _.keys(logServer.logNodes).should.have.length 0
-    _.keys(logServer.logStreams).should.have.length 0
+test = ->
+  describe 'LogServer', ->
+    it 'should have no nodes or streams initially', ->
+      _.keys(logServer.logNodes).should.have.length 0
+      _.keys(logServer.logStreams).should.have.length 0
 
-  # Connect harvesters
-  harvester1 = new LogHarvester HARVESTER1_CONFIG
-  harvester2 = new LogHarvester HARVESTER2_CONFIG
-  harvester1.run()
-  harvester2.run()
+    # Connect harvesters
+    harvester1 = new LogHarvester HARVESTER1_CONFIG
+    harvester2 = new LogHarvester HARVESTER2_CONFIG
+    harvester1.run()
+    harvester2.run()
 
-  it 'should have registered nodes & streams once connected', ->
-    logServer.logNodes.should.have.keys 'server01', 'server02'
-    logServer.logStreams.should.have.keys 'stream1', 'stream2', 'stream3'
+    it 'should have registered nodes & streams once connected', ->
+      logServer.logNodes.should.have.keys 'server01', 'server02'
+      logServer.logStreams.should.have.keys 'stream1', 'stream2', 'stream3'
 
-# Initialize client
+  # Initialize client
 
-webClient = new WebClient host: 'http://0.0.0.0:28772'
+  webClient = new WebClient host: 'http://0.0.0.0:28772'
 
-# Write to watched files, verify end-to-end propagation
+  # Write to watched files, verify end-to-end propagation
 
-describe 'WebClient', ->
-  it 'waits for server connection...', (connected) ->
-    webClient.socket.on 'initialized', ->
+  describe 'WebClient', ->
+    it 'waits for server connection...', (connected) ->
+      webClient.socket.on 'initialized', ->
 
-      describe 'WebClient state', ->
-        it 'should be notified of registered nodes & streams', ->
-          webClient.logNodes.should.have.length 2
-          webClient.logStreams.should.have.length 3
+        describe 'WebClient state', ->
+          it 'should be notified of registered nodes & streams', ->
+            webClient.logNodes.should.have.length 2
+            webClient.logStreams.should.have.length 3
 
-        it 'creates a log screen and actives a node/stream pair', ->
-          screen1 = webClient.createScreen 'Screen 1'
-          stream1 = webClient.logStreams.get 'stream1'
-          node1 = webClient.logNodes.get 'server01'
-          screen1.addPair stream1, node1
-          screen1.logMessages.should.have.length 0
-          
-          describe 'log message propagation', ->
-            it 'should populate client backbone collection on file writes', (done) ->
-              msg1 = "log message 1"
-              msg2 = "log message 2"
-              # This file is a member of the watched stream
-              fs.appendFileSync TEST_FILES[0], "#{msg1}\n"
-              # This file is not a member of the watched stream
-              fs.appendFileSync TEST_FILES[2], "#{msg2}\n"
-              webClient.socket.once 'new_log', ->
-                screen1.logMessages.should.have.length 1
-                screen1.logMessages.at(0).get('message').should.equal msg1
-                done()
+          it 'creates a log screen and actives a node/stream pair', ->
+            screen1 = webClient.createScreen 'Screen 1'
+            stream1 = webClient.logStreams.get 'stream1'
+            node1 = webClient.logNodes.get 'server01'
+            screen1.addPair stream1, node1
+            screen1.logMessages.should.have.length 0
+            
+            describe 'log message propagation', ->
+              it 'should populate client backbone collection on file writes', (done) ->
+                msg1 = "log message 1"
+                msg2 = "log message 2"
+                # This file is a member of the watched stream
+                fs.appendFileSync TEST_FILES[0], "#{msg1}\n"
+                # This file is not a member of the watched stream
+                fs.appendFileSync TEST_FILES[2], "#{msg2}\n"
+                webClient.socket.once 'new_log', ->
+                  screen1.logMessages.should.have.length 1
+                  screen1.logMessages.at(0).get('message').should.equal msg1
+                  done()
 
-      connected()
+        connected()
+
+setTimeout test, 200

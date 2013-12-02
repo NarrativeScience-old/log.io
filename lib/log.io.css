@@ -1,0 +1,71 @@
+.floatl{float:left;}
+.floatr{float:right;}
+.scrollr{overflow:auto;}.scrollr::-webkit-scrollbar{width:10px;background-color:#333;}
+.scrollr::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.3);border-radius:8px;}
+.scrollr::-webkit-scrollbar-thumb{border-radius:8px;-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.5);}
+*{padding:0px;margin:0px;font-family:'Source Sans Pro',Verdana,Arial,sans-serif;}
+body{color:#eee;background-color:#000;overflow:hidden;}
+#web_client{position:relative;}
+#log_controls{vertical-align:top;background-color:#333;position:absolute;border-right:1px solid #333;width:250px;}#log_controls a.select_mode{display:block;float:left;width:125px;padding:8px 0px;text-align:center;background-color:#000;text-decoration:none;color:#666;font-weight:600;font-size:16px;}#log_controls a.select_mode.active{color:#eee;background-color:#333;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#222222), to(#333333));background-image:-webkit-linear-gradient(top, #222222, #333333);background-image:-moz-linear-gradient(top, #222222, #333333);background-image:-ms-linear-gradient(top, #222222, #333333);background-image:-o-linear-gradient(top, #222222, #333333);}
+#log_controls a.select_mode:hover{color:#eee;}
+#log_controls .object_controls{clear:left;}
+#log_controls .groups{overflow:auto;}#log_controls .groups::-webkit-scrollbar{width:10px;background-color:#333;}
+#log_controls .groups::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.3);border-radius:8px;}
+#log_controls .groups::-webkit-scrollbar-thumb{border-radius:8px;-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.5);}
+#log_controls .groups .group .header{position:relative;padding:6px 10px;font-size:12px;background-color:#000;border-top:1px solid #333;color:#eee;background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#111111), to(#000000));background-image:-webkit-linear-gradient(top, #111111, #000000);background-image:-moz-linear-gradient(top, #111111, #000000);background-image:-ms-linear-gradient(top, #111111, #000000);background-image:-o-linear-gradient(top, #111111, #000000);}#log_controls .groups .group .header .object_name{width:195px;overflow:hidden;}
+#log_controls .groups .group .diode{width:8px;height:8px;margin:4px 8px 0px 0px;background-color:#555;border-radius:4px;}#log_controls .groups .group .diode.ping{background-color:#0e0;}#log_controls .groups .group .diode.ping.active{background-color:#222;}
+#log_controls .groups .group .diode.color1{background-color:#1f77b4;}
+#log_controls .groups .group .diode.color2{background-color:#aec7e8;}
+#log_controls .groups .group .diode.color3{background-color:#ff7f0e;}
+#log_controls .groups .group .diode.color4{background-color:#ffbb78;}
+#log_controls .groups .group .diode.color5{background-color:#2ca02c;}
+#log_controls .groups .group .diode.color6{background-color:#98df8a;}
+#log_controls .groups .group .diode.color7{background-color:#d62728;}
+#log_controls .groups .group .diode.color8{background-color:#ff9896;}
+#log_controls .groups .group .diode.color9{background-color:#9467bd;}
+#log_controls .groups .group .diode.color10{background-color:#c5b0d5;}
+#log_controls .groups .group .diode.color11{background-color:#8c564b;}
+#log_controls .groups .group .diode.color12{background-color:#c49c94;}
+#log_controls .groups .group .diode.color13{background-color:#e377c2;}
+#log_controls .groups .group .diode.color14{background-color:#f7b6d2;}
+#log_controls .groups .group .diode.color15{background-color:#7f7f7f;}
+#log_controls .groups .group .diode.color16{background-color:#c7c7c7;}
+#log_controls .groups .group .diode.color17{background-color:#bcbd22;}
+#log_controls .groups .group .diode.color18{background-color:#dbdb8d;}
+#log_controls .groups .group .diode.color19{background-color:#17becf;}
+#log_controls .groups .group .diode.color20{background-color:#9edae5;}
+#log_controls .groups .group .screen_buttons{position:absolute;top:6px;right:5px;}#log_controls .groups .group .screen_buttons input{margin-left:3px;}
+#log_controls .groups .group .item{color:#aaa;font-size:12px;border-top:1px solid #111;background-color:#222;padding:6px 10px;position:relative;}#log_controls .groups .group .item .item_name{width:195px;overflow:hidden;}
+#log_controls input.filter{border:none;padding:6px;width:222px;font-size:12px;margin:8px;border:1px solid #000;background-color:#111;color:#ccc;}
+#log_screens{vertical-align:top;float:left;margin-left:250px;background-color:#000;}#log_screens div.log_screen{margin:10px;position:relative;}#log_screens div.log_screen:hover div.controls{display:block;}
+#log_screens div.log_screen div.controls{position:absolute;top:0px;right:10px;padding:5px;float:left;font-size:12px;display:none;}#log_screens div.log_screen div.controls a{float:right;padding:4px 6px;text-decoration:none;margin-left:5px;font-size:12px;background-color:#333;border-radius:2px;border:1px solid #444;border-bottom:1px solid #222;border-right:1px solid #222;color:#eee;}
+#log_screens div.log_screen div.controls a.filter{padding:3px 4px 3px 6px;}#log_screens div.log_screen div.controls a.filter input{font-size:12px;border:none;background-color:#111;color:#ccc;padding:1px;width:100px;margin-left:5px;}
+#log_screens div.log_screen div.messages{background-color:#111;border:1px solid #333;word-wrap:break-word;overflow:auto;}#log_screens div.log_screen div.messages::-webkit-scrollbar{width:10px;background-color:#333;}
+#log_screens div.log_screen div.messages::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.3);border-radius:8px;}
+#log_screens div.log_screen div.messages::-webkit-scrollbar-thumb{border-radius:8px;-webkit-box-shadow:inset 0 0 6px rgba(0, 0, 0, 0.5);}
+#log_screens div.log_screen div.messages .msg{margin:10px;color:#0c0;}#log_screens div.log_screen div.messages .msg p,#log_screens div.log_screen div.messages .msg p *{font-size:12px;line-height:16px;font-weight:400;font-family:'Inconsolata',Courier,sans-serif;}
+#log_screens div.log_screen div.messages .msg .color1{color:#1f77b4;}
+#log_screens div.log_screen div.messages .msg .color2{color:#aec7e8;}
+#log_screens div.log_screen div.messages .msg .color3{color:#ff7f0e;}
+#log_screens div.log_screen div.messages .msg .color4{color:#ffbb78;}
+#log_screens div.log_screen div.messages .msg .color5{color:#2ca02c;}
+#log_screens div.log_screen div.messages .msg .color6{color:#98df8a;}
+#log_screens div.log_screen div.messages .msg .color7{color:#d62728;}
+#log_screens div.log_screen div.messages .msg .color8{color:#ff9896;}
+#log_screens div.log_screen div.messages .msg .color9{color:#9467bd;}
+#log_screens div.log_screen div.messages .msg .color10{color:#c5b0d5;}
+#log_screens div.log_screen div.messages .msg .color11{color:#8c564b;}
+#log_screens div.log_screen div.messages .msg .color12{color:#c49c94;}
+#log_screens div.log_screen div.messages .msg .color13{color:#e377c2;}
+#log_screens div.log_screen div.messages .msg .color14{color:#f7b6d2;}
+#log_screens div.log_screen div.messages .msg .color15{color:#7f7f7f;}
+#log_screens div.log_screen div.messages .msg .color16{color:#c7c7c7;}
+#log_screens div.log_screen div.messages .msg .color17{color:#bcbd22;}
+#log_screens div.log_screen div.messages .msg .color18{color:#dbdb8d;}
+#log_screens div.log_screen div.messages .msg .color19{color:#17becf;}
+#log_screens div.log_screen div.messages .msg .color20{color:#9edae5;}
+#log_screens div.log_screen div.messages:hover .controls{display:block;}
+#log_screens div.log_screen div.messages span.highlight{background-color:#0e0;color:#000;}
+#log_screens .status_bar .button{background-color:#333;border:1px solid #444;border-bottom:1px solid #222;border-right:1px solid #222;border-radius:2px;text-decoration:none;font-size:14px;font-weight:600;color:#ccc;padding:5px 10px;margin:0px 10px 10px;display:block;float:left;}
+#log_screens .status_bar .stats{float:right;}#log_screens .status_bar .stats .stat{float:right;margin:0px 30px 0px 0px;line-height:30px;}#log_screens .status_bar .stats .stat .num{font-size:32px;color:#eee;}
+#log_screens .status_bar .stats .stat .label{font-size:12px;color:#666;}

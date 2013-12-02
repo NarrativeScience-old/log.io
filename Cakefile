@@ -19,27 +19,32 @@ task 'build', "Builds Log.io package", ->
   invoke 'browserify'
 
 task 'compile', "Compiles CoffeeScript src/*.coffee to lib/*.js", ->
+  return if process.env["NODE_ENV"] == "production"
   console.log "Compiling src/*.coffee to lib/*.js"
   exec "#{COFFEE} --compile --output #{__dirname}/lib/ #{__dirname}/src/", (err, stdout, stderr) ->
     throw err if err
     console.log stdout + stderr if stdout + stderr
 
 task 'browserify', "Compiles client.coffee to browser-friendly JS", ->
+  return if process.env["NODE_ENV"] == "production"
   console.log "Browserifying src/client.coffee to lib/log.io.js"
   exec "#{BROWSERIFY} src/client.coffee --exports process,require -o #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
     console.log stdout + stderr if err
 
 task 'less', "Compiles less templates to CSS", ->
+  return if process.env["NODE_ENV"] == "production"
   console.log "Compiling src/less/* to lib/log.io.css"
   exec "#{LESS} #{__dirname}/src/less/log.io.less -compress -o #{__dirname}/lib/log.io.css", (err, stdout, stderr) ->
     throw err if err
     console.log stdout + stderr if stdout + stderr
 
 task 'templates', "Compiles templates/*.html to src/templates.coffee", ->
+  return if process.env["NODE_ENV"] == "production"
   console.log "Generating src/templates.coffee from templates/*.html"
   buildTemplate()
 
 task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
+  return if process.env["NODE_ENV"] == "production"
   console.log "Creating ~/.log.io/ for configuration files."
   console.log "If this fails, run npm using a specific user: npm install -g log.io --user 'ubuntu'"
   homedir = process.env[if process.platform is 'win32' then 'USERPROFILE' else 'HOME']
@@ -50,6 +55,7 @@ task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
     copyFile "./conf/#{c}.conf", path if not fs.existsSync path
 
 task 'func_test', "Compiles & runs functional tests in test/", ->
+  return if process.env["NODE_ENV"] == "production"
   console.log "Compiling test/*.coffee to test/lib/*.js..."
   exec "#{COFFEE} --compile --output #{__dirname}/test/lib/ #{__dirname}/test/", (err, stdout, stderr) ->
     throw err if err
