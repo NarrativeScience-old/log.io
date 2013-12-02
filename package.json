@@ -32,7 +32,6 @@
     "log.io-harvester": "./bin/log.io-harvester"
   },
   "scripts": {
-    "prepublish": "cake build",
-    "postinstall": "cake ensure:configuration"
+    "prepublish": "cake build && cake ensure:configuration"
   }
 }
