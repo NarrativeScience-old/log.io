@@ -30,8 +30,5 @@
   "bin" : {
     "log.io-server": "./bin/log.io-server",
     "log.io-harvester": "./bin/log.io-harvester"
-  },
-  "scripts": {
-    "prepublish": "cake build && cake ensure:configuration"
   }
 }
