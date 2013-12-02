@@ -9,7 +9,7 @@ stream = wclient.logStreams.at 0
 node = wclient.logNodes.at 0
 screen.addPair stream, node
 screen.on 'new_log', (stream, node, level, message) ->
- 
+
 ###
 
 if process.browser
@@ -40,7 +40,7 @@ class ColorManager
 
 colors = new ColorManager
 
-### 
+###
 Backbone models are used to represent nodes and streams.  When nodes
 go offline, their LogNode model is destroyed, along with their
 stream assocations.
@@ -88,7 +88,7 @@ class LogMessages extends backbone.Collection
 
   _capped: =>
     @remove @at (@length - MESSAGE_CAP) if @length > MESSAGE_CAP
-      
+
 
 ###
 LogScreen models maintain state for screen widgets in the UI.
@@ -323,7 +323,7 @@ class LogControlPanel extends backbone.View
     @$el.append @streams.render().el
     @$el.append @nodes.render().el
     @
-    
+
 class ObjectControls extends backbone.View
   className: 'object_controls'
   template: _.template templates.objectControls
@@ -526,7 +526,7 @@ class LogScreenView extends backbone.View
   template: _.template templates.logScreenView
   logTemplate: _.template templates.logMessage
   initialize: (opts) ->
-    {@logScreen, @logScreens} = opts 
+    {@logScreen, @logScreens} = opts
     @listenTo @logScreen, 'destroy', => @remove()
     @listenTo @logScreen, 'new_log', @_addNewLogMessage
     @forceScroll = true
@@ -588,7 +588,7 @@ class LogScreenView extends backbone.View
     @msgs = @$el.find '.msg'
     @_renderMessages()
     @
-    
+
 class LogStatsView extends backbone.View
   template: _.template templates.logStatsView
   className: 'stats'

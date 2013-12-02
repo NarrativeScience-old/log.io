@@ -6,6 +6,7 @@ BROWSERIFY = "#{ ENV } browserify"
 COFFEE = "#{ ENV } coffee"
 MOCHA = "#{ ENV } mocha"
 LESS = "#{ ENV } lessc"
+NODE = "#{ ENV } node"
 
 TEMPLATE_SRC = "#{ __dirname }/templates"
 TEMPLATE_OUTPUT = "#{ __dirname }/src/templates.coffee"
