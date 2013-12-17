@@ -35,7 +35,8 @@ io = require 'socket.io'
 events = require 'events'
 winston = require 'winston'
 express = require 'express'
-
+dgram = require 'dgram'
+    
 class _LogObject
   _type: 'object'
   _pclass: ->
@@ -95,6 +96,11 @@ class LogServer extends events.EventEmitter
         @_log.error 'Lost TCP connection...'
         @_removeNode socket.node.name if socket.node
     @listener.listen @port, @host
+    @udpSocket = dgram.createSocket 'udp4'
+    @udpSocket.bind @port, @host
+    @udpSocket.on 'message', (message, rinfo) =>
+      msg = message.toString()
+      @_handle @udpSocket, msg    
 
   _receive: (data, socket) =>
     part = data.toString()
