@@ -94,6 +94,9 @@ class LogServer extends events.EventEmitter
       socket.on 'error', (e) =>
         @_log.error 'Lost TCP connection...'
         @_removeNode socket.node.name if socket.node
+      socket.on 'close', (e) =>
+        @_log.error "Client #{socket.node.name} disconnected..."
+        @_removeNode socket.node.name if socket.node
     @listener.listen @port, @host
 
   _receive: (data, socket) =>
@@ -157,7 +160,6 @@ class LogServer extends events.EventEmitter
     if node = @logNodes[nname]
       @_log.info "Binding node '#{nname}' to TCP socket"
       socket.node = node
-      setInterval (-> socket.write 'ping'), 2000
 
 
 ###
