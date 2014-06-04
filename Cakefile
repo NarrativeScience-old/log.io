@@ -16,7 +16,6 @@ task 'build', 'Builds Log.io package', ->
   invoke 'compile'
   invoke 'styles'
   invoke 'browserify'
-  invoke 'test'
 
 # Building templates
 decorateTemplateForExports = (f) ->
@@ -36,26 +35,26 @@ task 'templates', "Compiles templates/*.html to src/templates.coffee", ->
 
 # Building javascripts
 task 'compile', "Compiles CoffeeScript src/*.coffee to lib/*.js", ->
-  console.log "Compiling src/*.coffee to lib/*.js"
+  console.log "Compiling #{__dirname}/src/*.coffee to #{__dirname}/lib/*.js"
   exec "#{COFFEE} --compile --output #{__dirname}/lib/ #{__dirname}/src/", (err, stdout, stderr) ->
     throw err if err
     console.log stderr + stdout if stdout + stderr
 
 # Compiling LESS
 task 'styles', "Compiles less templates to CSS", ->
-  console.log "Compiling src/less/* to lib/log.io.css"
+  console.log "Compiling #{__dirname}/src/less/* to #{__dirname}/lib/log.io.css"
   exec "#{LESS} #{__dirname}/src/less/log.io.less --compress #{__dirname}/lib/log.io.css", (err, stdout, stderr) ->
     throw err if err
     console.log stdout + stderr if stdout + stderr
 
 # Porting client to browser
 task 'browserify', "Compiles client.coffee to browser-friendly JS", ->
-  console.log "Browserifying lib/client.js to lib/log.io.js"
-  exec "#{BROWSERIFY} #{__dirname}/lib/client.js --exports process,require -o #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
+  console.log "Browserifying #{__dirname}/src/client.coffee to #{__dirname}/lib/log.io.js"
+  exec "#{BROWSERIFY} -c 'coffee -sc' --exports process,require #{__dirname}/src/client.coffee > #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
     console.log stdout + stderr if err
 
 # Testing
-task 'test', "Compiles & runs functional tests in test/", ->
+task 'test', "Compiles & runs functional test", ->
   invoke "compile"
   console.log "Running tests..."
   exec "#{MOCHA} --reporter spec #{__dirname}/lib/test.js", (err, stdout, stderr) ->

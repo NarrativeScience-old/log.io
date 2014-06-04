@@ -20,7 +20,7 @@ backbone = require 'backbone'
 backbone.$ = $
 io = require 'socket.io-client'
 _ = require 'underscore'
-templates = require './templates'
+templates = require './templates.coffee'
 
 # Cap LogMessages collection size
 MESSAGE_CAP = 5000
