@@ -100,7 +100,7 @@ class LogHarvester
       @_connected = false
       @_log.error "Unable to connect server, trying again..."
       setTimeout (=> @_connect()), 2000
-    @_log.info "Connecting to server..."
+    @_log.info "Connecting to server #{@server.host}:#{@server.port}..."
     @socket.connect @server.port, @server.host, =>
       @_connected = true
       @_announce()

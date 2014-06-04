@@ -11,12 +11,12 @@ TEMPLATE_SRC = "#{ __dirname }/templates"
 TEMPLATE_OUTPUT = "#{ __dirname }/src/templates.coffee"
 
 # Main build task
-task 'build', "Builds Log.io package", ->
+task 'build', 'Builds Log.io package', ->
   invoke 'templates'
   invoke 'compile'
   invoke 'styles'
   invoke 'browserify'
-  invoke 'func_test'
+  invoke 'test'
 
 # Building templates
 decorateTemplateForExports = (f) ->
@@ -41,15 +41,6 @@ task 'compile', "Compiles CoffeeScript src/*.coffee to lib/*.js", ->
     throw err if err
     console.log stderr + stdout if stdout + stderr
 
-# Testing
-task 'func_test', "Compiles & runs functional tests in test/", ->
-  invoke "compile"
-  console.log "Running tests..."
-  console.log "#{MOCHA} --reporter spec test/lib/functional.js"
-  exec "#{MOCHA} --reporter spec test/lib/functional.js", (err, stdout, stderr) ->
-    throw err if err
-    console.log stdout + stderr if stdout + stderr
-
 # Compiling LESS
 task 'styles', "Compiles less templates to CSS", ->
   console.log "Compiling src/less/* to lib/log.io.css"
@@ -60,8 +51,16 @@ task 'styles', "Compiles less templates to CSS", ->
 # Porting client to browser
 task 'browserify', "Compiles client.coffee to browser-friendly JS", ->
   console.log "Browserifying lib/client.js to lib/log.io.js"
-  exec "#{BROWSERIFY} lib/client.js --exports process,require -o #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
+  exec "#{BROWSERIFY} #{__dirname}/lib/client.js --exports process,require -o #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
     console.log stdout + stderr if err
+
+# Testing
+task 'test', "Compiles & runs functional tests in test/", ->
+  invoke "compile"
+  console.log "Running tests..."
+  exec "#{MOCHA} --reporter spec #{__dirname}/lib/test.js", (err, stdout, stderr) ->
+    throw err if err
+    console.log stdout + stderr if stdout + stderr
 
 # Creating config files if do not exists
 task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
