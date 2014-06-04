@@ -51,6 +51,12 @@ Remove a node
 
     -node|my_node\r\n
 
+## Building
+
+Global dependencies: `coffee-script`, `mocha`, `less`, `browserify`
+
+    cake build
+
 ## Credits
 
 - Mike Smathers &lt;msmathers@narrativescience.com&gt; ([msmathers](http://github.com/msmathers))
