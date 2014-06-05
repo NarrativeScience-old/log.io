@@ -10,6 +10,9 @@ config =
       '/var/log/nginx/access.log',
       '/var/log/nginx/error.log'
     ],
+    customLogs: [
+      "/var/log/myCustomLogs/"
+    ],
   server:
     host: '0.0.0.0',
     port: 28777
@@ -43,10 +46,18 @@ class LogStream extends events.EventEmitter
     @_watchFile path for path in @paths
     @
 
+  _watchFolder: (path) ->
+    filesUnderFolder = fs.readdirSync(path)
+    for i of filesUnderFolder
+      @_watchFile path + "/" + filesUnderFolder[i]
+
   _watchFile: (path) ->
       if not fs.existsSync path
         @_log.error "File doesn't exist: '#{path}'"
         setTimeout (=> @_watchFile path), 1000
+        return
+      if fs.lstatSync(path).isDirectory()
+        @_watchFolder(path);
         return
       @_log.info "Watching file: '#{path}'"
       currSize = fs.statSync(path).size
