@@ -53,9 +53,17 @@ Remove a node
 
 ## Building
 
-Global dependencies: `coffee-script`, `mocha`, `less`, `browserify`
+Global NPM dependencies: `coffee-script`, `mocha`, `less` and `browserify`
 
     cake build
+
+## Building documentation
+
+Global NPM dependency: `yuidocjs`
+
+    yuidoc --syntaxtype coffee --extension .coffee ./src/
+
+Then navigate to `out/index.html`
 
 ## Credits
 

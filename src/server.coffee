@@ -1,32 +1,3 @@
-### Log.io Log Server
-
-Relays inbound log messages to web clients
-
-LogServer receives log messages via TCP:
-"+log|my_stream|my_server_host|info|this is a log message\r\n"
-
-Announce a node, optionally with stream associations
-"+node|my_server_host\r\n"
-"+node|my_server_host|my_stream1,my_stream2,my_stream3\r\n"
-
-Announce a stream, optionally with node associations
-"+stream|my_stream1\r\n"
-"+stream|my_stream1|my_server_host1,my_host_server2\r\n"
-
-Remove a node or stream
-"-node|my_server_host1\r\n"
-"-stream|stream2\r\n"
-
-WebServer listens for events emitted by LogServer and
-forwards them to web clients via socket.io
-
-# Usage:
-logServer = new LogServer port: 28777
-webServer = new WebServer logServer, port: 28778
-webServer.run()
-
-###
-
 fs = require 'fs'
 net = require 'net'
 http = require 'http'
@@ -35,6 +6,8 @@ io = require 'socket.io'
 events = require 'events'
 winston = require 'winston'
 express = require 'express'
+
+
 
 class _LogObject
   _type: 'object'
@@ -73,12 +46,49 @@ class LogStream extends _LogObject
   _pclass: -> LogNode
   _pcollection: -> @logServer.logNodes
 
-###
-LogServer listens for TCP connections.  It parses & validates
-inbound TCP messages, and emits events.
 
+
+###*
+# LogServer listens for TCP connections.  It parses & validates inbound TCP messages, and emits events.
+#
+# Relays inbound log messages to web clients
+# 
+# LogServer receives log messages via TCP:
+#
+#     "+log|my_stream|my_server_host|info|this is a log message\r\n"
+# 
+# Announce a node, optionally with stream associations
+#
+#     "+node|my_server_host\r\n"
+#     "+node|my_server_host|my_stream1,my_stream2,my_stream3\r\n"
+# 
+# Announce a stream, optionally with node associations
+#
+#     "+stream|my_stream1\r\n"
+#     "+stream|my_stream1|my_server_host1,my_host_server2\r\n"
+# 
+# Remove a node or stream
+#
+#     "-node|my_server_host1\r\n"
+#     "-stream|stream2\r\n"
+# 
+# WebServer listens for events emitted by LogServer and forwards them to web clients via socket.io
+# 
+# Usage:
+#
+#     logServer = new LogServer port: 28777
+#     webServer = new WebServer logServer, port: 28778
+#     webServer.run()
+#
+# @class LogServer
 ###
 class LogServer extends events.EventEmitter
+  
+  ###*
+  # Initializing new LogServer instance
+  # @constructor
+  # @param {Object} [config={}] server properties
+  ###
   constructor: (config={}) ->
     {@host, @port} = config
     @_log = config.logging ? winston
@@ -86,57 +96,76 @@ class LogServer extends events.EventEmitter
     @logNodes = {}
     @logStreams = {}
 
+  ###*
+  # Run the server. Creates TCP listener socket and handle client disconnection
+  # @method run
+  ###
   run: ->
-    # Create TCP listener socket
     @listener = net.createServer (socket) =>
       socket._buffer = ''
-      socket.on 'data', (data) => @_receive data, socket
+      
+      socket.on 'data', (data) =>
+        @_receive data, socket
+      
       socket.on 'error', (e) =>
-        @_log.error 'Lost TCP connection...'
+        @_log.error "Client #{socket.node.name} has lost TCP connection."
         @_removeNode socket.node.name if socket.node
+      
       socket.on 'close', (e) =>
-        @_log.error "Client #{socket.node.name} disconnected..."
+        @_log.info "Client #{socket.node.name} has disconnected."
         @_removeNode socket.node.name if socket.node
+    
     @listener.listen @port, @host
 
+  ###*
+  # Receiving raw data from socket
+  # @method _receive
+  # @param {Object} data raw data that was received from a socket
+  # @param {Object} socket source socket
+  ###
   _receive: (data, socket) =>
     part = data.toString()
     socket._buffer += part
     @_log.debug "Received TCP message: #{part}"
     @_flush socket if socket._buffer.indexOf @_delimiter >= 0
 
+  ###*
+  # Parse socket buffer to separate messages
+  # @method _flush
+  # @param {Object} socket source socket
+  ###
   _flush: (socket) =>
-    # Handle messages in socket buffer
-    # Pause socket while modifying buffer
     socket.pause()
     [msgs..., socket._buffer] = socket._buffer.split @_delimiter
     socket.resume()
     @_handle socket, msg for msg in msgs
 
+  ###*
+  # Determining how to handle individual messages
+  # @method _handle
+  # @param {Object} socket source socket
+  # @param {String} msg unparsed message string
+  ###
   _handle: (socket, msg) ->
     @_log.debug "Handling message: #{msg}"
     [mtype, args...] = msg.split '|'
     switch mtype
       when '+log' then @_newLog args...
       when '+node' then @_addNode args...
-      when '+stream' then @_addStream args...
       when '-node' then @_removeNode args...
+      when '+stream' then @_addStream args...
       when '-stream' then @_removeStream args...
       when '+bind' then @_bindNode socket, args...
       else @_log.error "Invalid TCP message: #{msg}"
 
-  _addNode: (nname, snames='') ->
-    @__add nname, snames, @logNodes, LogNode, 'node'
-
-  _addStream: (sname, nnames='') ->
-    @__add sname, nnames, @logStreams, LogStream, 'stream'
-
-  _removeNode: (nname) ->
-    @__remove nname, @logNodes, 'node'
-
-  _removeStream: (sname) ->
-    @__remove sname, @logStreams, 'stream'
-
+  ###*
+  # Handling new log message
+  # @method _newLog
+  # @param {String} sname name of the stream that message was reveived from
+  # @param {String} nname name of the node that message was reveived from
+  # @param {String} logLevel level of log
+  # @param {Object} [message=[]] parsed message string
+  ###
   _newLog: (sname, nname, logLevel, message...) ->
     message = message.join '|'
     @_log.debug "Log message: (#{sname}, #{nname}, #{logLevel}) #{message}"
@@ -144,29 +173,84 @@ class LogServer extends events.EventEmitter
     stream = @logStreams[sname] or @_addStream sname, nname
     @emit 'new_log', stream, node, logLevel, message
 
-  __add: (name, pnames, _collection, _objClass, objName) ->
-    @_log.info "Adding #{objName}: #{name} (#{pnames})"
+  ###*
+  # Handling add node message
+  # @method _addNode
+  # @param {String} nname name of node to add
+  # @param {String} [snames='']
+  ###
+  _addNode: (nname, snames='') ->
+    @__add nname, snames, @logNodes, LogNode, 'node'
+
+  ###*
+  # Handling remove node message
+  # @method _removeNode
+  # @param {String} nname name of node to remove
+  ###
+  _removeNode: (nname) ->
+    @__remove nname, @logNodes, 'node'
+  
+  ###*
+  # Handling add stream message
+  # @method _addStream
+  # @param {String} sname name of stream to add
+  # @param {String} [nnames='']
+  ###
+  _addStream: (sname, nnames='') ->
+    @__add sname, nnames, @logStreams, LogStream, 'stream'
+
+  ###*
+  # Handling remove stream message
+  # @method _removeStream
+  # @param {String} sname name of stream to remove
+  ###
+  _removeStream: (sname) ->
+    @__remove sname, @logStreams, 'stream'
+
+  ###*
+  # Adding node or a stream
+  # @method __add
+  # @param {String} name name of node or stream that will be added
+  # @param {String} pnames
+  # @param {Object} _collection hash to add new object to. Could be `logNodes` or `logStreams`
+  # @param {Object} _objClass chass of object to create. Could be `logNode` or `logStream`.
+  # @param {String} objType type of object as a string. Only used to console output.
+  ###
+  __add: (name, pnames, _collection, _objClass, objType) ->
+    @_log.info "Adding #{objType}: #{name} (#{pnames})"
     pnames = pnames.split ','
     obj = _collection[name] = _collection[name] or new _objClass @, name, pnames
     obj.addPair p for p in pnames when not obj.pairs[p]
 
+  ###*
+  # Removing node or a stream
+  # @method __add
+  # @param {String} name name of node or stream that will be removed
+  # @param {Object} _collection hash to remove new object from. Could be `logNodes` or `logStreams`
+  # @param {String} objType type of object as a string. Only used to console output.
+  ###
   __remove: (name, _collection, objType) ->
     if obj = _collection[name]
       @_log.info "Removing #{objType}: #{name}"
       obj.remove()
       delete _collection[name]
 
+  ###*
+  # Binding node to TCP socket
+  # @method _bindNode
+  # @param {Object} socket socket to bind node to
+  # @param {Object} obj (not used)
+  # @param {String} nname name of node. Only used to console output.
+  ###
   _bindNode: (socket, obj, nname) ->
     if node = @logNodes[nname]
       @_log.info "Binding node '#{nname}' to TCP socket"
       socket.node = node
 
-
+###*
+# WebServer relays LogServer events to web clients via socket.io.
+# @class WebServer
 ###
-WebServer relays LogServer events to web clients via socket.io.
-
-###
-
 class WebServer
   constructor: (@logServer, config) ->
     {@host, @port, @auth} = config
