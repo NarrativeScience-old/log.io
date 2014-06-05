@@ -18,13 +18,11 @@
 
 
 // Defaults
-
 @controlWidth: 250px;
 @headerSize: 16px;
 @fontSize: 12px;
 
 // Colors
-
 @color1: #1f77b4;
 @color2: #aec7e8;
 @color3: #ff7f0e;
@@ -48,8 +46,10 @@
 
 // General purpose
 
-.floatl { float: left; }
-.floatr { float: right; }
+.floatl {
+	float: left;
+}
+
 .scrollr {
 	overflow: auto;
 
@@ -160,6 +160,7 @@ body {
 
 				&.ping {
 					background-color: #0e0;
+
 					&.active {
 						background-color: #222;
 					}
@@ -294,13 +295,10 @@ body {
 					line-height: 16px;
 					font-weight: 400;
 					font-family: 'Inconsolata', Courier, sans-serif;
+
 					.message {
 						white-space: pre;
 					}
-				}
-
-				span.message {
-					white-space: pre;
 				}
 
 				.color1 { color: @color1; }
@@ -328,6 +326,7 @@ body {
 			&:hover .controls {
 				display: block;
 			}
+
 			span.highlight {
 				background-color: #0e0;
 				color: #000;
@@ -355,14 +354,17 @@ body {
 
 		.stats {
 			float: right;
+
 			.stat {
 				float: right;
 				margin: 0px 30px 0px 0px;
 				line-height: 30px;
+
 				.num {
 					font-size: 32px;
 					color: #eee;
 				}
+
 				.label {
 					font-size: 12px;
 					color: #666;
