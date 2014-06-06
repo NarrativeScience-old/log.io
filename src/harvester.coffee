@@ -7,7 +7,7 @@ winston = require 'winston'
 # Mainly used by `LogHarvester`.
 # 
 #  - Watches log file for changes
-#  - Rxtracts new log messages
+#  - Extracts new log messages
 #  - Then emits 'new_log' events.
 # 
 # @class LogStream
