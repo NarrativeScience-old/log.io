@@ -3,32 +3,62 @@ net = require 'net'
 events = require 'events'
 winston = require 'winston'
 
-###
-LogStream is a group of local files paths.  It watches each file for
-changes, extracts new log messages, and emits 'new_log' events.
-
+###*
+# Mainly used by `LogHarvester`.
+# 
+#  - Watches log file for changes
+#  - Rxtracts new log messages
+#  - Then emits 'new_log' events.
+# 
+# @class LogStream
 ###
 class LogStream extends events.EventEmitter
+
+  ###*
+  # Initializing new `LogStream` instance
+  # @constructor
+  # @param {Object} name name of current log stream. Only used for debugging.
+  # @param {Object} paths Array of local files paths. 
+  # @param {Object} _log Winston (or capatable) logger object. Only used for debugging.
+  ###
   constructor: (@name, @paths, @_log) ->
 
+  ###*
+  # Initialising all file watching
+  # @method watch
+  ###
   watch: ->
     @_log.info "Starting log stream: '#{@name}'"
     @_watchFile path for path in @paths
     @
 
-  _watchFolder: (path) ->
+  ###*
+  # Watching all files under specified directory
+  # @method watch
+  # @param {String} path Path to directory
+  ###
+  _watchDirectory: (path) ->
     filesUnderFolder = fs.readdirSync(path)
     for i of filesUnderFolder
       @_watchFile path + "/" + filesUnderFolder[i]
 
+  ###*
+  # Starting to watch file changes.
+  # @method watch
+  # @param {String} path Path to file or a directory
+  ###
   _watchFile: (path) ->
+      # Checking if file exists
       if not fs.existsSync path
-        @_log.error "File doesn't exist: '#{path}'"
+        @_log.error "File doesn't exist: '#{path}'. Retrying in 1000ms."
         setTimeout (=> @_watchFile path), 1000
         return
+
+      # Checking if path is a directory
       if fs.lstatSync(path).isDirectory()
-        @_watchFolder(path);
+        @_watchDirectory(path);
         return
+
       @_log.info "Watching file: '#{path}'"
       currSize = fs.statSync(path).size
       watcher = fs.watch path, (event, filename) =>
@@ -36,12 +66,18 @@ class LogStream extends events.EventEmitter
           # File has been rotated, start new watcher
           watcher.close()
           @_watchFile path
+
         if event is 'change'
           # Capture file offset information for change event
           fs.stat path, (err, stat) =>
             @_readNewLogs path, stat.size, currSize
             currSize = stat.size
 
+  ###*
+  # File change has been detected. Determining what has been changed and emitting `new_log` event.
+  # @method watch
+  # @param {String} path Path to file or a directory
+  ###
   _readNewLogs: (path, curr, prev) ->
     # Use file offset information to stream new log lines from file
     return if curr < prev
@@ -49,13 +85,14 @@ class LogStream extends events.EventEmitter
       encoding: 'utf8'
       start: prev
       end: curr
-    # Emit 'new_log' event for every captured log line
+
+    # Emit `new_log` event for every captured log line
     rstream.on 'data', (data) =>
       lines = data.split "\n"
       @emit 'new_log', line for line in lines when line
 
 ###*
-# LogHarvester creates LogStreams and opens a persistent TCP connection to the server.
+# `LogHarvester` creates `LogStream` for each file watched and opens a persistent TCP connection to the server.
 # 
 # Watches local files and sends new log message to server via TCP.
 # 
@@ -92,11 +129,10 @@ class LogStream extends events.EventEmitter
 #
 # @class LogHarvester
 ###
-
 class LogHarvester
   
   ###*
-  # Initializing new LogHarvester instance
+  # Initializing new `LogHarvester` instance
   # @constructor
   # @param {Object} config harvester configuration
   ###
