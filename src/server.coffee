@@ -8,7 +8,6 @@ winston = require 'winston'
 express = require 'express'
 
 
-
 class _LogObject
   _type: 'object'
   _pclass: ->
@@ -36,24 +35,34 @@ class _LogObject
     name: @name
     pairs: (name for name, obj of @pairs)
 
+###*
+# Represents single log node
+# 
+# @class LogNode
+# @extends _LogObject
+###
 class LogNode extends _LogObject
   _type: 'node'
   _pclass: -> LogStream
   _pcollection: -> @logServer.logStreams
 
+###*
+# Represents single log stream
+# 
+# @class LogStream
+# @extends _LogObject
+###
 class LogStream extends _LogObject
   _type: 'stream'
   _pclass: -> LogNode
   _pcollection: -> @logServer.logNodes
 
-
-
 ###*
-# LogServer listens for TCP connections.  It parses & validates inbound TCP messages, and emits events.
+# `LogServer` listens for TCP connections. It parses & validates inbound TCP messages, and emits events.
 #
 # Relays inbound log messages to web clients
 # 
-# LogServer receives log messages via TCP:
+# `LogServer` receives log messages via TCP:
 #
 #     "+log|my_stream|my_server_host|info|this is a log message\r\n"
 # 
@@ -72,7 +81,7 @@ class LogStream extends _LogObject
 #     "-node|my_server_host1\r\n"
 #     "-stream|stream2\r\n"
 # 
-# WebServer listens for events emitted by LogServer and forwards them to web clients via socket.io
+# WebServer listens for events emitted by `LogServer` and forwards them to web clients via socket.io
 # 
 # Usage:
 #
@@ -81,11 +90,12 @@ class LogStream extends _LogObject
 #     webServer.run()
 #
 # @class LogServer
+# @extends events.EventEmitter
 ###
 class LogServer extends events.EventEmitter
   
   ###*
-  # Initializing new LogServer instance
+  # Initializing new `LogServer` instance
   # @constructor
   # @param {Object} [config={}] server properties
   ###
@@ -161,8 +171,8 @@ class LogServer extends events.EventEmitter
   ###*
   # Handling new log message
   # @method _newLog
-  # @param {String} sname name of the stream that message was reveived from
-  # @param {String} nname name of the node that message was reveived from
+  # @param {String} sname name of the stream that message was received from
+  # @param {String} nname name of the node that message was received from
   # @param {String} logLevel level of log
   # @param {Object} [message=[]] parsed message string
   ###
@@ -213,7 +223,7 @@ class LogServer extends events.EventEmitter
   # @param {String} name name of node or stream that will be added
   # @param {String} pnames
   # @param {Object} _collection hash to add new object to. Could be `logNodes` or `logStreams`
-  # @param {Object} _objClass chass of object to create. Could be `logNode` or `logStream`.
+  # @param {Object} _objClass class of object to create. Could be `logNode` or `logStream`.
   # @param {String} objType type of object as a string. Only used to console output.
   ###
   __add: (name, pnames, _collection, _objClass, objType) ->
@@ -248,7 +258,7 @@ class LogServer extends events.EventEmitter
       socket.node = node
 
 ###*
-# WebServer relays LogServer events to web clients via socket.io.
+# WebServer relays LogServe`r` events to web clients via socket.io.
 # @class WebServer
 ###
 class WebServer
@@ -296,7 +306,7 @@ class WebServer
       @_log.debug "Relaying: #{_event}"
       @listener.emit _event, msg
 
-    # Bind events from LogServer to web client
+    # Bind events from `LogServer` to web client
     _on 'add_node', (node) ->
       _emit 'add_node', node.toDict()
     _on 'add_stream', (stream) ->
@@ -310,7 +320,7 @@ class WebServer
     _on 'remove_stream', (stream) ->
       _emit 'remove_stream', stream.toDict()
 
-    # Bind new log event from Logserver to web client
+    # Bind new log event from `LogServer` to web client
     _on 'new_log', (stream, node, level, message) =>
       _emit 'ping', {stream: stream.name, node: node.name}
       # Only send message to web clients watching logStream

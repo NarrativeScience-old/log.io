@@ -11,6 +11,7 @@ winston = require 'winston'
 #  - Then emits 'new_log' events.
 # 
 # @class LogStream
+# @extends events.EventEmitter
 ###
 class LogStream extends events.EventEmitter
 
@@ -19,7 +20,7 @@ class LogStream extends events.EventEmitter
   # @constructor
   # @param {Object} name name of current log stream. Only used for debugging.
   # @param {Object} paths Array of local files paths. 
-  # @param {Object} _log Winston (or capatable) logger object. Only used for debugging.
+  # @param {Object} _log Winston (or compatible) logger object. Only used for debugging.
   ###
   constructor: (@name, @paths, @_log) ->
 
