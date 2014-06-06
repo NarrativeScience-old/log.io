@@ -61,9 +61,9 @@ Global NPM dependencies: `coffee-script`, `mocha`, `less` and `browserify`
 
 Global NPM dependency: `yuidocjs`
 
-    yuidoc --syntaxtype coffee --extension .coffee ./src/
+    yuidoc
 
-Then navigate to `out/index.html`
+Then navigate to `docs/index.html`
 
 ## Credits
 
