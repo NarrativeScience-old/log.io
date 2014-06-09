@@ -7,11 +7,23 @@ events = require 'events'
 winston = require 'winston'
 express = require 'express'
 
-
+###*
+# Base class for `LogNode` and `LogStream`
+# 
+# @class _LogObject
+###
 class _LogObject
   _type: 'object'
   _pclass: ->
   _pcollection: ->
+
+  ###*
+  # Initializing new `_LogObject` instance
+  # @constructor
+  # @param {Object} logServer Instance of `LogServer`
+  # @param {String} name Entity (`LogStream` or `LogNode`) name
+  # @param {Object} _pairs Array of `LogNode` ans `LogStream` pairs
+  ###
   constructor: (@logServer, @name, _pairs=[]) ->
     @logServer.emit "add_#{@_type}", @
     @pairs = {}
@@ -19,6 +31,14 @@ class _LogObject
     @pcollection = @_pcollection()
     @addPair pname for pname in _pairs
 
+  ###*
+  # A 'pair' refers to a `LogStream` to `LogNode` pair. 
+  #
+  # Method is called when you "activate" a (stream, node) pair by clicking on a checkbox on the left, and tells the server to send any log messages that originated from that specific (stream, node) pair.
+  #
+  # @method addPair
+  # @param {String} pname entity (`LogStream` or `LogNode`) name
+  ###
   addPair: (pname) ->
     if not pair = @pairs[pname]
       if not pair = @pcollection[pname]
@@ -27,13 +47,23 @@ class _LogObject
       @pairs[pname] = pair
       @logServer.emit "add_#{@_type}_pair", @, pname
 
+  ###*
+  # Unregister instance from a server
+  # @method remove
+  # @param {String} pname entity (`LogStream` or `LogNode`) name
+  ###
   remove: ->
     @logServer.emit "remove_#{@_type}", @
     delete p.pairs[@name] for name, p of @pairs
 
+  ###*
+  # Adds current object to known nodes or streams
+  # @method toDict
+  ###
   toDict: ->
     name: @name
     pairs: (name for name, obj of @pairs)
+
 
 ###*
 # Represents single log node
@@ -46,6 +76,7 @@ class LogNode extends _LogObject
   _pclass: -> LogStream
   _pcollection: -> @logServer.logStreams
 
+
 ###*
 # Represents single log stream
 # 
@@ -56,6 +87,7 @@ class LogStream extends _LogObject
   _type: 'stream'
   _pclass: -> LogNode
   _pcollection: -> @logServer.logNodes
+  
 
 ###*
 # `LogServer` listens for TCP connections. It parses & validates inbound TCP messages, and emits events.
