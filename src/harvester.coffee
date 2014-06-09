@@ -17,6 +17,7 @@ class LogStream extends events.EventEmitter
 
   ###*
   # Initializing new `LogStream` instance
+  # @class LogStream
   # @constructor
   # @param {Object} name name of current log stream. Only used for debugging.
   # @param {Object} paths Array of local files paths. 
@@ -134,6 +135,7 @@ class LogHarvester
   
   ###*
   # Initializing new `LogHarvester` instance
+  # @class LogHarvester
   # @constructor
   # @param {Object} config harvester configuration
   ###
