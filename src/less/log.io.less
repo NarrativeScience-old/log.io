@@ -2,6 +2,8 @@
 	Log.io Web Client styles
 */
 
+@import "lesshat-prefixed.less";
+
 @font-face {
 	font-family: 'Source Sans Pro';
 	font-style: normal;
@@ -51,11 +53,6 @@
 @color20: #9edae5;
 
 // General purpose
-
-.floatl {
-	float: left;
-}
-
 .scrollr {
 	overflow: auto;
 
@@ -65,18 +62,17 @@
 	}
 	
 	&::-webkit-scrollbar-track {
-		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-		border-radius: 8px;
+		.lh-box-shadow(inset 0 0 6px rgba(0, 0, 0, 0.3));
+		.lh-border-radius(8px);
 	}
 	
 	&::-webkit-scrollbar-thumb {
-		border-radius: 8px;
-		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+		.lh-border-radius(8px);
+		.lh-box-shadow(inset 0 0 6px rgba(0, 0, 0, 0.5));
 	}
 }
 
 // Globals
-
 * {
 	padding: 0px;
 	margin: 0px;
@@ -94,7 +90,6 @@ body {
 }
 
 // Control panel
-
 #log_controls {
 	vertical-align: top;
 	background-color: #333;
@@ -116,13 +111,9 @@ body {
 
 		&.active {
 			color: #eee;
-			background-color: #333;
-			background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222), to(#333));
-			background-image: -webkit-linear-gradient(top, #222, #333);
-			background-image: -moz-linear-gradient(top, #222, #333);
-			background-image: -ms-linear-gradient(top, #222, #333);
-			background-image: -o-linear-gradient(top, #222, #333);
+			.lh-background-image(linear-gradient(top, #222, #333));
 		}
+
 		&:hover {
 			color: #eee;
 		}
@@ -140,19 +131,14 @@ body {
 				position: relative;
 				padding: 6px 10px;
 				font-size: @fontSize;
-				background-color: #000;
 				border-top: 1px solid #333;
 				color: #eee;
-
-				background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#111), to(#000));
-				background-image: -webkit-linear-gradient(top, #111, #000);
-				background-image: -moz-linear-gradient(top, #111, #000);
-				background-image: -ms-linear-gradient(top, #111, #000);
-				background-image: -o-linear-gradient(top, #111, #000);
+				.lh-background-image(linear-gradient(top, #111, #000));
 
 				.object_name {
 					width: @controlWidth - 55;
 					overflow: hidden;
+					float: left;
 				}
 
 			}
@@ -162,7 +148,8 @@ body {
 				height: 8px;
 				margin: 4px 8px 0px 0px;
 				background-color: #555;
-				border-radius: 4px;
+				.lh-border-radius(4px);
+				float: left;
 
 				&.ping {
 					background-color: #0e0;
@@ -214,6 +201,7 @@ body {
 				.item_name {
 					width: @controlWidth - 55;
 					overflow: hidden;
+					float: left;
 				}
 			}
 		}
@@ -263,7 +251,7 @@ body {
 				margin-left: 5px;
 				font-size: 12px;
 				background-color: #333;
-				border-radius: 2px;
+				.lh-border-radius(2px);
 				border: 1px solid #444;
 				border-bottom: 1px solid #222;
 				border-right: 1px solid #222;
@@ -347,7 +335,7 @@ body {
 			border: 1px solid #444;
 			border-bottom: 1px solid #222;
 			border-right: 1px solid #222;
-			border-radius: 2px;
+			.lh-border-radius(2px);
 			text-decoration: none;
 			font-size: 14px;
 			font-weight: 600;
