@@ -5,8 +5,8 @@
     "options": {
         "paths": "./src/",
         "outdir": "./docs/",
-        "themedir": "node_modules/yuidoc-bootstrap-theme",
-        "helpers": ["node_modules/yuidoc-bootstrap-theme/helpers/helpers.js"],
+        "themedir": "docs-theme",
+        "helpers": ["docs-theme/helpers/helpers.js"],
         "extension": ".coffee",
         "syntaxtype": "coffee"
     }

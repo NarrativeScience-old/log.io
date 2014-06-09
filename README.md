@@ -61,9 +61,11 @@ Global NPM dependencies: `coffee-script`, `mocha`, `less` and `browserify`
 
 Global NPM dependency: `yuidocjs`
 
-    yuidoc
+    cake docs
 
 Then navigate to `docs/index.html`
+
+Theme was based on [yuidoc-bootstrap-theme](https://www.npmjs.org/package/yuidoc-bootstrap-theme).
 
 ## Credits
 

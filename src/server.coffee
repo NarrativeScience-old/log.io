@@ -19,7 +19,6 @@ class _LogObject
 
   ###*
   # Initializing new `_LogObject` instance
-  # @class _LogObject
   # @constructor
   # @param {Object} logServer Instance of `LogServer`
   # @param {String} name Entity (`LogStream` or `LogNode`) name
@@ -129,7 +128,6 @@ class LogServer extends events.EventEmitter
   
   ###*
   # Initializing new `LogServer` instance
-  # @class LogServer
   # @constructor
   # @param {Object} [config={}] server properties
   ###

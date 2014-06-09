@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{htmlTitle}}</title>
+    <link rel="stylesheet" href="{{projectAssets}}/css/bootstrap.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="shortcut icon" type="image/png" href="{{projectAssets}}/favicon.png">
+    <style type="text/css">
+        body {
+            font-family: "Open Sans",sans-serif;
+            background: #EEEEEE;
+        }
+    </style>
+</head>
+<body class="yui3-skin-sam">
+<div class="container-fluid" style="background: url('{{projectAssets}}/img/back2.png');">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <img alt="{{projectName}}" src="{{projectAssets}}/css/logo-white.png" style="height: 50px; padding: 6px;" title="{{projectName}}">
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <p style="margin-top: 14px; color: white;">API Documentation (v{{projectVersion}})</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-3">
+                	    {{>sidebar}}
+                    </div>
+                    <div class="col-xs-9">
+                        {{>layout_content}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
