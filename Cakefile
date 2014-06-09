@@ -44,14 +44,14 @@ task 'compile', 'Compiles CoffeeScript src/*.coffee to lib/*.js', ->
 # Compiling LESS
 task 'styles', 'Compiles less templates to CSS', ->
   console.log "Compiling #{__dirname}/src/less/* to #{__dirname}/lib/log.io.css"
-  exec "#{LESS} #{__dirname}/src/less/log.io.less --compress #{__dirname}/lib/log.io.css", (err, stdout, stderr) ->
+  exec "#{LESS} --compress #{__dirname}/src/less/log.io.less #{__dirname}/lib/log.io.css", (err, stdout, stderr) ->
     throw err if err
     console.log stdout + stderr if stdout + stderr
 
 # Porting client to browser
 task 'browserify', 'Compiles client.coffee to browser-friendly JS', ->
-  console.log "Browserifying #{__dirname}/src/client.coffee to #{__dirname}/lib/log.io.js"
-  exec "#{BROWSERIFY} -c 'coffee -sc' --exports process,require #{__dirname}/src/client.coffee > #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
+  console.log "Browserifying #{__dirname}/lib/client.js to #{__dirname}/lib/log.io.js"
+  exec "#{BROWSERIFY} -c 'coffee -sc' -r #{__dirname}/src/client.coffee:client.coffee > #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
     console.log stdout + stderr if err
 
 # Testing
@@ -78,8 +78,3 @@ task 'ensure:configuration', 'Ensures that config files exist in ~/.log.io/', ->
       fs.createReadStream("./conf/#{c}.conf").pipe fs.createWriteStream path
     else
       console.log "Configuraton file already exists: #{path}"
-
-# Building documentaion
-task 'docs', 'Building documentaion', ->
-  exec "#{YUIDOC}", (err, stdout, stderr) ->
-    console.log stdout + stderr if err
