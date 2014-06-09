@@ -1,0 +1,13 @@
+{
+    "name": "Log.io",
+    "url": "http://logio.org/",
+    "version": "0.3.3",
+    "options": {
+        "paths": "./src/",
+        "outdir": "./docs/",
+        "themedir": "docs-theme",
+        "helpers": ["docs-theme/helpers/helpers.js"],
+        "extension": ".coffee",
+        "syntaxtype": "coffee"
+    }
+}

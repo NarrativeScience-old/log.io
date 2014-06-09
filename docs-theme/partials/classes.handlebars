@@ -1,0 +1,106 @@
+<div class="page-header">
+    <h1>{{name}} <small>Class</small></h1>
+</div>
+
+{{{classDescription}}}
+
+{{#if deprecated}}
+    <div class="well well-small">
+        <p>
+        {{#if deprecationMessage}}
+            <strong>Deprecated:</strong> {{deprecationMessage}}
+        {{else}}
+            This class is deprecated.
+        {{/if}}
+        </p>
+    </div>
+{{/if}}
+
+<div class="well well-small">
+    {{#if uses}}
+        <div class="uses">
+            Uses
+            <ul class="inline commas">
+                {{#uses}}
+                    <li><a href="{{.}}.html">{{.}}</a></li>
+                {{/uses}}
+            </ul>
+        </div>
+    {{/if}}
+
+    {{#if extends}}
+        <div class="extends">
+            Extends {{#crossLink extends}}{{/crossLink}}
+        </div>
+    {{/if}}
+
+    {{#if foundAt}}
+        <div class="foundat">
+            Defined in: <a href="{{foundAt}}">`{{{file}}}:{{{line}}}`</a>
+        </div>
+    {{/if}}
+
+    {{#if module}}
+        {{#if submodule}}
+            Module: {{#crossLinkModule submodule}}{{/crossLinkModule}}<br>
+            Parent Module: {{#crossLinkModule module}}{{/crossLinkModule}}
+        {{else}}
+            Module: {{#crossLinkModule module}}{{/crossLinkModule}}
+        {{/if}}
+    {{/if}}
+
+    {{#if since}}
+        <p>Available since {{since}}</p>
+    {{/if}}
+
+    {{#if static}}
+        <p><span class="flag static">static</span></p>
+    {{/if}}
+</div>
+
+{{#is_constructor}}
+    <div class="constructor">
+        <h2>Constructor</h2>
+        {{>method}}
+    </div>
+{{/is_constructor}}
+
+{{#if methods}}
+    <div>
+        <h2 class="off-left">Methods</h2>
+
+        {{#methods}}
+            {{>method}}
+        {{/methods}}
+    </div>
+{{/if}}
+
+{{#if properties}}
+    <div>
+        <h2 class="off-left">Properties</h2>
+
+        {{#properties}}
+            {{>props}}
+        {{/properties}}
+    </div>
+{{/if}}
+
+{{#if attrs}}
+    <div>
+        <h2 class="off-left">Attributes</h2>
+
+        {{#attrs}}
+            {{>attrs}}
+        {{/attrs}}
+    </div>
+{{/if}}
+
+{{#if events}}
+    <div>
+        <h2 class="off-left">Events</h2>
+
+        {{#events}}
+            {{>events}}
+        {{/events}}
+    </div>
+{{/if}}
