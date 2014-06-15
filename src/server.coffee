@@ -34,7 +34,7 @@ class _LogObject
   ###*
   # A 'pair' refers to a `LogStream` to `LogNode` pair. 
   #
-  # Method is called when you "activate" a (stream, node) pair by clicking on a checkbox on the left, and tells the server to send any log messages that originated from that specific (stream, node) pair.
+  # Method is called when you 'activate' a (stream, node) pair by clicking on a checkbox on the left, and tells the server to send any log messages that originated from that specific (stream, node) pair.
   #
   # @method addPair
   # @param {String} pname entity (`LogStream` or `LogNode`) name
