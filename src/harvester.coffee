@@ -131,7 +131,23 @@ class LogStream extends events.EventEmitter
 # @class LogHarvester
 ###
 class LogHarvester
-  
+
+  ###*
+  # Maximum server connection retry time, in milliseconds
+  # @property TIMEOUT_RECONNECT_MAX
+  # @type Number
+  # @default 60000
+  ###
+  TIMEOUT_RECONNECT_MAX: 60000;
+
+  ###*
+  # Starting server connection retry time, in milliseconds
+  # @property TIMEOUT_RECONNECT_START
+  # @type Number
+  # @default 1000
+  ###
+  TIMEOUT_RECONNECT_START: 1000;
+
   ###*
   # Initializing new `LogHarvester` instance
   # @constructor
@@ -142,6 +158,7 @@ class LogHarvester
     @delim = config.delimiter ? '\r\n'
     @_log = config.logging ? winston
     @logStreams = (new LogStream s, paths, @_log for s, paths of config.logStreams)
+    @timeout_reconnect = @TIMEOUT_RECONNECT_START;
 
   ###*
   # Run harvester and connect to server
@@ -159,13 +176,17 @@ class LogHarvester
   ###
   _connect: ->
     @socket = new net.Socket
+    
     @socket.on 'error', (error) =>
       @_connected = false
-      @_log.error 'Unable to connect server, trying again...'
-      setTimeout (=> @_connect()), 2000
+      @_log.error "Unable to connect server, trying again in #{(@timeout_reconnect/1000)} second(s)..."
+      setTimeout (=> @_connect()), @timeout_reconnect
+      @timeout_reconnect = Math.min @timeout_reconnect * 2, @TIMEOUT_RECONNECT_MAX;
+
     @_log.info "Connecting to server #{@server.host}:#{@server.port}..."
     @socket.connect @server.port, @server.host, =>
       @_connected = true
+      @timeout_reconnect = @TIMEOUT_RECONNECT_START;
       @_announce()
 
   ###*
