@@ -179,7 +179,7 @@ class LogHarvester
     
     @socket.on 'error', (error) =>
       @_connected = false
-      @_log.error "Unable to connect server, trying again in #{(@timeout_reconnect/1000)} second(s)..."
+      @_log.error "Cannot connect to server, trying again in #{(@timeout_reconnect/1000)} second(s)..."
       setTimeout (=> @_connect()), @timeout_reconnect
       @timeout_reconnect = Math.min @timeout_reconnect * 2, @TIMEOUT_RECONNECT_MAX;
 
