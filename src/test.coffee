@@ -26,6 +26,44 @@ HARVESTER1_CONFIG =
     host: 'localhost'
     port: 28771
 
+###
+TODO Harveter Tests:
+
+Single file:
+ - File did not exist, then created
+ should add a file
+
+ - File modification
+ creates new log
+
+ - File renamed
+ renamed file is unwatched, wait for new file with old filename
+
+ - File deleted
+ wait for new file
+
+ - File deleted and then added
+ add new file
+
+Directory:
+ - Directory did not exist, then created
+ - Directory renamed
+ - Directory deleted
+ - File added to directory
+ - File renamed in directory
+ - File removed from directory
+
+Server:
+ - Server went up
+ should reconnect
+
+ - Server went down
+ should retry until server is up
+
+Bugs:
+ - There used to be a bug where harvester was using a lot of CPU while could not connect to server.
+###
+
 logger.info "Creating test diretory: #{__dirname}/tmp"
 mkdirp "#{__dirname}/tmp", ->
   for fpath in TEST_FILES
