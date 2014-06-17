@@ -150,13 +150,31 @@ class LogHarvester
 
   ###*
   # Initializing new `LogHarvester` instance
+  #
+  # Default configuration:
+  #
+  #     config =
+  #       nodeName: 'Untitled'
+  #       delimiter: '\r\n'
+  #       _log: winston
+  #       logStreams: {}
+  #       server:
+  #         host: '0.0.0.0',
+  #         port: 28777
+  #
   # @constructor
   # @param {Object} config harvester configuration
   ###
-  constructor: (config) ->
-    {@nodeName, @server} = config
-    @delim = config.delimiter ? '\r\n'
-    @_log = config.logging ? winston
+  constructor: (config = {}) ->
+    config.nodeName = config.nodeName ? 'Untitled'
+    config.delimiter = config.delimiter ? '\r\n'
+    config._log = config._log ? winston
+    config.logStreams = config.logStreams ? {}
+    config.server = config.server ?
+      host: '0.0.0.0',
+      port: 28777
+
+    {@nodeName, @server, @delimiter, @_log} = config
     @logStreams = (new LogStream s, paths, @_log for s, paths of config.logStreams)
     @timeout_reconnect = @TIMEOUT_RECONNECT_START;
 
@@ -216,6 +234,6 @@ class LogHarvester
   # @param {Object} args Array of message strings
   ###
   _send: (mtype, args...) ->
-    @socket.write "#{mtype}|#{args.join '|'}#{@delim}"
+    @socket.write "#{mtype}|#{args.join '|'}#{@delimiter}"
 
 exports.LogHarvester = LogHarvester
