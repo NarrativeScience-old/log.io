@@ -29,19 +29,19 @@ HARVESTER1_CONFIG =
 TODO Harveter Tests:
 
 Single file:
- - File did not exist, then created
+ + File did not exist, then created
  should add a file
 
  - File modification
  creates new log
 
- - File renamed
+ + File renamed
  renamed file is unwatched, wait for new file with old filename
 
- - File deleted
+ + File deleted
  wait for new file
 
- - File deleted and then added
+ + File deleted and then added
  add new file
 
 Directory:
@@ -79,6 +79,9 @@ harvester1.on 'file_watching', (path, online) ->
     currently_watched_files.push path if (currently_watched_files.indexOf path) < 0
   else
     currently_watched_files.splice (currently_watched_files.indexOf path), 1 if (currently_watched_files.indexOf path) >= 0
+generated_logs = []
+harvester1.on 'log_new', (stream, msg) ->
+  generated_logs.push msg
 harvester1.run()
 
 exports.testFileWatch =
@@ -93,13 +96,13 @@ exports.testFileWatch =
     ), 200
 
   'checking file deletion': (test) ->
-    fs.unlink TEST_FILES[2], ->
-      setTimeout (->
-        test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
-        test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0
-        test.ok currently_watched_files.length is 2
-        test.done()
-      ), 200
+    fs.unlinkSync TEST_FILES[2]
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0
+      test.ok currently_watched_files.length is 2
+      test.done()
+    ), 200
 
   'checking file addition': (test) ->
     for fpath in TEST_FILES[2..3]
@@ -113,6 +116,46 @@ exports.testFileWatch =
       test.ok (currently_watched_files.indexOf TEST_FILES[3]) >= 0, 'TEST_FILES[3]'
       test.ok currently_watched_files.length is 4
       test.done()
-
-      # harvester1.stop();
     ), 1500
+
+  'checking file rename 1': (test) ->
+    fs.renameSync TEST_FILES[1], "#{__dirname}/tmp/renamed.log"
+
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0, 'TEST_FILES[0]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0, 'TEST_FILES[2]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[3]) >= 0, 'TEST_FILES[3]'
+      test.ok currently_watched_files.length is 3
+      test.done()
+    ), 1500
+
+  'checking file rename 2': (test) ->
+    fs.writeFileSync "#{__dirname}/tmp/newfile.log", ''
+    fs.renameSync "#{__dirname}/tmp/newfile.log", TEST_FILES[1]
+
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0, 'TEST_FILES[0]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0, 'TEST_FILES[1]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0, 'TEST_FILES[2]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[3]) >= 0, 'TEST_FILES[3]'
+      test.ok currently_watched_files.length is 4
+      test.done()
+    ), 1500
+
+  'checking log adding': (test) ->
+    fs.appendFileSync TEST_FILES[0], 'test log0'
+    fs.appendFileSync TEST_FILES[1], 'test log1'
+    fs.appendFileSync TEST_FILES[2], 'test log2'
+    fs.appendFileSync TEST_FILES[3], 'test log3'
+    fs.appendFileSync "#{__dirname}/tmp/renamed.log", 'renamed'
+
+    setTimeout (->
+      test.ok (generated_logs.indexOf 'test log0') >= 0
+      test.ok (generated_logs.indexOf 'test log1') >= 0
+      test.ok (generated_logs.indexOf 'test log2') >= 0
+      test.ok (generated_logs.indexOf 'test log3') >= 0
+      test.ok currently_watched_files.length is 4
+      test.done()
+     
+      # harvester1.stop();
+    ), 200

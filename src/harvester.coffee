@@ -47,6 +47,13 @@ class LogStream extends events.EventEmitter
     @
 
   ###*
+  # Stopping all file watching
+  # @method unwatch
+  ###
+  unwatch: ->
+    @
+
+  ###*
   # Watching all files under specified directory
   # @method watch
   # @param {String} path Path to directory
@@ -207,6 +214,14 @@ class LogHarvester extends events.EventEmitter
     @timeout_reconnect = @TIMEOUT_RECONNECT_START;
 
   ###*
+  # Stops harvester and disconnects from server
+  # @method stop
+  ###
+  stop: ->
+    @_disconnect()
+    @_unwatchAll()
+
+  ###*
   # Run harvester and connect to server
   # @method run
   ###
@@ -234,6 +249,13 @@ class LogHarvester extends events.EventEmitter
       @emit @EVT_CONNECTION, @_connected
       @timeout_reconnect = @TIMEOUT_RECONNECT_START;
       @_announce()
+
+  ###*
+  # Stopping TCP socket
+  # @method _disconnect
+  ###
+  _disconnect: ->
+    @socket.close()
   
   ###*
   # Start watching all files
@@ -242,10 +264,19 @@ class LogHarvester extends events.EventEmitter
   _watchAll: ->
     @logStreams.forEach (stream) =>
       stream.on 'log_new', (msg) =>
+        @emit 'log_new', stream, msg
         @_sendLog stream, msg if @_connected
       stream.on 'file_watching', (path, watching) =>
         @emit 'file_watching', path, watching
       stream.watch()
+  
+  ###*
+  # Stop watching all files
+  # @method _watchAll
+  ###
+  _unwatchAll: ->
+    @logStreams.forEach (stream) =>
+      stream.unwatch()
 
   ###*
   # Creating TCP socket
