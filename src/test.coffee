@@ -18,7 +18,6 @@ TEST_FILES = [
 
 HARVESTER1_CONFIG =
   logging: logger
-  nodeName: 'server01'
   logStreams:
     stream1: TEST_FILES[0..1]
     stream2: TEST_FILES[2..3]
@@ -65,11 +64,55 @@ Bugs:
 ###
 
 logger.info "Creating test diretory: #{__dirname}/tmp"
-mkdirp "#{__dirname}/tmp", ->
-  for fpath in TEST_FILES
-    logger.info "Creating test log file: #{fpath}"
-    fs.writeFile fpath, ''
+fs.mkdirSync "#{__dirname}/tmp" if not fs.existsSync "#{__dirname}/tmp"
+for fpath in TEST_FILES[0..3]
+  logger.info "Deleting test log file: #{fpath}"
+  fs.unlinkSync fpath if fs.existsSync fpath
+for fpath in TEST_FILES[0..2]
+  logger.info "Creating test log file: #{fpath}"
+  fs.writeFileSync fpath, ''
 
-exports.testFileWatch = (test) ->
-  harvester1 = new LogHarvester HARVESTER1_CONFIG
-  harvester1.run()
+harvester1 = new LogHarvester HARVESTER1_CONFIG
+currently_watched_files = []
+harvester1.on 'file_watching', (path, online) ->
+  if online
+    currently_watched_files.push path if (currently_watched_files.indexOf path) < 0
+  else
+    currently_watched_files.splice (currently_watched_files.indexOf path), 1 if (currently_watched_files.indexOf path) >= 0
+harvester1.run()
+
+exports.testFileWatch =
+
+  'verifying right files are watched': (test) ->
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0
+      test.ok currently_watched_files.length is 3
+      test.done()
+    ), 200
+
+  'checking file deletion': (test) ->
+    fs.unlink TEST_FILES[2], ->
+      setTimeout (->
+        test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
+        test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0
+        test.ok currently_watched_files.length is 2
+        test.done()
+      ), 200
+
+  'checking file addition': (test) ->
+    for fpath in TEST_FILES[2..3]
+      logger.info "Creating test log file: #{fpath}"
+      fs.writeFileSync fpath, ''
+
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0, 'TEST_FILES[0]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0, 'TEST_FILES[1]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0, 'TEST_FILES[2]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[3]) >= 0, 'TEST_FILES[3]'
+      test.ok currently_watched_files.length is 4
+      test.done()
+
+      # harvester1.stop();
+    ), 1500

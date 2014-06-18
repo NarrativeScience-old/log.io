@@ -8,12 +8,25 @@ winston = require 'winston'
 # 
 #  - Watches log file for changes
 #  - Extracts new log messages
-#  - Then emits 'new_log' events.
+#  - Then emits 'log_new' events.
 # 
 # @class LogStream
 # @extends events.EventEmitter
 ###
 class LogStream extends events.EventEmitter
+
+  ###*
+  # Emits event for every new captured log line
+  # @event log_new
+  # @param {String} message Log line
+  ###
+
+  ###*
+  # Started watching a file
+  # @event file_watching
+  # @param {String} path Target filename
+  # @param {Boolean} watching If file watch was started successfully on not
+  ###
 
   ###*
   # Initializing new `LogStream` instance
@@ -51,6 +64,7 @@ class LogStream extends events.EventEmitter
   _watchFile: (path) ->
       # Checking if file exists
       if not fs.existsSync path
+        @emit 'file_watching', path, false
         @_log.error "File doesn't exist: '#{path}'. Retrying in 1000ms."
         setTimeout (=> @_watchFile path), 1000
         return
@@ -61,8 +75,10 @@ class LogStream extends events.EventEmitter
         return
 
       @_log.info "Watching file: '#{path}'"
+      @emit 'file_watching', path, true
       currSize = fs.statSync(path).size
       watcher = fs.watch path, (event, filename) =>
+
         if event is 'rename'
           # File has been rotated, start new watcher
           watcher.close()
@@ -70,12 +86,17 @@ class LogStream extends events.EventEmitter
 
         if event is 'change'
           # Capture file offset information for change event
-          fs.stat path, (err, stat) =>
-            @_readNewLogs path, stat.size, currSize
-            currSize = stat.size
+          fs.exists path, (exists) =>
+            if exists
+              fs.stat path, (err, stat) =>
+                @_readNewLogs path, stat.size, currSize
+                currSize = stat.size
+            else
+              watcher.close()
+              @_watchFile path
 
   ###*
-  # File change has been detected. Determining what has been changed and emitting `new_log` event.
+  # File change has been detected. Determining what has been changed and emitting `log_new` event.
   # @method watch
   # @param {String} path Path to file or a directory
   ###
@@ -87,10 +108,9 @@ class LogStream extends events.EventEmitter
       start: prev
       end: curr
 
-    # Emit `new_log` event for every captured log line
     rstream.on 'data', (data) =>
       lines = data.split "\n"
-      @emit 'new_log', line for line in lines when line
+      @emit 'log_new', line for line in lines when line
 
 ###*
 # `LogHarvester` creates `LogStream` for each file watched and opens a persistent TCP connection to the server.
@@ -129,8 +149,16 @@ class LogStream extends events.EventEmitter
 #     harvester.run()
 #
 # @class LogHarvester
+# @extends events.EventEmitter
 ###
-class LogHarvester
+class LogHarvester extends events.EventEmitter
+
+  ###*
+  # Fired when trying to connect to `LogServer`
+  # @event connection
+  # @param {Boolean} status Returns `true` if connection to server was successfull
+  ###
+  EVT_CONNECTION: 'connection',
 
   ###*
   # Maximum server connection retry time, in milliseconds
@@ -171,11 +199,11 @@ class LogHarvester
     config._log = config._log ? winston
     config.logStreams = config.logStreams ? {}
     config.server = config.server ?
-      host: '0.0.0.0',
+      host: '0.0.0.0'
       port: 28777
-
+    @reconnect = null
     {@nodeName, @server, @delimiter, @_log} = config
-    @logStreams = (new LogStream s, paths, @_log for s, paths of config.logStreams)
+    @logStreams = (new LogStream title, paths, @_log for title, paths of config.logStreams)
     @timeout_reconnect = @TIMEOUT_RECONNECT_START;
 
   ###*
@@ -184,9 +212,7 @@ class LogHarvester
   ###
   run: ->
     @_connect()
-    @logStreams.forEach (stream) =>
-      stream.watch().on 'new_log', (msg) =>
-        @_sendLog stream, msg if @_connected
+    @_watchAll()
 
   ###*
   # Creating TCP socket
@@ -194,18 +220,32 @@ class LogHarvester
   ###
   _connect: ->
     @socket = new net.Socket
-    
+
     @socket.on 'error', (error) =>
       @_connected = false
+      @emit @EVT_CONNECTION, @_connected
       @_log.error "Cannot connect to server, trying again in #{(@timeout_reconnect/1000)} second(s)..."
-      setTimeout (=> @_connect()), @timeout_reconnect
+      @reconnect = setTimeout (=> @_connect()), @timeout_reconnect
       @timeout_reconnect = Math.min @timeout_reconnect * 2, @TIMEOUT_RECONNECT_MAX;
 
     @_log.info "Connecting to server #{@server.host}:#{@server.port}..."
     @socket.connect @server.port, @server.host, =>
       @_connected = true
+      @emit @EVT_CONNECTION, @_connected
       @timeout_reconnect = @TIMEOUT_RECONNECT_START;
       @_announce()
+  
+  ###*
+  # Start watching all files
+  # @method _watchAll
+  ###
+  _watchAll: ->
+    @logStreams.forEach (stream) =>
+      stream.on 'log_new', (msg) =>
+        @_sendLog stream, msg if @_connected
+      stream.on 'file_watching', (path, watching) =>
+        @emit 'file_watching', path, watching
+      stream.watch()
 
   ###*
   # Creating TCP socket

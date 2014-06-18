@@ -46,6 +46,7 @@
   "scripts": {
     "prepublish": "cake build",
     "postinstall": "cake ensure:configuration",
-    "test": "cake test"
+    "pretest": "cake compile",
+    "test": "nodeunit lib/test.js"
   }
 }
