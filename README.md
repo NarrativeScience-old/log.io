@@ -51,13 +51,14 @@ Remove a node
 
     -node|my_node\r\n
 
+
 ## Building
 
 Global NPM dependencies: `coffee-script`, `mocha`, `less` and `browserify`
 
     cake build
 
-## Building documentation
+### Building documentation
 
 Global NPM dependency: `yuidocjs`
 
@@ -66,6 +67,12 @@ Global NPM dependency: `yuidocjs`
 Then navigate to `docs/index.html`
 
 Theme was based on [yuidoc-bootstrap-theme](https://www.npmjs.org/package/yuidoc-bootstrap-theme).
+
+## Testing
+
+Global NPM dependencies: `nodeunit`
+
+    npm test
 
 ## Credits
 

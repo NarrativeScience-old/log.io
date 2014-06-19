@@ -54,14 +54,6 @@ task 'browserify', 'Compiles client.coffee to browser-friendly JS', ->
   exec "#{BROWSERIFY} -c 'coffee -sc' -r #{__dirname}/src/client.coffee:client.coffee > #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
     console.log stdout + stderr if err
 
-# Testing
-task 'test', 'Compiles & runs functional test', ->
-  invoke 'compile'
-  console.log 'Running tests...'
-  exec "#{MOCHA} --reporter spec #{__dirname}/lib/test.js", (err, stdout, stderr) ->
-    throw err if err
-    console.log stdout + stderr if stdout + stderr
-
 # Creating config files if do not exists
 task 'ensure:configuration', 'Ensures that config files exist in ~/.log.io/', ->
   console.log 'Creating ~/.log.io/ for configuration files.'
