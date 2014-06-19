@@ -32,7 +32,7 @@ Single file:
  + File did not exist, then created
  should add a file
 
- - File modification
+ + File modification
  creates new log
 
  + File renamed

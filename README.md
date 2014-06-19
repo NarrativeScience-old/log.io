@@ -51,17 +51,24 @@ Remove a node
 
     -node|my_node\r\n
 
+
 ## Building
 
 Global NPM dependencies: `coffee-script`, `mocha`, `less` and `browserify`
 
     cake build
 
-## Building documentation
+### Building documentation
 
 Global NPM dependency: `yuidocjs`
 
     cake docs
+    
+## Testing
+
+Global NPM dependencies: `nodeunit`
+
+    npm test
 
 Then navigate to `docs/index.html`
 
