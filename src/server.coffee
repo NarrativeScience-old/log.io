@@ -290,11 +290,30 @@ class LogServer extends events.EventEmitter
       socket.node = node
 
 ###*
-# WebServer relays LogServe`r` events to web clients via socket.io.
+# WebServer relays `LogServer` events to web clients via socket.io.
 # @class WebServer
 ###
 class WebServer
+
+  ###*
+  # Initializing new `WebServer` instance
+  #
+  # Default configuration:
+  #
+  #     config =
+  #         restrictSocket: '*.*'
+  #         logging: winston
+  #         host: '0.0.0.0'
+  #         port: 28778
+  #         auth: null
+  #
+  # @constructor
+  # @param {Object} logServer Instance of `LogServer`
+  # @param {Object} config Configuration object
+  ###
   constructor: (@logServer, config) ->
+    config.host = config.host ? '0.0.0.0'
+    config.port = config.port ? 28778
     {@host, @port, @auth} = config
     {@logNodes, @logStreams} = @logServer
     @restrictSocket = config.restrictSocket ? '*:*'
