@@ -93,6 +93,7 @@ exports.testFileWatch =
       test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0
       test.ok currently_watched_files.length is 3
       test.done()
+
     ), 200
 
   'checking file deletion': (test) ->
@@ -156,6 +157,6 @@ exports.testFileWatch =
       test.ok (generated_logs.indexOf 'test log3') >= 0
       test.ok currently_watched_files.length is 4
       test.done()
-     
-      # harvester1.stop();
+
+      harvester1.stop();
     ), 200

@@ -36,6 +36,8 @@ class LogStream extends events.EventEmitter
   # @param {Object} _log Winston (or compatible) logger object. Only used for debugging.
   ###
   constructor: (@name, @paths, @_log) ->
+    @watchers = {}
+    @keep_retrying = true
 
   ###*
   # Initialising all file watching
@@ -51,6 +53,10 @@ class LogStream extends events.EventEmitter
   # @method unwatch
   ###
   unwatch: ->
+    @keep_retrying = false
+    for path, watcher of @watchers
+      @_log.info 'Unwatching file', path
+      watcher.close()
     @
 
   ###*
@@ -59,8 +65,7 @@ class LogStream extends events.EventEmitter
   # @param {String} path Path to directory
   ###
   _watchDirectory: (path) ->
-    filesUnderFolder = fs.readdirSync(path)
-    for i of filesUnderFolder
+    for i of fs.readdirSync path
       @_watchFile path + "/" + filesUnderFolder[i]
 
   ###*
@@ -72,8 +77,9 @@ class LogStream extends events.EventEmitter
       # Checking if file exists
       if not fs.existsSync path
         @emit 'file_watching', path, false
-        @_log.error "File doesn't exist: '#{path}'. Retrying in 1000ms."
-        setTimeout (=> @_watchFile path), 1000
+        if @keep_retrying
+          @_log.error "File doesn't exist: '#{path}'. Retrying in 1000ms."
+          setTimeout (=> @_watchFile path), 1000
         return
 
       # Checking if path is a directory
@@ -84,11 +90,15 @@ class LogStream extends events.EventEmitter
       @_log.info "Watching file: '#{path}'"
       @emit 'file_watching', path, true
       currSize = fs.statSync(path).size
+
+      if @watchers[path]
+        @watchers[path].close()
+        delete @watchers[path]
+
       watcher = fs.watch path, (event, filename) =>
 
         if event is 'rename'
           # File has been rotated, start new watcher
-          watcher.close()
           @_watchFile path
 
         if event is 'change'
@@ -99,8 +109,9 @@ class LogStream extends events.EventEmitter
                 @_readNewLogs path, stat.size, currSize
                 currSize = stat.size
             else
-              watcher.close()
               @_watchFile path
+
+      @watchers[path] = watcher
 
   ###*
   # File change has been detected. Determining what has been changed and emitting `log_new` event.
@@ -118,6 +129,10 @@ class LogStream extends events.EventEmitter
     rstream.on 'data', (data) =>
       lines = data.split "\n"
       @emit 'log_new', line for line in lines when line
+
+    rstream.on 'error', (data) =>
+
+    rstream.on 'end', (data) =>
 
 ###*
 # `LogHarvester` creates `LogStream` for each file watched and opens a persistent TCP connection to the server.
@@ -212,6 +227,7 @@ class LogHarvester extends events.EventEmitter
     {@nodeName, @server, @delimiter, @_log} = config
     @logStreams = (new LogStream title, paths, @_log for title, paths of config.logStreams)
     @timeout_reconnect = @TIMEOUT_RECONNECT_START;
+    @keep_retrying = true
 
   ###*
   # Stops harvester and disconnects from server
@@ -238,16 +254,19 @@ class LogHarvester extends events.EventEmitter
 
     @socket.on 'error', (error) =>
       @_connected = false
-      @emit @EVT_CONNECTION, @_connected
-      @_log.error "Cannot connect to server, trying again in #{(@timeout_reconnect/1000)} second(s)..."
-      @reconnect = setTimeout (=> @_connect()), @timeout_reconnect
-      @timeout_reconnect = Math.min @timeout_reconnect * 2, @TIMEOUT_RECONNECT_MAX;
+      @emit @EVT_CONNECTION, @f_connected
+      @socket.destroy()
+      if @keep_retrying
+        @_log.error "Cannot connect to server, trying again in #{(@timeout_reconnect/1000)} second(s)..."
+        @reconnect = setTimeout (=> @_connect()), @timeout_reconnect
+        @timeout_reconnect = Math.min @timeout_reconnect * 2, @TIMEOUT_RECONNECT_MAX;
 
     @_log.info "Connecting to server #{@server.host}:#{@server.port}..."
     @socket.connect @server.port, @server.host, =>
       @_connected = true
       @emit @EVT_CONNECTION, @_connected
       @timeout_reconnect = @TIMEOUT_RECONNECT_START;
+      @reconnect = null
       @_announce()
 
   ###*
@@ -255,7 +274,11 @@ class LogHarvester extends events.EventEmitter
   # @method _disconnect
   ###
   _disconnect: ->
-    @socket.close()
+    @keep_retrying = false
+    @socket.destroy()
+    if @reconnect
+      clearTimeout @reconnect
+      @reconnect = null
   
   ###*
   # Start watching all files
@@ -263,15 +286,18 @@ class LogHarvester extends events.EventEmitter
   ###
   _watchAll: ->
     @logStreams.forEach (stream) =>
+
       stream.on 'log_new', (msg) =>
         @emit 'log_new', stream, msg
         @_sendLog stream, msg if @_connected
+
       stream.on 'file_watching', (path, watching) =>
         @emit 'file_watching', path, watching
+
       stream.watch()
   
   ###*
-  # Stop watching all files
+  # Stop watching all streams
   # @method _watchAll
   ###
   _unwatchAll: ->
