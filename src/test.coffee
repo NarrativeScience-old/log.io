@@ -159,4 +159,4 @@ exports.testFileWatch =
       test.done()
 
       harvester1.stop();
-    ), 200
+    ), 500
