@@ -1,41 +1,23 @@
-### Log.io Functional tests
-#
-# Stands up all 3 components, verifies that writing to a file
-# ends up populating a client collection.
-#
-# TODO(msmathers): Write more complete test coverage.
-###
-
-fs = require 'fs'
-chai = require 'chai'
-_ = require 'underscore'
-winston = require 'winston'
-sinon_chai = require 'sinon-chai'
-chai.use sinon_chai
-should = chai.should()
-
 {LogHarvester} = require './harvester.js'
-{LogServer, WebServer} = require './server.js'
-{WebClient} = require './client.js'
-logging = new winston.Logger
+winston = require 'winston'
+fs = require 'fs'
+mkdirp = require 'mkdirp'
+logger = new winston.Logger
   transports: [ new winston.transports.Console]
 
-# Configuration
-
 TEST_FILES = [
-  '/tmp/stream1a.log',
-  '/tmp/stream1b.log',
-  '/tmp/stream2a.log',
-  '/tmp/stream2b.log',
-  '/tmp/stream3a.log',
-  '/tmp/stream3b.log',
-  '/tmp/stream4a.log',
-  '/tmp/stream4b.log'
+  "#{__dirname}/tmp/stream1a.log",
+  "#{__dirname}/tmp/stream1b.log",
+  "#{__dirname}/tmp/stream2a.log",
+  "#{__dirname}/tmp/stream2b.log",
+  "#{__dirname}/tmp/stream3a.log",
+  "#{__dirname}/tmp/stream3b.log",
+  "#{__dirname}/tmp/stream4a.log",
+  "#{__dirname}/tmp/stream4b.log",
 ]
 
 HARVESTER1_CONFIG =
-  logging: logging
-  nodeName: 'server01'
+  logging: logger
   logStreams:
     stream1: TEST_FILES[0..1]
     stream2: TEST_FILES[2..3]
@@ -43,87 +25,138 @@ HARVESTER1_CONFIG =
     host: 'localhost'
     port: 28771
 
-HARVESTER2_CONFIG =
-  logging: logging
-  nodeName: 'server02'
-  logStreams:
-    stream2: TEST_FILES[4..5]
-    stream3: TEST_FILES[6..7]
-  server:
-    host: 'localhost'
-    port: 28771
+###
+TODO Harveter Tests:
 
-LOG_SERVER_CONFIG =
-  logging: logging
-  host: 'localhost'
-  port: 28771
+Single file:
+ + File did not exist, then created
+ should add a file
 
-WEB_SERVER_CONFIG =
-  logging: logging
-  port: 28772
+ + File modification
+ creates new log
 
-# Create empty test files
-fs.writeFile fpath, '' for fpath in TEST_FILES
+ + File renamed
+ renamed file is unwatched, wait for new file with old filename
 
-# Initialize servers
-logServer = new LogServer LOG_SERVER_CONFIG
-logServer.run()
+ + File deleted
+ wait for new file
 
-# Optional manual testing of web interface
-# webServer = new WebServer logServer, WEB_SERVER_CONFIG
-# webServer.run()
+ + File deleted and then added
+ add new file
 
-describe 'LogServer', ->
-  it 'should have no nodes or streams initially', ->
-    _.keys(logServer.logNodes).should.have.length 0
-    _.keys(logServer.logStreams).should.have.length 0
-    harvester1 = new LogHarvester HARVESTER1_CONFIG
-    harvester2 = new LogHarvester HARVESTER2_CONFIG
-    harvester1.run()
-    harvester2.run()
+Directory:
+ - Directory did not exist, then created
+ - Directory renamed
+ - Directory deleted
+ - File added to directory
+ - File renamed in directory
+ - File removed from directory
 
-describe 'LogServer', ->
-  it 'should have registered nodes & streams once connected', ->
+Server:
+ - Server went up
+ should reconnect
+
+ - Server went down
+ should retry until server is up
+
+Bugs:
+ - There used to be a bug where harvester was using a lot of CPU while could not connect to server.
+###
+
+logger.info "Creating test diretory: #{__dirname}/tmp"
+fs.mkdirSync "#{__dirname}/tmp" if not fs.existsSync "#{__dirname}/tmp"
+for fpath in TEST_FILES[0..3]
+  logger.info "Deleting test log file: #{fpath}"
+  fs.unlinkSync fpath if fs.existsSync fpath
+for fpath in TEST_FILES[0..2]
+  logger.info "Creating test log file: #{fpath}"
+  fs.writeFileSync fpath, ''
+
+harvester1 = new LogHarvester HARVESTER1_CONFIG
+currently_watched_files = []
+harvester1.on 'file_watching', (path, online) ->
+  if online
+    currently_watched_files.push path if (currently_watched_files.indexOf path) < 0
+  else
+    currently_watched_files.splice (currently_watched_files.indexOf path), 1 if (currently_watched_files.indexOf path) >= 0
+generated_logs = []
+harvester1.on 'log_new', (stream, msg) ->
+  generated_logs.push msg
+harvester1.run()
+
+exports.testFileWatch =
+
+  'verifying right files are watched': (test) ->
     setTimeout (->
-      console.log 'logServer.logNodes', logServer.logNodesy
-      logServer.logNodes.should.have.keys 'server01', 'server02'
-      logServer.logStreams.should.have.keys 'stream1', 'stream2', 'stream3'
-    ), 1000
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0
+      test.ok currently_watched_files.length is 3
+      test.done()
 
-###
-# Initialize client
-webClient = new WebClient host: 'http://0.0.0.0:28772'
+    ), 200
 
-# Write to watched files, verify end-to-end propagation
+  'checking file deletion': (test) ->
+    fs.unlinkSync TEST_FILES[2]
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0
+      test.ok currently_watched_files.length is 2
+      test.done()
+    ), 200
 
-describe 'WebClient', ->
-  it 'waits for server connection...', (connected) ->
-    webClient.socket.on 'initialized', ->
+  'checking file addition': (test) ->
+    for fpath in TEST_FILES[2..3]
+      logger.info "Creating test log file: #{fpath}"
+      fs.writeFileSync fpath, ''
 
-      describe 'WebClient state', ->
-        it 'should be notified of registered nodes & streams', ->
-          webClient.logNodes.should.have.length 2
-          webClient.logStreams.should.have.length 3
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0, 'TEST_FILES[0]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0, 'TEST_FILES[1]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0, 'TEST_FILES[2]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[3]) >= 0, 'TEST_FILES[3]'
+      test.ok currently_watched_files.length is 4
+      test.done()
+    ), 1500
 
-        it 'creates a log screen and actives a node/stream pair', ->
-          screen1 = webClient.createScreen 'Screen 1'
-          stream1 = webClient.logStreams.get 'stream1'
-          node1 = webClient.logNodes.get 'server01'
-          screen1.addPair stream1, node1
-          screen1.logMessages.should.have.length 0
-          
-          describe 'log message propagation', ->
-            it 'should populate client backbone collection on file writes', (done) ->
-              msg1 = "log message 1"
-              msg2 = "log message 2"
-              # This file is a member of the watched stream
-              fs.appendFileSync TEST_FILES[0], "#{msg1}\n"
-              # This file is not a member of the watched stream
-              fs.appendFileSync TEST_FILES[2], "#{msg2}\n"
-              webClient.socket.once 'new_log', ->
-                screen1.logMessages.should.have.length 1
-                screen1.logMessages.at(0).get('message').should.equal msg1
-                done()
+  'checking file rename 1': (test) ->
+    fs.renameSync TEST_FILES[1], "#{__dirname}/tmp/renamed.log"
 
-      connected()
-###
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0, 'TEST_FILES[0]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0, 'TEST_FILES[2]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[3]) >= 0, 'TEST_FILES[3]'
+      test.ok currently_watched_files.length is 3
+      test.done()
+    ), 1500
+
+  'checking file rename 2': (test) ->
+    fs.writeFileSync "#{__dirname}/tmp/newfile.log", ''
+    fs.renameSync "#{__dirname}/tmp/newfile.log", TEST_FILES[1]
+
+    setTimeout (->
+      test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0, 'TEST_FILES[0]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0, 'TEST_FILES[1]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0, 'TEST_FILES[2]'
+      test.ok (currently_watched_files.indexOf TEST_FILES[3]) >= 0, 'TEST_FILES[3]'
+      test.ok currently_watched_files.length is 4
+      test.done()
+    ), 1500
+
+  'checking log adding': (test) ->
+    fs.appendFileSync TEST_FILES[0], 'test log0'
+    fs.appendFileSync TEST_FILES[1], 'test log1'
+    fs.appendFileSync TEST_FILES[2], 'test log2'
+    fs.appendFileSync TEST_FILES[3], 'test log3'
+    fs.appendFileSync "#{__dirname}/tmp/renamed.log", 'renamed'
+
+    setTimeout (->
+      test.ok (generated_logs.indexOf 'test log0') >= 0
+      test.ok (generated_logs.indexOf 'test log1') >= 0
+      test.ok (generated_logs.indexOf 'test log2') >= 0
+      test.ok (generated_logs.indexOf 'test log3') >= 0
+      test.ok currently_watched_files.length is 4
+      test.done()
+
+      harvester1.stop();
+    ), 200
