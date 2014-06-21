@@ -143,20 +143,46 @@ exports.testFileWatch =
       test.done()
     ), 1500
 
-  'checking log adding': (test) ->
+  'checking log adding 1': (test) ->
     fs.appendFileSync TEST_FILES[0], 'test log0'
+
+    console.log(generated_logs);  
+    setTimeout (->
+      console.log(generated_logs);
+      test.ok (generated_logs.indexOf 'test log0') >= 0, 'correct string was sent'
+      test.ok generated_logs.length is 1, 'correct log amount was sent'
+      test.done()
+    ), 500
+    
+  'checking log adding 2': (test) ->
     fs.appendFileSync TEST_FILES[1], 'test log1'
-    fs.appendFileSync TEST_FILES[2], 'test log2'
-    fs.appendFileSync TEST_FILES[3], 'test log3'
-    fs.appendFileSync "#{__dirname}/tmp/renamed.log", 'renamed'
 
     setTimeout (->
-      test.ok (generated_logs.indexOf 'test log0') >= 0
-      test.ok (generated_logs.indexOf 'test log1') >= 0
-      test.ok (generated_logs.indexOf 'test log2') >= 0
-      test.ok (generated_logs.indexOf 'test log3') >= 0
-      test.ok currently_watched_files.length is 4
+      test.ok (generated_logs.indexOf 'test log1') >= 0, 'correct string was sent'
+      test.ok generated_logs.length is 2, 'correct log amount was sent'
       test.done()
+    ), 500
+    
+  'checking log adding 3': (test) ->
+    fs.appendFileSync TEST_FILES[2], 'test log2'
 
+    setTimeout (->
+      test.ok (generated_logs.indexOf 'test log2') >= 0, 'correct string was sent'
+      test.ok generated_logs.length is 3, 'correct log amount was sent'
+      test.done()
+    ), 500
+
+  'checking log adding 4': (test) ->
+    fs.appendFileSync TEST_FILES[3], 'test log3'
+
+    setTimeout (->
+      test.ok (generated_logs.indexOf 'test log3') >= 0, 'correct string was sent'
+      test.ok generated_logs.length is 4, 'correct log amount was sent'
+      test.done()
       harvester1.stop();
     ), 500
+
+    setTimeout (->
+      # End all tests
+      harvester1.stop();
+    ), 1000
