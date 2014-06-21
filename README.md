@@ -13,23 +13,31 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
 
 ## Install Server & Harvester
 
-1) Install via npm
-
+1. Install via npm
+    
+    ```bash
     npm install -g log.io --user "ubuntu"
+    ```
 
-2) Run server
+2. Run server
 
+    ```bash
     log.io-server
+    ```
 
-3) Configure harvester
-
+3. Configure harvester
+    
+    ```bash
     nano ~/.log.io/harvester.conf
+    ```
 
-4) Run harvester
-
+4. Run harvester
+    
+    ```bash
     log.io-harvester
+    ```
 
-5) Browse to http://localhost:28778
+5. Browse to [http://localhost:28778](http://localhost:28778)
 
 ## Server TCP Interface
 
