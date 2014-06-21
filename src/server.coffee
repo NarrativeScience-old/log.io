@@ -34,7 +34,7 @@ class _LogObject
   ###*
   # A 'pair' refers to a `LogStream` to `LogNode` pair. 
   #
-  # Method is called when you "activate" a (stream, node) pair by clicking on a checkbox on the left, and tells the server to send any log messages that originated from that specific (stream, node) pair.
+  # Method is called when you 'activate' a (stream, node) pair by clicking on a checkbox on the left, and tells the server to send any log messages that originated from that specific (stream, node) pair.
   #
   # @method addPair
   # @param {String} pname entity (`LogStream` or `LogNode`) name
@@ -290,11 +290,30 @@ class LogServer extends events.EventEmitter
       socket.node = node
 
 ###*
-# WebServer relays LogServe`r` events to web clients via socket.io.
+# WebServer relays `LogServer` events to web clients via socket.io.
 # @class WebServer
 ###
 class WebServer
+
+  ###*
+  # Initializing new `WebServer` instance
+  #
+  # Default configuration:
+  #
+  #     config =
+  #         restrictSocket: '*.*'
+  #         logging: winston
+  #         host: '0.0.0.0'
+  #         port: 28778
+  #         auth: null
+  #
+  # @constructor
+  # @param {Object} logServer Instance of `LogServer`
+  # @param {Object} config Configuration object
+  ###
   constructor: (@logServer, config) ->
+    config.host = config.host ? '0.0.0.0'
+    config.port = config.port ? 28778
     {@host, @port, @auth} = config
     {@logNodes, @logStreams} = @logServer
     @restrictSocket = config.restrictSocket ? '*:*'

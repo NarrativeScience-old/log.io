@@ -1,17 +1,3 @@
-### Log.io Web Client
-
-Listens to server for new log messages, renders them to screen "widgets".
-
-# Usage:
-wclient = new WebClient io, host: 'http://localhost:28778'
-screen = wclient.createScreen
-stream = wclient.logStreams.at 0
-node = wclient.logNodes.at 0
-screen.addPair stream, node
-screen.on 'new_log', (stream, node, level, message) ->
-
-###
-
 if process.browser
   $ = require 'jquery-browserify'
 else
@@ -25,12 +11,12 @@ templates = require './templates.coffee'
 # Cap LogMessages collection size
 MESSAGE_CAP = 5000
 
+###*
+# ColorManager acts as a circular queue for color values.
+# Every new Stream or Node is assigned a color value on instantiation.
+# 
+# @class ColorManager
 ###
-ColorManager acts as a circular queue for color values.
-Every new Stream or Node is assigned a color value on instantiation.
-
-###
-
 class ColorManager
   _max: 20
   constructor: (@_index=1) ->
@@ -40,13 +26,12 @@ class ColorManager
 
 colors = new ColorManager
 
+###*
+# Backbone models are used to represent nodes and streams. When nodes go offline, their `LogNode` model is destroyed, along with their stream assocations.
+#
+# @class _LogObject
+# @extends backbone.Model
 ###
-Backbone models are used to represent nodes and streams.  When nodes
-go offline, their LogNode model is destroyed, along with their
-stream assocations.
-
-###
-
 class _LogObject extends backbone.Model
   idAttribute: 'name'
   _pclass: -> new _LogObjects
@@ -57,29 +42,57 @@ class _LogObject extends backbone.Model
     @pairs = @_pclass()
     @color = colors.next()
 
+###*
+# @class _LogObjects
+# @extends backbone.Collection
+###
 class _LogObjects extends backbone.Collection
   model: _LogObject
   comparator: (obj) ->
     obj.get 'name'
 
+###*
+# @class LogStream
+# @extends _LogObject
+###
 class LogStream extends _LogObject
   _pclass: -> new LogNodes
 
+###*
+# @class LogStreams
+# @extends _LogObjects
+###
 class LogStreams extends _LogObjects
   model: LogStream
 
+###*
+# @class LogNode
+# @extends _LogObject
+###
 class LogNode extends _LogObject
   _pclass: -> new LogStreams
 
+###*
+# @class LogNodes
+# @extends _LogObjects
+###
 class LogNodes extends _LogObjects
   model: LogNode
 
+###*
+# @class LogMessage
+# @extends backbone.Model
+###
 class LogMessage extends backbone.Model
   ROPEN = new RegExp '<','ig'
   RCLOSE = new RegExp '>','ig'
   render_message: ->
     @get('message').replace(ROPEN, '&lt;').replace(RCLOSE, '&gt;')
 
+###*
+# @class LogMessages
+# @extends backbone.Collection
+###
 class LogMessages extends backbone.Collection
   model: LogMessage
   constructor: (args...) ->
@@ -90,12 +103,12 @@ class LogMessages extends backbone.Collection
     @remove @at (@length - MESSAGE_CAP) if @length > MESSAGE_CAP
 
 
-###
-LogScreen models maintain state for screen widgets in the UI.
-When (Stream, Node) pairs are associated with a screen, the pair ID
-is stored on the model.  It uses pair ID instead of models themselves
-in case a node goes offline, and a new LogNode model is created.
-
+###*
+# LogScreen models maintain state for screen widgets in the UI.
+#
+# When (Stream, Node) pairs are associated with a screen, the pair ID is stored on the model.  It uses pair ID instead of models themselves in case a node goes offline, and a new LogNode model is created.
+# @class LogScreen
+# @extends backbone.Model
 ###
 class LogScreen extends backbone.Model
   idAttribute: null
@@ -141,13 +154,24 @@ class LogScreen extends backbone.Model
 class LogScreens extends backbone.Collection
   model: LogScreen
 
+###* Log.io Web Client
+# 
+# WebClient listens for log messages and stream/node announcements from the server via socket.io.#
+# It manipulates state in LogNodes & LogStreams collections, which triggers view events.
+# 
+# Listens to server for new log messages, renders them to screen 'widgets'.
+# 
+# Usage:
+# 
+#     wclient = new WebClient io, host: 'http://localhost:28778'
+#     screen = wclient.createScreen
+#     stream = wclient.logStreams.at 0
+#     node = wclient.logNodes.at 0
+#     screen.addPair stream, node
+#     screen.on 'new_log', (stream, node, level, message) ->
+# 
+# @class WebClient
 ###
-WebClient listens for log messages and stream/node announcements
-from the server via socket.io.  It manipulates state in LogNodes &
-LogStreams collections, which triggers view events.
-
-###
-
 class WebClient
   constructor: (opts={host: '', secure: false}, @localStorage={}) ->
     @stats =
