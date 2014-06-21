@@ -26,7 +26,7 @@ HARVESTER1_CONFIG =
     port: 28771
 
 ###
-TODO Harvester Tests:
+TODO Harveter Tests:
 
 Single file:
  + File did not exist, then created
@@ -63,7 +63,7 @@ Bugs:
  - There used to be a bug where harvester was using a lot of CPU while could not connect to server.
 ###
 
-logger.info "Creating test directory: #{__dirname}/tmp"
+logger.info "Creating test diretory: #{__dirname}/tmp"
 fs.mkdirSync "#{__dirname}/tmp" if not fs.existsSync "#{__dirname}/tmp"
 for fpath in TEST_FILES[0..3]
   logger.info "Deleting test log file: #{fpath}"
@@ -86,16 +86,17 @@ harvester1.run()
 
 exports.testFileWatch =
 
-  'files are watched': (test) ->
+  'verifying right files are watched': (test) ->
     setTimeout (->
       test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
       test.ok (currently_watched_files.indexOf TEST_FILES[1]) >= 0
       test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0
       test.ok currently_watched_files.length is 3
       test.done()
+
     ), 200
 
-  'files are unwatched when deleted': (test) ->
+  'checking file deletion': (test) ->
     fs.unlinkSync TEST_FILES[2]
     setTimeout (->
       test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0
@@ -104,7 +105,7 @@ exports.testFileWatch =
       test.done()
     ), 200
 
-  'files are added when created': (test) ->
+  'checking file addition': (test) ->
     for fpath in TEST_FILES[2..3]
       logger.info "Creating test log file: #{fpath}"
       fs.writeFileSync fpath, ''
@@ -118,7 +119,7 @@ exports.testFileWatch =
       test.done()
     ), 1500
 
-  'files are unwatched when renamed': (test) ->
+  'checking file rename 1': (test) ->
     fs.renameSync TEST_FILES[1], "#{__dirname}/tmp/renamed.log"
 
     setTimeout (->
@@ -129,7 +130,7 @@ exports.testFileWatch =
       test.done()
     ), 1500
 
-  'files are unwatched when renamed': (test) ->
+  'checking file rename 2': (test) ->
     fs.writeFileSync "#{__dirname}/tmp/newfile.log", ''
     fs.renameSync "#{__dirname}/tmp/newfile.log", TEST_FILES[1]
 
@@ -142,7 +143,7 @@ exports.testFileWatch =
       test.done()
     ), 1500
 
-  'files are watched correctly': (test) ->
+  'checking log adding 1': (test) ->
     fs.appendFileSync TEST_FILES[0], 'test log0'
     fs.appendFileSync TEST_FILES[1], 'test log1'
     fs.appendFileSync TEST_FILES[2], 'test log2'
