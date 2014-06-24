@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>log.io</title>
-    <link href="lib/log.io.css" rel="stylesheet">
-  </head>
-  <body>
-    <div id="web_client"></div>
-    <script src="lib/log.io.js"></script>
-    <script>
-      var cli = require("client.coffee");
-      var is_https = window.location.href.indexOf("https") == 0;
-      client = new cli.WebClient({secure: is_https}, localStorage);
-    </script>
-  </body>
+	<head>
+		<title>log.io</title>
+		<link href="lib/log.io.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id="web_client"></div>
+		<script src="lib/log.io.js"></script>
+		<script>
+			var cli = require('client.coffee'),
+				is_https = window.location.href.indexOf('https') === 0,
+				client = new cli.WebClient({
+					secure: is_https,
+				}, localStorage);
+		</script>
+	</body>
 </html>
