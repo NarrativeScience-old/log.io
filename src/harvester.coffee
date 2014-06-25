@@ -65,8 +65,8 @@ class LogStream extends events.EventEmitter
   # @param {String} path Path to directory
   ###
   _watchDirectory: (path) ->
-    for i of fs.readdirSync path
-      @_watchFile path + "/" + filesUnderFolder[i]
+    for k, i of fs.readdirSync path
+      @_watchFile path + "/" + i
 
   ###*
   # Starting to watch file changes.
