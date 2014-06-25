@@ -1,4 +1,4 @@
-Log.io - Real-time log monitoring in your browser [![Build Status](https://travis-ci.org/muchweb/Log.io.svg)](https://travis-ci.org/muchweb/Log.io) [![Dependency Status](https://gemnasium.com/muchweb/Log.io.svg)](https://gemnasium.com/muchweb/Log.io)
+Log.io - Real-time log monitoring in your browser [![Build Status](https://travis-ci.org/muchweb/Log.io.svg?branch=master)](https://travis-ci.org/muchweb/Log.io) [![Dependency Status](https://gemnasium.com/muchweb/Log.io.svg)](https://gemnasium.com/muchweb/Log.io)
 =================================================
 
 Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
