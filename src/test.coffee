@@ -18,6 +18,9 @@ HARVESTER1_CONFIG =
 	logStreams:
 		stream1: TEST_FILES[0..1]
 		stream2: TEST_FILES[2..3]
+		stream3: [
+			TEST_FILES[4]
+		]
 	server:
 		host: 'localhost'
 		port: 28771
@@ -74,7 +77,6 @@ generated_logs = []
 harvester1.on 'log_new', (stream, msg) ->
 	generated_logs.push msg
 harvester1.run()
-
 
 exports.testFileWatch =
 	'verifying right files are watched': (test) ->
@@ -159,23 +161,23 @@ exports.testFileWatch =
 		), 400
 
 exports.testDirectoryWatch =
-	'dir 1': (test) ->
+	'no directory': (test) ->
 		setTimeout (->
 			test.ok currently_watched_files.length == 0
 			test.done()
 		), 100
 
-	'dir 2': (test) ->
+	'created directory': (test) ->
 		fs.mkdirSync TEST_FILES[4]
 		setTimeout (->
 			test.ok currently_watched_files.length == 0
 			test.done()
-			harvester1.stop()
 		), 100
 
-	# 'dir 3': (test) ->
-	# 	fs.writeFileSync "#{TEST_FILES[4]}/test.log", ''
-	# 	setTimeout (->
-	# 		test.ok currently_watched_files.length == 1
-	# 		test.done()
-	# 	), 2000
+	'added a file to new directory': (test) ->
+		fs.writeFileSync (TEST_FILES[4] + '/test.log'), 'a'
+		setTimeout (->
+			test.ok currently_watched_files.length == 1
+			test.done()
+			harvester1.stop()
+		), 2000
