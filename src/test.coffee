@@ -185,3 +185,21 @@ exports.testDirectoryWatch =
 			fs.unlinkSync "#{TEST_FILES[4]}/test.log"
 			fs.rmdirSync TEST_FILES[4]
 		), 2000
+
+	# 'moved watched directory away': (test) ->
+	# 	fs.renameSync TEST_FILES[4], "#{TEST_FILES[4]}_moved"
+	# 	setTimeout (->
+	# 		test.ok currently_watched_files.length == 0
+	# 		test.done()
+	# 		harvester1.stop()
+	# 	), 2000
+
+	# 'moved watched directory back': (test) ->
+	# 	fs.renameSync "#{TEST_FILES[4]}_moved", TEST_FILES[4]
+	# 	setTimeout (->
+	# 		test.ok currently_watched_files.length == 1
+	# 		test.done()
+	# 		fs.unlinkSync "#{TEST_FILES[4]}/test.log"
+	# 		fs.rmdirSync TEST_FILES[4]
+	# 		harvester1.stop()
+	# 	), 2000
