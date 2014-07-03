@@ -199,6 +199,14 @@ class LogHarvester extends events.EventEmitter
   TIMEOUT_RECONNECT_START: 1000;
 
   ###*
+  # Message buffer limitation
+  # @property TIMEOUT_RECONNECT_START
+  # @type Number
+  # @default 64
+  ###
+  LOG_BUFFER_LIMIT: 64;
+
+  ###*
   # Initializing new `LogHarvester` instance
   #
   # Default configuration:
@@ -217,7 +225,6 @@ class LogHarvester extends events.EventEmitter
   ###
   constructor: (config = {}) ->
     @log_buffer = []
-    @log_buffer_limit = 64
     config.nodeName = config.nodeName ? 'Untitled'
     config.delimiter = config.delimiter ? '\r\n'
     config._log = config._log ? winston
@@ -315,7 +322,6 @@ class LogHarvester extends events.EventEmitter
   # @param {String} msg Log message body
   ###
   _sendLog: (stream, msg) ->
-    @_log.debug "Sending log: (#{stream.name}) #{msg}"
     @_sendBufferred '+log', stream.name, @nodeName, 'info', msg 
 
   ###*
@@ -335,6 +341,7 @@ class LogHarvester extends events.EventEmitter
   # @param {Object} args Array of message strings
   ###
   _send: (mtype, args...) ->
+    @_log.debug "Sending log: (#{stream.name}) #{msg}"
     @socket.write "#{mtype}|#{args.join '|'}#{@delimiter}"
   
   ###*
@@ -348,7 +355,11 @@ class LogHarvester extends events.EventEmitter
     if @_connected
       @socket.write message
     else
-      @log_buffer.push message
+      if @log_buffer.length < @LOG_BUFFER_LIMIT
+        @_log.debug "Saving log: (#{stream.name}) #{msg}"
+        @log_buffer.push message
+      else
+        @_log.debug "Buffer limit reached. Log is lost: (#{stream.name}) #{msg}"
   
   ###*
   # Writing message directly to socket if connected to server, otherwise saving to 'buffer'
@@ -357,7 +368,9 @@ class LogHarvester extends events.EventEmitter
   # @param {Object} args Array of message strings
   ###
   _releaseBuffer: (mtype, args...) ->
-    @socket.write message for message in @log_buffer
+    for message in @log_buffer
+      @_log.debug "Sending saved log: (#{stream.name}) #{msg}"
+      @socket.write message
     @log_buffer = []
 
 exports.LogHarvester = LogHarvester
