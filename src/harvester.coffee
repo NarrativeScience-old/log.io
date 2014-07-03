@@ -216,6 +216,8 @@ class LogHarvester extends events.EventEmitter
   # @param {Object} config harvester configuration
   ###
   constructor: (config = {}) ->
+    @log_buffer = []
+    @log_buffer_limit = 64
     config.nodeName = config.nodeName ? 'Untitled'
     config.delimiter = config.delimiter ? '\r\n'
     config._log = config._log ? winston
@@ -248,6 +250,7 @@ class LogHarvester extends events.EventEmitter
   ###*
   # Creating TCP socket
   # @method _connect
+  # @todo to detect server disconnect
   ###
   _connect: ->
     @socket = new net.Socket
@@ -264,6 +267,7 @@ class LogHarvester extends events.EventEmitter
     @_log.info "Connecting to server #{@server.host}:#{@server.port}..."
     @socket.connect @server.port, @server.host, =>
       @_connected = true
+      @_releaseBuffer()
       @emit @EVT_CONNECTION, @_connected
       @timeout_reconnect = @TIMEOUT_RECONNECT_START;
       @reconnect = null
@@ -312,7 +316,7 @@ class LogHarvester extends events.EventEmitter
   ###
   _sendLog: (stream, msg) ->
     @_log.debug "Sending log: (#{stream.name}) #{msg}"
-    @_send '+log', stream.name, @nodeName, 'info', msg 
+    @_sendBufferred '+log', stream.name, @nodeName, 'info', msg 
 
   ###*
   # Registed harvester to server
@@ -332,5 +336,28 @@ class LogHarvester extends events.EventEmitter
   ###
   _send: (mtype, args...) ->
     @socket.write "#{mtype}|#{args.join '|'}#{@delimiter}"
+  
+  ###*
+  # Writing message directly to socket if connected to server, otherwise saving to 'buffer'
+  # @method _sendBufferred
+  # @param {String} mtype Message type
+  # @param {Object} args Array of message strings
+  ###
+  _sendBufferred: (mtype, args...) ->
+    message = "#{mtype}|#{args.join '|'}#{@delimiter}"
+    if @_connected
+      @socket.write message
+    else
+      @log_buffer.push message
+  
+  ###*
+  # Writing message directly to socket if connected to server, otherwise saving to 'buffer'
+  # @method _sendBufferred
+  # @param {String} mtype Message type
+  # @param {Object} args Array of message strings
+  ###
+  _releaseBuffer: (mtype, args...) ->
+    @socket.write message for message in @log_buffer
+    @log_buffer = []
 
 exports.LogHarvester = LogHarvester
