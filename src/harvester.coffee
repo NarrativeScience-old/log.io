@@ -153,7 +153,7 @@ class LogStream extends events.EventEmitter
 #           '/var/log/nginx/error.log'
 #         ],
 #         customLogs: [
-#           "/var/log/myCustomLogs/"
+#           '/var/log/myCustomLogs/'
 #         ],
 #       server:
 #         host: '0.0.0.0',
@@ -161,9 +161,9 @@ class LogStream extends events.EventEmitter
 # 
 # Configuration above sends the following TCP messages to the server:
 # 
-#     "+node|my_server01|web_server\r\n"
-#     "+bind|node|my_server01\r\n"
-#     "+log|web_server|my_server01|info|this is log messages\r\n"
+#     '+node|my_server01|web_server\r\n'
+#     '+bind|node|my_server01\r\n'
+#     '+log|web_server|my_server01|info|this is log messages\r\n'
 # 
 # Usage:
 # 
@@ -329,7 +329,7 @@ class LogHarvester extends events.EventEmitter
 	# @method _announce
 	###
 	_announce: ->
-		snames = (l.name for l in @logStreams).join ","
+		snames = (l.name for l in @logStreams).join ','
 		@_log.info "Announcing: #{@nodeName} (#{snames})"
 		@_send '+node', @nodeName, snames
 		@_send '+bind', 'node', @nodeName
