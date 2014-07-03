@@ -11,6 +11,7 @@ express = require 'express'
 # Base class for `LogNode` and `LogStream`
 # 
 # @class _LogObject
+# @todo to fix server crash on one of harvesters disconnect
 ###
 class _LogObject
 	_type: 'object'
@@ -322,6 +323,11 @@ class WebServer
 		app = @_buildServer config
 		@http = @_createServer config, app
 
+	###*
+	# Setting up Express up, using config
+	# @method _buildServer
+	# @param {Object} config Congiguration object
+	###
 	_buildServer: (config) ->
 		app = express()
 		if @auth?
@@ -335,6 +341,12 @@ class WebServer
 		staticPath = config.staticPath ? __dirname + '/../'
 		app.use express.static staticPath
 
+	###*
+	# Setting up correct `server` object and assigning it to Express app
+	# @method _createServer
+	# @param {Object} config Congiguration object
+	# @param {Object} app Congiguration object
+	###
 	_createServer: (config, app) ->
 		if config.ssl
 			return https.createServer {
@@ -344,6 +356,10 @@ class WebServer
 		else
 			return http.createServer app
 
+	###*
+	# Starting up a server. Main entrance function.
+	# @method run
+	###
 	run: ->
 		@_log.info 'Starting Log.io Web Server...'
 		@logServer.run()
