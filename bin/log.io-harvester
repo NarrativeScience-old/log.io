@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 winston = require('winston');
 logging = new winston.Logger({
-  transports: [ new winston.transports.Console({
-    level: 'error'
-  })]
+  transports: [
+	  new winston.transports.Console({
+	    level: 'debug'
+	  }),
+  ]
 });
 homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 conf = require(homeDir + '/.log.io/harvester.conf').config;

@@ -335,14 +335,23 @@ class LogHarvester extends events.EventEmitter
     @_send '+bind', 'node', @nodeName
 
   ###*
+  # Encoding log message information to TCP string
+  # @method _endcodeLog
+  # @param {String} mtype Message type
+  # @param {Object} args Array of message strings
+  ###
+  _endcodeLog: (mtype, args...) ->
+    "#{mtype}|#{args.join '|'}#{@delimiter}"
+
+  ###*
   # Writing message directly to socket
   # @method _send
   # @param {String} mtype Message type
   # @param {Object} args Array of message strings
   ###
   _send: (mtype, args...) ->
-    @_log.debug "Sending log: (#{stream.name}) #{msg}"
-    @socket.write "#{mtype}|#{args.join '|'}#{@delimiter}"
+    @_log.debug "Sending log: " + @_endcodeLog(mtype, args)
+    @socket.write @_endcodeLog(mtype, args)
   
   ###*
   # Writing message directly to socket if connected to server, otherwise saving to 'buffer'
@@ -351,15 +360,14 @@ class LogHarvester extends events.EventEmitter
   # @param {Object} args Array of message strings
   ###
   _sendBufferred: (mtype, args...) ->
-    message = "#{mtype}|#{args.join '|'}#{@delimiter}"
     if @_connected
-      @socket.write message
+      @socket.write @_endcodeLog(mtype, args)
     else
       if @log_buffer.length < @LOG_BUFFER_LIMIT
-        @_log.debug "Saving log: (#{stream.name}) #{msg}"
-        @log_buffer.push message
+        @_log.debug "Saving log: " + @_endcodeLog(mtype, args)
+        @log_buffer.push @_endcodeLog(mtype, args)
       else
-        @_log.debug "Buffer limit reached. Log is lost: (#{stream.name}) #{msg}"
+        @_log.debug "Buffer limit reached. Log is lost: " + @_endcodeLog(mtype, args)
   
   ###*
   # Writing message directly to socket if connected to server, otherwise saving to 'buffer'
