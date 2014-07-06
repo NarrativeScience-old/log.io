@@ -40,8 +40,8 @@
     "yuidoc-bootstrap-theme": "^1.0.2"
   },
   "bin": {
-    "log.io-server": "./bin/log.io-server",
-    "log.io-harvester": "./bin/log.io-harvester"
+    "log.io-server": "./bin/log.io-server.js",
+    "log.io-harvester": "./bin/log.io-harvester.js"
   },
   "scripts": {
     "prepublish": "cake build",
