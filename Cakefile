@@ -70,3 +70,15 @@ task 'ensure:configuration', 'Ensures that config files exist in ~/.log.io/', ->
       fs.createReadStream("./conf/#{c}.conf").pipe fs.createWriteStream path
     else
       console.log "Configuraton file already exists: #{path}"
+
+task 'cleanup', 'Removes temporary files', ->
+  if fs.existsSync 'src/templates.coffee'
+    console.log 'Removing', 'src/templates.coffee'
+    fs.unlinkSync 'src/templates.coffee'
+  if fs.existsSync 'lib/'
+    for k, i of fs.readdirSync 'lib/'
+      console.log 'Removing', "lib/#{i}"
+      fs.unlinkSync "lib/#{i}"
+    console.log 'Removing', 'lib/'
+    fs.rmdirSync 'lib/'
+  console.log 'Project is clean.'
