@@ -89,8 +89,8 @@ class LogNodes extends _LogObjects
 # @extends backbone.Model
 ###
 class LogMessage extends backbone.Model
-  ROPEN = new RegExp '<','ig'
-  RCLOSE = new RegExp '>','ig'
+  ROPEN = new RegExp '<', 'ig'
+  RCLOSE = new RegExp '>', 'ig'
   render_message: ->
     @get('message').replace(ROPEN, '&lt;').replace(RCLOSE, '&gt;')
 
