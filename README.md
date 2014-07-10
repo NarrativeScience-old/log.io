@@ -14,7 +14,7 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
 ## Install Server & Harvester
 
 1. Install via npm
-    
+
     ```bash
     npm install -g log.io --user "ubuntu"
     ```
@@ -26,13 +26,13 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
     ```
 
 3. Configure harvester
-    
+
     ```bash
     nano ~/.log.io/harvester.conf
     ```
 
 4. Run harvester
-    
+
     ```bash
     log.io-harvester
     ```
@@ -84,23 +84,19 @@ Global NPM dependencies: `nodeunit`
 
 ## Credits
 
-- Mike Smathers &lt;msmathers@narrativescience.com&gt; ([msmathers](http://github.com/msmathers))
-
+- Mike Smatherzs &lt;msmathers@narrativescience.com&gt; ([msmathers](http://github.com/msmathers))
 - Narrative Science http://narrativescience.com ([NarrativeScience](http://github.com/NarrativeScience))
+- muchweb ([muchweb](http://github.com/muchweb))
 
 ## Acknowledgements
 
 - Jeremy Ashkenas ([jashkenas](https://github.com/jashkenas))
-
 - Guillermo Rauch &lt;guillermo@learnboost.com&gt; ([Guille](http://github.com/guille))
-
 - Ryan Dahl &lt;ry at tiny clouds dot org&gt; ([ry](https://github.com/ry)) + Joyent http://www.joyent.com/ ([joyent](https://github.com/joyent/))
-
 - [turtlebender](http://github.com/turtlebender)
-
 - [jdrake](http://github.com/jdrake)
 
-## License 
+## License
 
 Copyright 2013 Narrative Science &lt;contrib@narrativescience.com&gt;
 
