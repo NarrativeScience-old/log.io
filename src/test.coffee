@@ -190,6 +190,7 @@ exports.testDirectoryWatch =
 			fs.rmdirSync TEST_DIRS[0]
 		), 2000
 
+  ######## @TODO Below is failing tests and needs to be fixed ########
 	# 'moved watched directory away': (test) ->
 	# 	fs.renameSync TEST_DIRS[0], "#{TEST_DIRS[0]}_moved"
 	# 	setTimeout (->
