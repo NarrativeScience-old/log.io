@@ -12,8 +12,9 @@
 - Created yuidoc.json and custom YuiDOC documentation theme that matches main website
 - Updated browserify call ot correctly work with newer version
 - Added LESSHat support for crossbrowser styles and CSS cleanup
-- Whitespace fixes
+- Updated indentation, code formatting
 - Improved installation script
+- Updated CLI (./bin) scripts
 - Pull: Moved all web fonts to main directory instead of using 3rd party servers
 - Pull: Directory watch support
 - Pull: Added CSS rule to retain whitespace in log messages
