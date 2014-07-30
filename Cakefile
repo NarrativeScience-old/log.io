@@ -14,7 +14,7 @@ TEMPLATE_OUTPUT = "#{ __dirname }/src/templates.coffee"
 task 'build', "Builds Log.io package", ->
   invoke 'templates'
   invoke 'compile'
-  invoke 'func_test'
+  #invoke 'func_test'
   invoke 'less'
   invoke 'browserify'
 
