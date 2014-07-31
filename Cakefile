@@ -45,6 +45,8 @@ task 'ensure:configuration', "Ensures that config files exist in ~/.log.io/", ->
   homedir = process.env[if process.platform is 'win32' then 'USERPROFILE' else 'HOME']
   ldir = homedir + '/.log.io/'
   fs.mkdirSync ldir if not fs.existsSync ldir
+  cdir = ldir + 'cache/'
+  fs.mkdirSync cdir if not fs.existsSync cdir
   for c in ['harvester', 'log_server', 'web_server']
     path = ldir + "#{c}.conf"
     copyFile "./conf/#{c}.conf", path if not fs.existsSync path
