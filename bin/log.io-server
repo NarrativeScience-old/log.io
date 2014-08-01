@@ -2,7 +2,7 @@
 winston = require('winston');
 logging = new winston.Logger({
   transports: [ new winston.transports.Console({
-    level: 'debug'
+    level: 'error'
   })]
 });
 homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
