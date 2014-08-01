@@ -1,3 +1,9 @@
+# 0.3.4 / 2014-07-30
+
+- Addresses harvester connection durability, fixes #70, #85, #114, #120
+- Corrected functional test race condition, fixes #77
+- Updates import path in bin scripts
+
 # 0.3.3 / 2013-03-29
 
 - SSL support for WebServer, fixes #31
