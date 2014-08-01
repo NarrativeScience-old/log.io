@@ -1,4 +1,5 @@
 # muchweb development branch (unreleased)
+
 - New and extended test system
 - Added Travis CI file and builds badge
 - Added Gemnasium dependancy watch
@@ -19,6 +20,12 @@
 - Pull: Directory watch support
 - Pull: Added CSS rule to retain whitespace in log messages
 - Pull: Updated 'clear' button text
+
+# 0.3.4 / 2014-07-30
+
+- Addresses harvester connection durability, fixes #70, #85, #114, #120
+- Corrected functional test race condition, fixes #77
+- Updates import path in bin scripts
 
 # 0.3.3 / 2013-03-29
 
