@@ -14,9 +14,10 @@ TEMPLATE_OUTPUT = "#{ __dirname }/src/templates.coffee"
 task 'build', "Builds Log.io package", ->
   invoke 'templates'
   invoke 'compile'
-  invoke 'func_test'
   invoke 'less'
   invoke 'browserify'
+  # Ensure browserify has completed
+  setTimeout (-> invoke 'func_test'), 2000
 
 task 'compile', "Compiles CoffeeScript src/*.coffee to lib/*.js", ->
   console.log "Compiling src/*.coffee to lib/*.js"

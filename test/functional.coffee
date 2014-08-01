@@ -75,15 +75,16 @@ describe 'LogServer', ->
     _.keys(logServer.logNodes).should.have.length 0
     _.keys(logServer.logStreams).should.have.length 0
 
-  # Connect harvesters
-  harvester1 = new LogHarvester HARVESTER1_CONFIG
-  harvester2 = new LogHarvester HARVESTER2_CONFIG
-  harvester1.run()
-  harvester2.run()
+    # Connect harvesters
+    harvester1 = new LogHarvester HARVESTER1_CONFIG
+    harvester2 = new LogHarvester HARVESTER2_CONFIG
+    harvester1.run()
+    harvester2.run()
 
-  it 'should have registered nodes & streams once connected', ->
-    logServer.logNodes.should.have.keys 'server01', 'server02'
-    logServer.logStreams.should.have.keys 'stream1', 'stream2', 'stream3'
+    describe 'Log Server registration', ->
+      it 'should have registered nodes & streams once connected', ->
+        logServer.logNodes.should.have.keys 'server01', 'server02'
+        logServer.logStreams.should.have.keys 'stream1', 'stream2', 'stream3'
 
 # Initialize client
 
@@ -106,7 +107,7 @@ describe 'WebClient', ->
           node1 = webClient.logNodes.get 'server01'
           screen1.addPair stream1, node1
           screen1.logMessages.should.have.length 0
-          
+
           describe 'log message propagation', ->
             it 'should populate client backbone collection on file writes', (done) ->
               msg1 = "log message 1"
