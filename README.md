@@ -64,6 +64,7 @@ Remove a node
 
 Global NPM dependencies: `coffee-script`, `mocha`, `less` and `browserify`
 
+    npm install
     cake build
 
 ### Building documentation
