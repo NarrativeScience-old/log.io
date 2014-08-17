@@ -78,41 +78,40 @@
 
         <ul class="params-list">
             {{#subprops}}
-            <li class="param">
-                {{#if optional}}
+              <li class="param">
+                  {{#if optional}}
                     <code class="param-name optional">[{{name}}{{#if optdefault}}={{optdefault}}{{/if}}]</code>
                     <span class="type">{{#crossLink type}}{{/crossLink}}</span>
                     <span class="flag optional" title="This property is optional.">optional</span>
-                {{else}}
+                  {{else}}
                     <code class="param-name">{{name}}</code>
                     <span class="type">{{#crossLink type}}{{/crossLink}}</span>
-                {{/if}}
+                  {{/if}}
 
-                <div class="param-description">
+                  <div class="param-description">
                     {{{description}}}
-                </div>
+                  </div>
 
-                {{#if subprops}}
-                    <ul class="params-list">
-                        {{#subprops}}
-                        <li class="param">
-                            {{#if optional}}
+                  {{#if subprops}}
+                      <ul class="params-list">
+                          {{#subprops}}
+                            <li class="param">
+                              {{#if optional}}
                                 <code class="param-name optional">[{{name}}{{#if optdefault}}={{optdefault}}{{/if}}]</code>
                                 <span class="type">{{#crossLink type}}{{/crossLink}}</span>
                                 <span class="flag optional" title="This property is optional.">optional</span>
-                            {{else}}
+                              {{else}}
                                 <code class="param-name">{{name}}</code>
                                 <span class="type">{{#crossLink type}}{{/crossLink}}</span>
-                            {{/if}}
-
-                            <div class="param-description">
+                              {{/if}}
+                              <div class="param-description">
                                 {{{description}}}
-                            </div>
-                        </li>
-                        {{/subprops}}
-                    </ul>
-                {{/if}}
-            </li>
+                              </div>
+                            </li>
+                          {{/subprops}}
+                      </ul>
+                  {{/if}}
+              </li>
             {{/subprops}}
         </ul>
     {{/if}}

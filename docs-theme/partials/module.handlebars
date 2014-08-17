@@ -78,17 +78,16 @@
             <p>This module is a rollup of the following modules:</p>
 
             <ul class="module-submodules">
-            {{#subModules}}
-                <li class="module-submodule">
-                    <a href="{{../projectRoot}}modules/{{name}}.html">
-                        {{displayName}}
-                    </a>
-
-                    <div class="module-submodule-description">
-                        {{{description}}}
-                    </div>
-                </li>
-            {{/subModules}}
+              {{#subModules}}
+                  <li class="module-submodule">
+                      <a href="{{../projectRoot}}modules/{{name}}.html">
+                          {{displayName}}
+                      </a>
+                      <div class="module-submodule-description">
+                          {{{description}}}
+                      </div>
+                  </li>
+              {{/subModules}}
             </ul>
         {{/if}}
     </div>

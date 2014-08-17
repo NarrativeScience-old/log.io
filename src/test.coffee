@@ -3,7 +3,7 @@ winston = require 'winston'
 fs = require 'fs'
 mkdirp = require 'mkdirp'
 logger = new winston.Logger
-	transports: [ new winston.transports.Console]
+	transports: [new winston.transports.Console]
 
 TEST_FILES = [
 	"#{__dirname}/tmp/stream1a.log",

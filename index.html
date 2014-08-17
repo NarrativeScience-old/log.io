@@ -9,9 +9,8 @@
 		<script src="lib/log.io.js"></script>
 		<script>
 			var cli = require('client.coffee'),
-				is_https = window.location.href.indexOf('https') === 0,
 				client = new cli.WebClient({
-					secure: is_https,
+					secure: window.location.href.indexOf('https') === 0,
 				}, localStorage);
 		</script>
 	</body>

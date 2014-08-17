@@ -8,13 +8,18 @@ io = require 'socket.io-client'
 _ = require 'underscore'
 templates = require './templates.coffee'
 
+###*
 # Cap LogMessages collection size
+# @property MESSAGE_CAP
+# @type Number
+# @default 5000
+###
 MESSAGE_CAP = 5000
 
 ###*
 # ColorManager acts as a circular queue for color values.
 # Every new Stream or Node is assigned a color value on instantiation.
-# 
+#
 # @class ColorManager
 ###
 class ColorManager
@@ -84,8 +89,8 @@ class LogNodes extends _LogObjects
 # @extends backbone.Model
 ###
 class LogMessage extends backbone.Model
-  ROPEN = new RegExp '<','ig'
-  RCLOSE = new RegExp '>','ig'
+  ROPEN = new RegExp '<', 'ig'
+  RCLOSE = new RegExp '>', 'ig'
   render_message: ->
     @get('message').replace(ROPEN, '&lt;').replace(RCLOSE, '&gt;')
 
@@ -154,22 +159,23 @@ class LogScreen extends backbone.Model
 class LogScreens extends backbone.Collection
   model: LogScreen
 
-###* Log.io Web Client
-# 
+###*
+# Log.io Web Client
+#
 # WebClient listens for log messages and stream/node announcements from the server via socket.io.#
 # It manipulates state in LogNodes & LogStreams collections, which triggers view events.
-# 
+#
 # Listens to server for new log messages, renders them to screen 'widgets'.
-# 
+#
 # Usage:
-# 
+#
 #     wclient = new WebClient io, host: 'http://localhost:28778'
 #     screen = wclient.createScreen
 #     stream = wclient.logStreams.at 0
 #     node = wclient.logNodes.at 0
 #     screen.addPair stream, node
 #     screen.on 'new_log', (stream, node, level, message) ->
-# 
+#
 # @class WebClient
 ###
 class WebClient
