@@ -152,11 +152,15 @@ class LogServer extends events.EventEmitter
 			
 			socket.on 'error', (e) =>
 				@_log.error "Client #{socket.node.name} has lost TCP connection."
-				@_removeNode socket.node.name if socket.node
+				if socket.node				
+					@_removeNode socket.node.name
+					delete socket.node
 			
 			socket.on 'close', (e) =>
 				@_log.info "Client #{socket.node.name} has disconnected."
-				@_removeNode socket.node.name if socket.node
+				if socket.node				
+					@_removeNode socket.node.name
+					delete socket.node
 		
 		@listener.listen @port, @host
 
@@ -289,6 +293,15 @@ class LogServer extends events.EventEmitter
 		if node = @logNodes[nname]
 			@_log.info "Binding node '#{nname}' to TCP socket"
 			socket.node = node
+            @_ping socket
+
+	###*
+	# @method _ping
+	###
+    _ping: (socket) ->
+	  if socket.node
+	    socket.write 'ping'
+	    setTimeout (=> @_ping socket), 2000
 
 ###*
 # WebServer relays `LogServer` events to web clients via socket.io.
