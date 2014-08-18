@@ -2,14 +2,14 @@
 fs = require 'fs'
 
 ENV = '/usr/bin/env'
-COFFEE = "#{ ENV } coffee"
-MOCHA = "#{ ENV } mocha"
-LESS = "#{ ENV } lessc"
-BROWSERIFY = "#{ ENV } browserify"
-YUIDOC = "#{ ENV } yuidoc"
+COFFEE = "#{ENV} coffee"
+MOCHA = "#{ENV} mocha"
+LESS = "#{ENV} lessc"
+BROWSERIFY = "#{ENV} browserify"
+YUIDOC = "#{ENV} yuidoc"
 
-TEMPLATE_SRC = "#{ __dirname }/templates"
-TEMPLATE_OUTPUT = "#{ __dirname }/src/templates.coffee"
+TEMPLATE_SRC = "#{__dirname}/templates"
+TEMPLATE_OUTPUT = "#{__dirname}/src/templates.coffee"
 
 # Main build task
 task 'build', 'Builds Log.io package', ->
@@ -22,9 +22,9 @@ task 'build', 'Builds Log.io package', ->
 decorateTemplateForExports = (f) ->
   templateName = f.replace '.html', ''
   templateExportName = templateName.replace '-', '.'
-  templateFilePath = "#{ TEMPLATE_SRC }/#{ f }"
+  templateFilePath = "#{TEMPLATE_SRC}/#{f}"
   body = fs.readFileSync templateFilePath, 'utf-8'
-  content = "exports.#{ templateExportName } = \"\"\"#{ body }\"\"\""
+  content = "exports.#{templateExportName} = \"\"\"#{body}\"\"\""
 
 task 'templates', 'Compiles templates/*.html to src/templates.coffee', ->
   console.log 'Generating src/templates.coffee from templates/*.html'
@@ -51,7 +51,7 @@ task 'styles', 'Compiles less templates to CSS', ->
 # Porting client to browser
 task 'browserify', 'Compiles client.coffee to browser-friendly JS', ->
   console.log "Browserifying #{__dirname}/lib/client.js to #{__dirname}/lib/log.io.js"
-  exec "#{BROWSERIFY} -c 'coffee -sc' -r #{__dirname}/src/client.coffee:client.coffee > #{ __dirname }/lib/log.io.js", (err, stdout, stderr) ->
+  exec "#{BROWSERIFY} -c 'coffee -sc' -r #{__dirname}/src/client.coffee:client.coffee > #{__dirname}/lib/log.io.js", (err, stdout, stderr) ->
     console.log stdout + stderr if err
 
 # Creating config files if do not exists
@@ -70,3 +70,15 @@ task 'ensure:configuration', 'Ensures that config files exist in ~/.log.io/', ->
       fs.createReadStream("./conf/#{c}.conf").pipe fs.createWriteStream path
     else
       console.log "Configuraton file already exists: #{path}"
+
+task 'cleanup', 'Removes temporary files', ->
+  if fs.existsSync 'src/templates.coffee'
+    console.log 'Removing', 'src/templates.coffee'
+    fs.unlinkSync 'src/templates.coffee'
+  if fs.existsSync 'lib/'
+    for k, i of fs.readdirSync 'lib/'
+      console.log 'Removing', "lib/#{i}"
+      fs.unlinkSync "lib/#{i}"
+    console.log 'Removing', 'lib/'
+    fs.rmdirSync 'lib/'
+  console.log 'Project is clean.'

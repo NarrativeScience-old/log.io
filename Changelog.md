@@ -1,3 +1,32 @@
+# muchweb development branch (unreleased)
+
+- New and extended test system
+- Added Travis CI file and builds badge
+- Added Gemnasium dependancy watch
+- Added full documenation coverage
+- Updated and cleaned up Cakefile
+- All javascript files are fixed, formatted and passing JSHint
+- Updated some dependencies to newer versions
+- Added WebServer defaults
+- Updated README
+- Added incrementing server reconnection time
+- Created yuidoc.json and custom YuiDOC documentation theme that matches main website
+- Updated browserify call ot correctly work with newer version
+- Added LESSHat support for crossbrowser styles and CSS cleanup
+- Updated indentation, code formatting
+- Improved installation script
+- Updated CLI (./bin) scripts
+- Pull: Moved all web fonts to main directory instead of using 3rd party servers
+- Pull: Directory watch support
+- Pull: Added CSS rule to retain whitespace in log messages
+- Pull: Updated 'clear' button text
+
+# 0.3.4 / 2014-07-30
+
+- Addresses harvester connection durability, fixes #70, #85, #114, #120
+- Corrected functional test race condition, fixes #77
+- Updates import path in bin scripts
+
 # 0.3.3 / 2013-03-29
 
 - SSL support for WebServer, fixes #31

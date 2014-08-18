@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*global module: true */
 /*global require: true */
 
