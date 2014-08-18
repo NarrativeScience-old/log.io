@@ -10,6 +10,10 @@ TEST_FILES = [
 	"#{__dirname}/tmp/stream1b.log",
 	"#{__dirname}/tmp/stream2a.log",
 	"#{__dirname}/tmp/stream2b.log",
+	"#{__dirname}/tmp/renamed.log",
+]
+
+TEST_DIRS = [
 	"#{__dirname}/tmp2",
 ]
 
@@ -19,7 +23,7 @@ HARVESTER1_CONFIG =
 		stream1: TEST_FILES[0..1]
 		stream2: TEST_FILES[2..3]
 		stream3: [
-			TEST_FILES[4]
+			TEST_DIRS[0]
 		]
 	server:
 		host: 'localhost'
@@ -113,7 +117,7 @@ exports.testFileWatch =
 		), 1500
 
 	'checking file rename 1': (test) ->
-		fs.renameSync TEST_FILES[1], "#{__dirname}/tmp/renamed.log"
+		fs.renameSync TEST_FILES[1], TEST_FILES[4]
 		setTimeout (->
 			test.ok (currently_watched_files.indexOf TEST_FILES[0]) >= 0, 'TEST_FILES[0]'
 			test.ok (currently_watched_files.indexOf TEST_FILES[2]) >= 0, 'TEST_FILES[2]'
@@ -139,7 +143,7 @@ exports.testFileWatch =
 		fs.appendFileSync TEST_FILES[1], 'test log1'
 		fs.appendFileSync TEST_FILES[2], 'test log2'
 		fs.appendFileSync TEST_FILES[3], 'test log3'
-		fs.appendFileSync "#{__dirname}/tmp/renamed.log", 'renamed'
+		fs.appendFileSync TEST_FILES[4], 'renamed'
 		setTimeout (->
 			test.ok (generated_logs.indexOf 'test log0') >= 0
 			test.ok (generated_logs.indexOf 'test log1') >= 0
@@ -155,7 +159,7 @@ exports.testFileWatch =
 		fs.unlinkSync TEST_FILES[1]
 		fs.unlinkSync TEST_FILES[2]
 		fs.unlinkSync TEST_FILES[3]
-		fs.unlinkSync "#{__dirname}/tmp/renamed.log"
+		fs.unlinkSync TEST_FILES[4]
 		setTimeout (->
 			test.ok currently_watched_files.length is 0
 			test.done()
@@ -170,24 +174,25 @@ exports.testDirectoryWatch =
 		), 100
 
 	'created directory': (test) ->
-		fs.mkdirSync TEST_FILES[4]
+		fs.mkdirSync TEST_DIRS[0]
 		setTimeout (->
 			test.ok currently_watched_files.length == 0
 			test.done()
 		), 100
 
 	'added a file to new directory': (test) ->
-		fs.writeFileSync (TEST_FILES[4] + '/test.log'), 'a'
+		fs.writeFileSync (TEST_DIRS[0] + '/test.log'), 'a'
 		setTimeout (->
 			test.ok currently_watched_files.length == 1
 			test.done()
 			harvester1.stop()
-			fs.unlinkSync "#{TEST_FILES[4]}/test.log"
-			fs.rmdirSync TEST_FILES[4]
+			fs.unlinkSync "#{TEST_DIRS[0]}/test.log"
+			fs.rmdirSync TEST_DIRS[0]
 		), 2000
 
+  ######## @TODO Below is failing tests and needs to be fixed ########
 	# 'moved watched directory away': (test) ->
-	# 	fs.renameSync TEST_FILES[4], "#{TEST_FILES[4]}_moved"
+	# 	fs.renameSync TEST_DIRS[0], "#{TEST_DIRS[0]}_moved"
 	# 	setTimeout (->
 	# 		test.ok currently_watched_files.length == 0
 	# 		test.done()
@@ -195,11 +200,11 @@ exports.testDirectoryWatch =
 	# 	), 2000
 
 	# 'moved watched directory back': (test) ->
-	# 	fs.renameSync "#{TEST_FILES[4]}_moved", TEST_FILES[4]
+	# 	fs.renameSync "#{TEST_DIRS[0]}_moved", TEST_DIRS[0]
 	# 	setTimeout (->
 	# 		test.ok currently_watched_files.length == 1
 	# 		test.done()
-	# 		fs.unlinkSync "#{TEST_FILES[4]}/test.log"
-	# 		fs.rmdirSync TEST_FILES[4]
+	# 		fs.unlinkSync "#{TEST_DIRS[0]}/test.log"
+	# 		fs.rmdirSync TEST_DIRS[0]
 	# 		harvester1.stop()
 	# 	), 2000

@@ -350,8 +350,8 @@ class LogHarvester extends events.EventEmitter
 	# @param {Object} args Array of message strings
 	###
 	_send: (mtype, args...) ->
-		@_log.debug "Sending log: " + @_endcodeLog(mtype, args)
-		@socket.write @_endcodeLog(mtype, args)
+		@_log.debug "Sending log: " + @_endcodeLog(mtype, args...)
+		@socket.write @_endcodeLog(mtype, args...)
 	
 	###*
 	# Writing message directly to socket if connected to server, otherwise saving to 'buffer'
@@ -361,13 +361,13 @@ class LogHarvester extends events.EventEmitter
 	###
 	_sendBufferred: (mtype, args...) ->
 		if @_connected
-			@socket.write @_endcodeLog(mtype, args)
+			@socket.write @_endcodeLog(mtype, args...)
 		else
 			if @log_buffer.length < @LOG_BUFFER_LIMIT
-				@_log.debug "Saving log: " + @_endcodeLog(mtype, args)
-				@log_buffer.push @_endcodeLog(mtype, args)
+				@_log.debug "Saving log: " + @_endcodeLog(mtype, args...)
+				@log_buffer.push @_endcodeLog(mtype, args...)
 			else
-				@_log.debug "Buffer limit reached. Log is lost: " + @_endcodeLog(mtype, args)
+				@_log.debug "Buffer limit reached. Log is lost: " + @_endcodeLog(mtype, args...)
 	
 	###*
 	# Writing message directly to socket if connected to server, otherwise saving to 'buffer'
