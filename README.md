@@ -14,7 +14,7 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
 ## Install Server & Harvester
 
 ### Docker
-Check our [Docker Log.io server container](https://registry.hub.docker.com/u/muchweb/log.io-arch/).
+Check our [Docker Log.io server image](https://registry.hub.docker.com/u/muchweb/log.io-arch/).
 
 ### NPM
 
