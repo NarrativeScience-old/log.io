@@ -13,7 +13,29 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
 
 ## Install Server & Harvester
 
-1. Install via npm
+### Docker
+Check our [Docker Log.io server container](https://registry.hub.docker.com/u/muchweb/log.io-arch/).
+
+### NPM
+
+> Please note that you will require `coffee-script` installed
+> ```
+> npm install -g coffee-script
+> ```
+
+---
+
+> Please also note that on GNU operation system, you will require `node-gyp` dependencies:
+>
+> - `python2`
+> - `make`
+> - `gcc`
+>
+> These can be installed via your package manager
+
+---
+
+1. Install via NPM
 
     ```bash
     npm install -g log.io --user "ubuntu"
@@ -37,7 +59,7 @@ Users browse streams and nodes in the web UI, and activate (stream, node) pairs 
     log.io-harvester
     ```
 
-5. Browse to [http://localhost:28778](http://localhost:28778)
+5. Browse to [http://localhost:28778](http://localhost:28778) to see live logs
 
 ## Server TCP Interface
 
