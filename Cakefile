@@ -51,7 +51,7 @@ task 'styles', 'Compiles less templates to CSS', ->
 # Porting client to browser
 task 'browserify', 'Compiles client.coffee to browser-friendly JS', ->
   console.log "Browserifying #{__dirname}/lib/client.js to #{__dirname}/lib/log.io.js"
-  exec "#{BROWSERIFY} -c 'coffee -sc' -r #{__dirname}/src/client.coffee:client.coffee > #{__dirname}/lib/log.io.js", (err, stdout, stderr) ->
+  exec "#{BROWSERIFY} -c 'coffee -sc' #{__dirname}/src/client.coffee > #{__dirname}/lib/log.io.js", (err, stdout, stderr) ->
     console.log stdout + stderr if err
 
 # Creating config files if do not exists
