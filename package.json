@@ -3,21 +3,32 @@
   "description": "Realtime log monitoring in your browser",
   "version": "0.3.4",
   "homepage": "http://logio.org",
-  "keywords": ["logs", "monitoring", "realtime", "socket.io", "node.js", "ajax"],
+  "keywords": [
+    "logs",
+    "monitoring",
+    "realtime",
+    "socket.io",
+    "node.js",
+    "ajax"
+  ],
   "author": "Mike Smathers <msmathers@narrativescience.com>",
   "contributors": [
-    { "name": "Mike Smathers", "email": "msmathers@narrativescience.com" }
+    {
+      "name": "Mike Smathers",
+      "email": "msmathers@narrativescience.com"
+    }
   ],
   "dependencies": {
     "backbone": "~0.9.10",
-    "underscore": "~1.4.3",
+    "coffee-script": "~1.4.0",
+    "express": "~3.0.1",
+    "glob": "^5.0.3",
     "jquery": "~1.8.1",
     "jquery-browserify": "~1.8.1",
     "socket.io": "~0.9.13",
     "socket.io-client": "~0.9.11",
-    "express": "~3.0.1",
-    "winston": "~0.6.2",
-    "coffee-script": "~1.4.0"
+    "underscore": "~1.4.3",
+    "winston": "~0.6.2"
   },
   "devDependencies": {
     "browserify": "~1.16.6",
@@ -27,7 +38,7 @@
     "sinon-chai": "~2.2.0",
     "sinon": "~1.5.2"
   },
-  "bin" : {
+  "bin": {
     "log.io-server": "./bin/log.io-server",
     "log.io-harvester": "./bin/log.io-harvester"
   },
