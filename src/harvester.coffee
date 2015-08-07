@@ -29,6 +29,7 @@ fs = require 'fs'
 net = require 'net'
 events = require 'events'
 winston = require 'winston'
+glob = require 'glob'
 
 ###
 LogStream is a group of local files paths.  It watches each file for
@@ -40,7 +41,14 @@ class LogStream extends events.EventEmitter
 
   watch: ->
     @_log.info "Starting log stream: '#{@name}'"
-    @_watchFile path for path in @paths
+    unglobbed_files = []
+    for path in @paths
+      do(path) ->
+        if glob.hasMagic(path)
+          unglobbed_files.push file for file in glob.sync(path)
+        else
+          unglobbed_files.push path
+    @_watchFile file for file in unglobbed_files      
     @
 
   _watchFile: (path) ->
