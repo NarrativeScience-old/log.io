@@ -23,7 +23,8 @@ _ = require 'underscore'
 templates = require './templates'
 
 # Cap LogMessages collection size
-MESSAGE_CAP = 5000
+# Keeping message cap as small as possible to improve perfomance and eliminate memory leak
+MESSAGE_CAP = 1
 
 ###
 ColorManager acts as a circular queue for color values.
