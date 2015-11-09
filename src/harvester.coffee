@@ -62,6 +62,7 @@ class LogStream extends events.EventEmitter
             if stat
               @_readNewLogs path, stat.size, currSize
               currSize = stat.size
+            currSize
 
   _readNewLogs: (path, curr, prev) ->
     # Use file offset information to stream new log lines from file
