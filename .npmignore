@@ -1,0 +1,5 @@
+.npmignore
+test
+package.json
+Cakefile
+!node_modules/

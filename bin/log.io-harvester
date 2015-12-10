@@ -1,13 +1,34 @@
 #!/usr/bin/env node
-winston = require('winston');
-logging = new winston.Logger({
-  transports: [ new winston.transports.Console({
-    level: 'error'
-  })]
-});
 homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-conf = require(homeDir + '/.log.io/harvester.conf').config;
-conf.logging = logging;
-harvester = require('../index.js');
-harvester = new harvester.LogHarvester(conf);
-harvester.run();
+
+var fs = require('fs');
+
+// if you prefer reading config files from user's hoem dir instead of log.io installation's dir, uncomment this line and remove the next after:
+//var confDir = homeDir + '/.log.io/';
+var confDir = require('path').dirname(require.main.filename)+'/../conf/';
+console.log('conf directory: ' + confDir);
+
+fs.readdir(confDir, function (err,files) {
+  if (err) throw err;
+
+  //looking for config files starting by 'harvester'
+  files.forEach(function(file) {
+    if (/^harvester/.test(file)) {
+
+      winston = require('winston');
+      logging = new winston.Logger({
+        transports: [ new winston.transports.Console({
+          level: 'error'
+        })]
+      });
+
+      console.log('using config file ' + file);
+      
+      conf = require(confDir + file).config;
+      conf.logging = logging;
+      harvester = require('../index.js');
+      harvester = new harvester.LogHarvester(conf);
+      harvester.run();
+    }
+  });
+});

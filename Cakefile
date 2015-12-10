@@ -17,7 +17,7 @@ task 'build', "Builds Log.io package", ->
   invoke 'less'
   invoke 'browserify'
   # Ensure browserify has completed
-  setTimeout (-> invoke 'func_test'), 2000
+ # setTimeout (-> invoke 'func_test'), 2000
 
 task 'compile', "Compiles CoffeeScript src/*.coffee to lib/*.js", ->
   console.log "Compiling src/*.coffee to lib/*.js"
