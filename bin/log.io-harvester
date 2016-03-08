@@ -5,8 +5,15 @@ logging = new winston.Logger({
     level: 'error'
   })]
 });
-homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-conf = require(homeDir + '/.log.io/harvester.conf').config;
+
+var args = String(process.argv.slice(2, 3));
+if(args == "") {
+  homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+  conf = require(homeDir + '/.log.io/harvester2.conf').config;
+}
+else {
+  conf = require(args).config;
+}
 conf.logging = logging;
 harvester = require('../index.js');
 harvester = new harvester.LogHarvester(conf);
