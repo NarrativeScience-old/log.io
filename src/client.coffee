@@ -23,7 +23,22 @@ _ = require 'underscore'
 templates = require './templates'
 
 # Cap LogMessages collection size
-MESSAGE_CAP = 5000
+MESSAGE_CAP = 500
+
+# AutoScroll OnOff
+gForceScroll = true
+
+# Log Screen Filters (Highlight Matches)
+# If you wish to add more filters. Just add below.
+gScreenFilters = [
+  { color: 'orange' }
+  { color: 'yellow' }
+  { color: 'red' }
+]
+
+# <p>message logs</p> Threshold.
+# we need to slice and remove old log messages so as not to slow down the app/ui.
+gLogsRenderedThreshold = 4000
 
 ###
 ColorManager acts as a circular queue for color values.
@@ -101,6 +116,8 @@ class LogScreen extends backbone.Model
   idAttribute: null
   defaults: ->
     pairIds: []
+    hfilters: JSON.parse(JSON.stringify gScreenFilters)
+    showmatchfilter: ""
   constructor: (args...) ->
     super args...
     @logMessages = new LogMessages
@@ -179,11 +196,15 @@ class WebClient
     _on 'disconnect', @_disconnect
 
   _initScreens: =>
-    @logScreens.on 'add remove addPair removePair', =>
+    @logScreens.on 'add remove addPair removePair showmatchfilter hfilters', =>
       @localStorage['logScreens'] = JSON.stringify @logScreens.toJSON()
     screenCache = @localStorage['logScreens']
     screens = if screenCache then JSON.parse(screenCache) else [{name: 'Screen1'}]
-    @logScreens.add new @logScreens.model screen for screen in screens
+    for screen in screens 
+      if screen.hfilters
+        for hfilter in screen.hfilters
+          hfilter.ctr = 0
+      @logScreens.add new @logScreens.model screen
 
   _addNode: (node) =>
     @logNodes.add node
@@ -490,11 +511,23 @@ class LogScreensPanel extends backbone.View
     {@logScreens, @webClient} = opts
     @listenTo @logScreens, 'add', @_addLogScreen
     @listenTo @logScreens, 'add remove', @_resize
+    @listenTo @logScreens, 'checkThresholdForLogsRendered', @_checkThresholdForLogsRendered
     $(window).resize @_resize if window?
     @statsView = new LogStatsView stats: @webClient.stats
 
   events:
     "click #new_screen_button": "_newScreen"
+    "click #switch_on": "_autoScrollOn"
+    "click #switch_off": "_autoScrollOff"
+    "click .log_screens .purge_notif": "_purgeRenderedLogsInEachScreen"
+
+  _autoScrollOn: (e) ->
+    gForceScroll = true;
+    true
+
+  _autoScrollOff: (e) ->
+    gForceScroll = false;
+    true
 
   _newScreen: (e) ->
     @logScreens.add new @logScreens.model name: 'Screen1'
@@ -504,8 +537,27 @@ class LogScreensPanel extends backbone.View
     view = new LogScreenView
       logScreens: @logScreens
       logScreen: screen
+      filter: ''
     @$el.find("div.log_screens").append view.render().el
     false
+
+  _purgeRenderedLogsInEachScreen: =>
+    $('.log_screens .purge_notif').toggle(false)
+    @$el.find(".log_screen .messages").each ->
+      msize = $(@).find(".msg").children().size()
+      $(@).find(".msg").children().slice(1, (msize/2)).remove()
+
+  _checkThresholdForLogsRendered: (e) =>
+    sizePercentage = ($('.messages .msg').children().size() / gLogsRenderedThreshold) * 100
+
+    if sizePercentage  > 100 #100percent
+      #purge automatically
+      @_purgeRenderedLogsInEachScreen()
+    else if sizePercentage  > 80 #80percent
+      #show purge notification message
+      $('.log_screens .purge_notif').toggle(true)
+    else
+      $('.log_screens .purge_notif').toggle(false)
 
   _resize: =>
     return if not window?
@@ -525,15 +577,17 @@ class LogScreenView extends backbone.View
   className: 'log_screen'
   template: _.template templates.logScreenView
   logTemplate: _.template templates.logMessage
+  logMatchFilterCounterTemplate: _.template templates.logMatchFilterCounters
   initialize: (opts) ->
     {@logScreen, @logScreens} = opts
     @listenTo @logScreen, 'destroy', => @remove()
     @listenTo @logScreen, 'new_log', @_addNewLogMessage
     @forceScroll = true
-    @filter = null
+    @filter = @logScreen.attributes.showmatchfilter
+    @hfilters = @logScreen.attributes.hfilters
 
   events:
-    "click .controls .close": "_close"
+    "click .close": "_close"
     "click .controls .clear": "_clear"
 
   _close: =>
@@ -542,8 +596,11 @@ class LogScreenView extends backbone.View
     false
 
   _clear: =>
-    @logScreen.logMessages.reset()
-    @_renderMessages()
+    fltr = $(e.currentTarget).siblings('a').children()[1]
+    return false if $(fltr).val().length is 0 #nothing to clear... disregard command
+    $(fltr).val ''
+    index = $(fltr).attr('tabindex') - 1
+    if index >= 0 then @_hmatch "", index else  @_filter ""
     false
 
   __filter: (e) =>
@@ -554,12 +611,32 @@ class LogScreenView extends backbone.View
     setTimeout wait, 350
 
   _filter: (filter) =>
-    @filter = if filter then new RegExp "(#{filter})", 'ig' else null
+    @filter = filter or null
+    @logScreen.attributes.showmatchfilter = @filter
+    @logScreen.collection.trigger "showmatchfilter"
+    @_renderMessages()
+
+  __hmatch: (e) =>
+    input = $ e.currentTarget
+    _hmatch_buffer = input.val()    
+    colr = input.attr('color')
+    index = input.attr('tabindex') - 1
+    wait = =>
+      @_hmatch _hmatch_buffer, index if _hmatch_buffer is input.val()
+    setTimeout wait, 350
+
+  _hmatch: (filter, index) =>
+    @hfilters[index].ctr = 0
+    @hfilters[index].expr = filter or null
+    @logScreen.collection.trigger "hfilters"
     @_renderMessages()
 
   _addNewLogMessage: (lmessage) =>
+    @logScreen.collection.trigger "checkThresholdForLogsRendered"
     @logScreen.logMessages.add lmessage
     @_renderNewLog lmessage
+    @counters = @$el.find '.counters'
+    @_renderCounters()
 
   _recordScroll: (e) =>
     msgs = @$el.find '.messages'
@@ -568,23 +645,52 @@ class LogScreenView extends backbone.View
   _renderNewLog: (lmessage) =>
     _msg = lmessage.get 'message'
     msg = lmessage.render_message()
+    color = "white"
+    arrColors = []
+
+    for key of @hfilters
+      if @hfilters[key].expr and _msg.match new RegExp "(#{@hfilters[key].expr})", 'ig'
+        @hfilters[key].ctr++
+        color = @hfilters[key].color
+        arrColors.push(color)
+      else
+        arrColors.push("black")
+
     if @filter
-      msg = if _msg.match @filter then msg.replace @filter, '<span class="highlight">$1</span>' else null
+      xpr = new RegExp "(#{@filter})", 'ig'
+      msg = if msg.match xpr then msg.replace xpr, '<span class="highlight">$1</span>' else null
     if msg
       @msgs.append @logTemplate
         lmessage: lmessage
         msg: msg
-      @$el.find('.messages')[0].scrollTop = @$el.find('.messages')[0].scrollHeight if @forceScroll
+        color: color
+        arrowColors: arrColors
+      @$el.find('.messages')[0].scrollTop = @$el.find('.messages')[0].scrollHeight if @forceScroll and gForceScroll
+
+  _resetCounters: =>
+    for key of @hfilters
+        @hfilters[key].ctr = 0
+
+  _renderCounters: =>
+    @counters.html ''
+    @counters.append @logMatchFilterCounterTemplate
+      hfilters: @hfilters
 
   _renderMessages: =>
     @msgs.html ''
+    @_resetCounters()
     @logScreen.logMessages.forEach @_renderNewLog
+    @counters = @$el.find '.counters'
+    @_renderCounters()  
 
   render: ->
     @$el.html @template
       logScreens: @logScreens
-    @$el.find('.messages').scroll @_recordScroll
+      filter: @filter
+      hfilters: @hfilters
+    @$el.find('.messages .msg').scroll @_recordScroll
     @$el.find('.controls .filter input').keyup @__filter
+    @$el.find('.controls .hmatch input').keyup @__hmatch
     @msgs = @$el.find '.msg'
     @_renderMessages()
     @

@@ -1,8 +1,31 @@
-<div class='controls'>
-<% if (logScreens.length > 1) { %><a href="#" class='close'>close</a><% } %>
-  <a href="#" class='clear'>clear</a>
-  <a href="#" class='filter'>filter <input type='text'/></a>
+<div class='counters'></div>
+<% if (logScreens.length > 1) { %>
+   	<div class="close"><span>X</span></div>
+<% } %>
+<div class="controls">
+   <div>
+        <fieldset>
+            <legend>Show Match Only</legend>
+            <a href="#" class="clear">clear</a>
+            <a href="#" class="filter"><span>filter </span>
+            <input tabindex="0" type="text" value="<%=filter%>"></a>
+        </fieldset>
+    </div>
+    <div>
+        <fieldset>
+            <legend>Highlight Line Matches</legend>
+            <div class="hmatch_container">
+            	<% _.each(hfilters, function(filter, index){ %>
+				<div>
+                    <a href="#" class="clear">clear</a>
+                    <a href="#" class="hmatch"><span style="background-color:<%=filter.color%>;">&nbsp;&nbsp;&nbsp;</span>
+              		<input tabindex="<%=index+1%>" type="text" color="<%=filter.color%>" value="<%=filter.expr%>"></a>
+                </div>
+				<% }); %>
+            </div>
+        </fieldset>
+    </div>
 </div>
 <div class='messages'>
-  <div class='msg'></div>
+    <div class='msg'></div>
 </div>

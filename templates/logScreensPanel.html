@@ -1,6 +1,17 @@
-<div class='log_screens'></div>
+<div class='log_screens'>
+<div class="purge_notif">
+You're about to experience some slowdown. Purge will be performed automatically once threshold is met. Or click <a href="#" style="color:white;">purge</a> now.
+</div>
+</div>
 <div class='status_bar'>
-  <a href="#" class='button' id="new_screen_button">New Screen</a>
+  <a style="margin-top: 14px;" href="#" class="button" id="new_screen_button">New Screen</a>
+  <div class="switch-field">
+	  <div class="switch-title">AutoScroll</div>
+	  <input type="radio" id="switch_on" name="autoscroll" value="yes" checked="">
+	  <label for="switch_on">On</label>
+	  <input type="radio" id="switch_off" name="autoscroll" value="no">
+	  <label for="switch_off">Off</label>
+  </div>
   <div class='stats'></div>
   <div style='clear: both;'</div>
 </div>

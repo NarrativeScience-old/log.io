@@ -1,0 +1,5 @@
+<% _.each(hfilters, function(filter, index){ %>
+	<% if(filter.ctr > 0) {%>
+	<span style="background-color:<%=filter.color%>;">&nbsp;&nbsp;</span> <%=filter.ctr%>
+	<% }%>
+<% }); %>

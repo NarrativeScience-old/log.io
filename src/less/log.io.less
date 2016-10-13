@@ -40,7 +40,8 @@
 
 	&::-webkit-scrollbar {
 	    width: 10px;
-	    background-color: #333;
+	    height: 10px;
+	    background-color: #111;
 	}
 	 
 	&::-webkit-scrollbar-track {
@@ -51,6 +52,10 @@
 	&::-webkit-scrollbar-thumb {
 	    border-radius: 8px;
 	    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+	}
+
+	&::-webkit-scrollbar-corner {
+		background-color: #111;
 	}
 }
 
@@ -74,12 +79,33 @@ body {
 
 // Control panel
 
+#log_controls.hidden {
+	left: -@controlWidth;
+}
+
 #log_controls {
 	vertical-align: top;
-	background-color: #333;
+	background-color: #191919;
 	position: absolute;
 	border-right: 1px solid #333;
 	width: @controlWidth;
+
+	a.sidebar_toggle {
+		background-color: #fff; 
+		position:absolute; 
+		right: -10px; 
+		top: 50%; 
+		width: 10px; 
+		height: 10px;
+
+		&.active {
+			color: #ff0000;
+		}
+
+		&:hover {
+			color: #eee;
+		}
+	}
 
 	a.select_mode {
 		display: block;
@@ -95,12 +121,12 @@ body {
 
 		&.active {
 			color: #eee;
-			background-color: #333;
-			background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222), to(#333));
-			background-image: -webkit-linear-gradient(top, #222, #333); 
-			background-image: -moz-linear-gradient(top, #222, #333);
-			background-image: -ms-linear-gradient(top, #222, #333);
-			background-image: -o-linear-gradient(top, #222, #333);
+			background-color: #191919;
+			background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222), to(#191919));
+			background-image: -webkit-linear-gradient(top, #222, #191919); 
+			background-image: -moz-linear-gradient(top, #222, #191919);
+			background-image: -ms-linear-gradient(top, #222, #191919);
+			background-image: -o-linear-gradient(top, #222, #191919);
 		}
 		&:hover {
 			color: #eee;
@@ -217,12 +243,62 @@ body {
 	margin-left: @controlWidth;
 	background-color: #000;
 
+	div.purge_notif {
+		position: absolute;
+	    left: 50%;
+	    top: 10px;
+		width:190px;
+		text-align: center;
+	    padding: 5px;
+	    background-color: rgba(33, 32, 32, 0.8);
+	    display: -webkit-flex;
+	    display: flex;
+	    -webkit-flex-direction: column;
+	    flex-direction: column;
+	    color: red;
+	    font-size: 12px;
+		display: none;
+		z-index: 1001;
+	}
+
 	div.log_screen {
 		margin: 10px;
 		position: relative;
 
+		div.close {
+			background-color: #333;
+		    border-radius: 2px;
+		    border: 1px solid #444;
+		    border-bottom: 1px solid #222;
+		    border-right: 1px solid #222;
+		    color: #eee;right: 0px; position: absolute; padding: 2px; font-size: 12px;
+
+		    :hover {
+		    	cursor: pointer
+		    }
+		}
+
+		div.counters {
+			position: absolute; 
+			left: 0px; 
+			top: 0px; 
+			padding: 5px; 
+			background-color: rgba(33, 32, 32, 0.8);
+			display: -webkit-flex;
+   			display: flex;
+   			-webkit-flex-direction: column;
+   			flex-direction: column; 
+   			color: white;
+   			font-size: 12px;
+   			display: block;
+		}
+
 		&:hover div.controls {
-			display: block;
+			background-color: rgba(33, 32, 32, 0.8);
+			display: -webkit-flex;
+   			display: flex;
+   			-webkit-flex-direction: column;
+   			flex-direction: column;
 		}
 
 		div.controls {
@@ -233,6 +309,17 @@ body {
 			float: left;
 			font-size: 12px;
 			display: none;
+			z-index: 1000;
+
+			fieldset {
+				margin: 10px; 
+				padding: 5px; 
+				border-width: 1px;
+			}
+
+			div.hmatch_container {
+				display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column;
+			}
 
 			a {
 				float: right;
@@ -248,7 +335,7 @@ body {
 				color: #eee;
 			}
 
-			a.filter {
+			a.filter, a.hmatch, {
 				padding: 3px 4px 3px 6px;
 
 				input {
@@ -261,24 +348,36 @@ body {
 					margin-left: 5px;
 				}
 			}
+
+			a.hmatch, {
+				input {
+					width: 115px;
+				}
+			}
 		}
 
 		div.messages {
 			
-			background-color: #111;
+			background-color: #000;
 			border: 1px solid #333;
-			word-wrap: break-word;
+			width: 100%;
+			/*word-wrap: break-word;*/
 			.scrollr;
 
 			.msg {
 				margin: 10px;
-				color: #0c0;
+				color: #fff;
+				width: 2000px;
 
 				p, p * {
 					font-size: 12px;
 					line-height: 16px;
 					font-weight: 400;
 					font-family: 'Inconsolata', Courier, sans-serif;
+				}
+
+				p:hover {
+					background-color: #333;
 				}
 
 				.color1 { color: @color1; }
@@ -309,6 +408,10 @@ body {
 			span.highlight {
 				background-color: #0e0;
 				color: #000;
+			}
+			span.arrows {
+				margin: -4px; 
+				font-size: 16px;	
 			}
 		}
 	}
@@ -348,4 +451,64 @@ body {
 			}
 		}
 	}
+}
+
+.switch-field {
+  /* font-family: "Lucida Grande", Tahoma, Verdana, sans-serif; */
+  /* padding: 40px; */
+  /* overflow: hidden; */
+}
+
+.switch-title {
+  /* margin-bottom: 6px; */
+  font-size: 12px;
+  color: #666;
+}
+
+.switch-field input {
+  display: none;
+}
+
+.switch-field label {
+  float: left;
+}
+
+.switch-field label {
+  display: inline-block;
+  /* width: 60px; */
+  background-color: #484848;
+  color: #797676;
+  font-size: 14px;
+  font-weight: normal;
+  text-align: center;
+  text-shadow: none;
+  padding: 4px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition:    all 0.1s ease-in-out;
+  -ms-transition:     all 0.1s ease-in-out;
+  -o-transition:      all 0.1s ease-in-out;
+  transition:         all 0.1s ease-in-out;
+}
+
+.switch-field label:hover {
+	cursor: pointer;
+}
+
+.switch-field input:checked + label {
+  background-color: #333333;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  color: #ccc;
+  font-weight: 600;
+}
+
+.switch-field label:first-of-type {
+  border-radius: 2px 0 0 2px;
+}
+
+.switch-field label:last-of-type {
+  border-radius: 0 2px 2px 0;
 }

@@ -1,5 +1,8 @@
 <p>
+  <% _.each(arrowColors, function(color){ %>
+    <span class="arrows" style="color: <%= color%>;">&#187;</span>
+  <% }); %>
   <span class='stream color<%= lmessage.get('stream').color %>'><%= lmessage.get('stream').id %></span>
   <span class='node color<%= lmessage.get('node').color %>'><%= lmessage.get('node').id %></span>
-  <span class='message'><%= msg %></span>
+  <span class='message' style="color: <%= color %>"><%= msg %></span>
 </p>
