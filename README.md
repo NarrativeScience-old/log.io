@@ -1,3 +1,18 @@
+## So what has changed with this forked version?
+
+UI changes only.
+
+- Additional search filters and highlight matches so that when I search for certain keywords like 401, 404 or 500 errors I can see differentiate clearly.
+
+- Added an option to turn off and on the scrolling so that when I'm reviewing the logs it, I wont lose focus to the line that I'm checking.
+
+- Auto warn, remove or manually remove older logs in the screen so that the application won't slow down if it has rendered too many logs already in the browser.
+
+- Row over highlight on logs.
+
+![alt tag](https://raw.githubusercontent.com/donniegallardo/Log.io/master/Screenshot.png)
+
+
 Log.io - Real-time log monitoring in your browser
 =================================================
 
