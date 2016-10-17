@@ -2,7 +2,7 @@
 
 UI changes only.
 
-- Additional search filters and highlight matches so that when I search for certain keywords like 401, 404 or 500 errors I can see differentiate clearly.
+- Additional search filters and highlight matches so that when I search for certain keywords like 401, 404 or 500 errors I can differentiate clearly.
 
 - Added an option to turn off and on the scrolling so that when I'm reviewing the logs it, I wont lose focus to the line that I'm checking.
 
