@@ -91,16 +91,10 @@ class LogServer extends events.EventEmitter
     @listener = net.createServer (socket) =>
       socket._buffer = ''
       socket.on 'data', (data) => @_receive data, socket
-      socket.on 'error', => @_tearDown socket
-      socket.on 'close', => @_tearDown socket
+      socket.on 'error', (e) =>
+        @_log.error 'Lost TCP connection...'
+        @_removeNode socket.node.name if socket.node
     @listener.listen @port, @host
-
-  _tearDown: (socket) ->
-    # Destroy a client socket
-    @_log.error 'Lost TCP connection...'
-    if socket.node
-      @_removeNode socket.node.name
-      delete socket.node
 
   _receive: (data, socket) =>
     part = data.toString()
@@ -146,6 +140,12 @@ class LogServer extends events.EventEmitter
     node = @logNodes[nname] or @_addNode nname, sname
     stream = @logStreams[sname] or @_addStream sname, nname
     @emit 'new_log', stream, node, logLevel, message
+    # Write log to cache file
+    now = new Date();
+    fs.appendFile "#{logConf.cachePath}/#{stream.name}:#{node.name}",
+      JSON.stringify({time: now, message: message, level: logLevel}) + "\n",
+      (error) ->
+          console.error("Error writing file", error) if error
 
   __add: (name, pnames, _collection, _objClass, objName) ->
     @_log.info "Adding #{objName}: #{name} (#{pnames})"
@@ -163,13 +163,7 @@ class LogServer extends events.EventEmitter
     if node = @logNodes[nname]
       @_log.info "Binding node '#{nname}' to TCP socket"
       socket.node = node
-      @_ping socket
-
-  _ping: (socket) ->
-    if socket.node
-      socket.write 'ping'
-      setTimeout (=> @_ping socket), 2000
-
+      setInterval (-> socket.write 'ping'), 2000
 
 
 ###

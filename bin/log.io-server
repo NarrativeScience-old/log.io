@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+fs = require('fs');
+
 winston = require('winston');
 logging = new winston.Logger({
   transports: [ new winston.transports.Console({
@@ -10,6 +12,13 @@ webConf = require(homeDir + '/.log.io/web_server.conf').config;
 webConf.logging = logging;
 logConf = require(homeDir + '/.log.io/log_server.conf').config;
 logConf.logging = logging;
+console.log(logConf)
+if (logConf.cachePath === undefined) {
+  logConf.cachePath = homeDir + '/.log.io/cache'
+}
+if (!fs.existsSync(logConf.cachePath)) {
+  throw Error("invalid cachePath [" + logConf.cachePath + "]")
+}
 server = require('../index.js');
 logServer = new server.LogServer(logConf);
 webServer = new server.WebServer(logServer, webConf);
