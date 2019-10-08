@@ -15,7 +15,7 @@
     "jquery-browserify": "~1.8.1",
     "socket.io": "~0.9.13",
     "socket.io-client": "~0.9.11",
-    "express": "~3.0.1",
+    "express": "~4.17.1",
     "winston": "~0.6.2",
     "coffee-script": "~1.4.0"
   },
