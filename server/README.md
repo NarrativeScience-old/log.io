@@ -1,29 +1,52 @@
 Log.io - Real-time log monitoring in your browser
 =================================================
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache2.0)
+[![Version](https://img.shields.io/badge/node-%3E%3D%2012-brightgreen)](https://opensource.org/licenses/Apache2.0)
+
 Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
+
+## How does it work?
+
+A **file input** watches log files for changes, sends new messages to the **server** via TCP, which broadcasts to **browsers** via socket.io.
+
+## Terminology
+
+**Stream** - A logical designation for a group of messages that relate to one another.  Examples include an application name, a topic name, or a backend service name.
+
+**Source** - A physical designation for a group of messages that originate from the same source.  Examples include a server name, a service provider name, or a filename.
+
+**Input** - A (stream, source) pair.
+
+While originally designed to represent backend service logs spread across multiple servers, the stream/source abstraction is intentionally open-ended to allow users to define a system topology for their specific use case.
 
 ## Install & run server
 
-1) Install via npm
+Install via npm
 
 ```
-npm install log.io
+npm install -g log.io
 ```
 
-2) Configure hosts & ports (see example below)
+Configure hosts & ports (see example below)
 
 ```
 nano ~/.log.io/server.json
 ```
 
-3) Run server
+Run server
 
 ```
 log.io-server
 ```
 
-3) Browse to http://localhost:6688
+Browse to http://localhost:6688
+
+## Install & run input
+
+Begin sending log messages to the server via:
+- [log.io-file-input](https://www.npmjs.com/package/log.io-file-input)
+- A custom TCP input that implements the interface described below
 
 ## Server configuration
 

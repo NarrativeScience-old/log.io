@@ -3,6 +3,9 @@ Log.io - File Input
 
 Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache2.0)
+[![Version](https://img.shields.io/badge/node-%3E%3D%2012-brightgreen)](https://opensource.org/licenses/Apache2.0)
+
 ## How does it work?
 
 A **file input** watches log files for changes, sends new messages to the **server** via TCP, which broadcasts to **browsers** via socket.io.
@@ -19,19 +22,19 @@ While originally designed to represent backend service logs spread across multip
 
 ## Install & run file input
 
-1) Install via npm
+Install via npm
 
 ```
-npm install log.io-file-input
+npm install -g log.io-file-input
 ```
 
-2) Configure file input (see example below)
+Configure file input (see example below)
 
 ```
 nano ~/.log.io/inputs/file.json
 ```
 
-3) Run file input
+Run file input
 
 ```
 log.io-file-input
