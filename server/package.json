@@ -21,8 +21,7 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
     "start": "node lib/index.js",
-    "prepare": "npm run build",
-    "prepublishOnly": "./bin/build-ui.sh"
+    "prepare": "npm run build && ./bin/build-ui.sh"
   },
   "license": "Apache-2.0",
   "devDependencies": {

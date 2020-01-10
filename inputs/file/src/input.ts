@@ -56,11 +56,9 @@ async function sendNewMessages(
   }
   const readBuffer = Buffer.alloc(newSize - oldSize)
   await readAsync(fd, readBuffer, 0, newSize - oldSize, oldSize)
-  const messages = readBuffer.toString().split('\r\n')
+  const messages = readBuffer.toString().split('\r\n').filter(msg => !!msg.trim())
   messages.forEach((message) => {
-    if (message.trim()) {
-      client.write(`+msg|${streamName}|${sourceName}|${message}\0`)
-    }
+    client.write(`+msg|${streamName}|${sourceName}|${message}\0`)
   })
 }
 
@@ -113,19 +111,27 @@ async function sleep(ms: number): Promise<void> {
  */
 async function main(config: InputConfig): Promise<void> {
   const { messageServer, inputs } = config
+  const serverStr = `${messageServer.host}:${messageServer.port}`
   const client = new Socket()
+  let lastConnectionAttempt = new Date().getTime()
   // Register new inputs w/ server
   client.on('connect', async () => {
+    // eslint-disable-next-line no-console
+    console.log(`Connected to server: ${serverStr}`)
     await Promise.all(inputs.map(async (input) => {
       sendInput(client, input)
     }))
   })
   // Reconnect to server if an error occurs while sending a message
   client.on('error', async () => {
-    // eslint-disable-next-line no-console
-    console.error('Unable to connect to server, retrying...')
-    await sleep(5000)
-    client.connect(messageServer.port, messageServer.host)
+    const currTime = new Date().getTime()
+    if (currTime - lastConnectionAttempt > 5000) {
+      lastConnectionAttempt = new Date().getTime()
+      // eslint-disable-next-line no-console
+      console.error(`Unable to connect to server (${serverStr}), retrying...`)
+      await sleep(5000)
+      client.connect(messageServer.port, messageServer.host)
+    }
   })
   // Connect to server & start watching files for changes
   client.connect(messageServer.port, messageServer.host)
