@@ -1,0 +1,10 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["airbnb-base", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "import/no-unresolved": "off",
+    "semi": "off",
+    "@typescript-eslint/member-delimiter-style": "off"
+  }
+}

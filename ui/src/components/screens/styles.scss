@@ -1,0 +1,94 @@
+.btn {
+  outline: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  background-color: #111;
+  border: 1px solid #111;
+  color: #ccc;
+  border-radius: 3px;
+
+  &:hover {
+    background-color: #000;
+    color: #fff;
+  }
+}
+
+.screens {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  padding: 0 8px;
+}
+
+.screen-header {
+  background-color: #222;
+  margin-top: 8px;
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+
+  .title {
+    color: #ccc;
+    font-size: 14px;
+    line-height: 18px;
+    margin: 0px 0px 2px 8px;
+  }
+  .controls {
+    padding: 1px 4px 3px;
+
+    button {
+      @extend .btn;
+      font-size: 9px;
+      margin-left: 4px;
+      padding: 2px 6px;
+    }
+  }
+}
+
+.screen {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0px;
+  position: relative;
+
+  background-color: #111;
+  border: 1px solid #222;
+  color: #ccc;
+
+  display: flex;
+  flex-direction: column-reverse;
+
+  &:hover {
+    .screen-controls {
+      display: block;
+    }
+  }
+}
+
+.screen-messages {
+  div {
+    font-size: 12px;
+    line-height: 16px;
+    color: #72E34C;
+    white-space: pre-wrap;
+  }
+}
+
+.screens-controls {
+  padding: 8px 0;
+}
+
+.add-screen-btn {
+  @extend .btn;
+  font-size: 12px;
+  color: #eee;
+  padding: 4px 12px 4px 6px;
+  background-color: #111;
+  border: 1px solid #333;
+
+  &:hover {
+    color: #fff;
+    background-color: #222;
+  }
+}

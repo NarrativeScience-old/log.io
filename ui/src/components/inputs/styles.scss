@@ -1,0 +1,145 @@
+.input-manager {
+  background-color: #333;
+  border-right: 1px solid #222;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.input-group-toggles {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.input-group-toggle {
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+
+  padding: 12px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #eee;
+  cursor: pointer;
+  background-color: #111;
+
+  &.active {
+    background-color: transparent;
+  }
+}
+
+.input-filter {
+  padding: 4px;
+
+  input {
+    width: 100%;
+    padding: 4px;
+    box-sizing: border-box;
+    outline: none;
+    font-size: 14px;
+    color: #eee;
+    background-color: #111;
+    border: 1px solid #000;
+  }
+}
+
+.input-group {
+}
+
+.input-control {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+
+  .diode {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    margin: 5px 6px 0 0;
+    background-color: #72E34C;
+
+    &.nosignal {
+      border: 1px solid #666;
+      background-color: transparent;
+      width: 6px;
+      height: 6px;
+      border-radius: 4px;
+    }
+
+    &.inactive {
+      background-color: #666;
+    }
+
+    &.active0 {
+      opacity: 1.0;
+    }
+
+    &.active1 {
+      opacity: 0.9;
+    }
+
+    &.active2 {
+      opacity: 0.8;
+    }
+
+    &.active3 {
+      opacity: 0.7;
+    }
+
+    &.active4 {
+      opacity: 0.6;
+    }
+
+    &.active5 {
+      opacity: 0.5;
+    }
+
+    &.active6 {
+      opacity: 0.4;
+    }
+
+    &.active7 {
+      opacity: 0.3;
+    }
+
+    &.active8 {
+      opacity: 0.2;
+    }
+
+    &.active9 {
+      opacity: 0.1;
+    }
+  }
+
+  label {
+    white-space: nowrap;
+    flex: 1;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  input {
+    margin-left: 4px;
+  }
+}
+
+.input-group-name {
+  @extend .input-control;
+  padding: 8px 8px;
+  font-weight: bold;
+  background-color: #000;
+  color: #eee;
+  font-size: 13px;
+}
+
+.input {
+  @extend .input-control;
+  padding: 6px 8px;
+  border-bottom: 1px solid #111;
+  background-color: #222;
+  color: #eee;
+  font-size: 13px;
+}
+
