@@ -1,7 +1,21 @@
 {
   "name": "log.io-file-input",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Watches files on disk and sends new messages to the server",
+  "homepage": "http://logio.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NarrativeScience/log.io.git"
+  },
+  "keywords": [
+    "logs",
+    "monitoring",
+    "realtime",
+    "socket.io",
+    "node.js",
+    "ajax"
+  ],
+  "author": "",
   "main": "lib/index.js",
   "scripts": {
     "type-check": "tsc --noEmit",
@@ -13,7 +27,6 @@
     "start": "node lib/index.js",
     "prepare": "npm run build"
   },
-  "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
     "@babel/cli": "^7.7.4",

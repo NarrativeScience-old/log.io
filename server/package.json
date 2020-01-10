@@ -1,8 +1,12 @@
 {
   "name": "log.io",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Listens for new messages over TCP and broadcasts to browsers via socket.io",
   "homepage": "http://logio.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NarrativeScience/log.io.git"
+  },
   "keywords": [
     "logs",
     "monitoring",
@@ -11,7 +15,7 @@
     "node.js",
     "ajax"
   ],
-  "author": "",
+  "author": "msmathers@narrativescience.com",
   "main": "lib/index.js",
   "scripts": {
     "type-check": "tsc --noEmit",
