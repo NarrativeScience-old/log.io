@@ -4,7 +4,9 @@ Log.io - Real-time log monitoring in your browser
 Powered by [node.js](http://nodejs.org) + [socket.io](http://socket.io)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache2.0)
-[![Version](https://img.shields.io/badge/node-%3E%3D%2012-brightgreen)](https://opensource.org/licenses/Apache2.0)
+[![Version](https://img.shields.io/badge/node-%3E%3D%2012-brightgreen)](https://nodejs.org/)
+[![Node](https://img.shields.io/npm/v/log.io)](https://www.npmjs.com/package/log.io)
+
 
 ## How does it work?
 
