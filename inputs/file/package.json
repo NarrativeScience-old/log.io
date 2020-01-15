@@ -1,6 +1,6 @@
 {
   "name": "log.io-file-input",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Watches files on disk and sends new messages to the server",
   "homepage": "http://logio.org",
   "repository": {
