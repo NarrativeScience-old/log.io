@@ -54,8 +54,9 @@ async function sendNewMessages(
     fd = await openAsync(filePath, 'r')
     fds[filePath] = fd
   }
-  const readBuffer = Buffer.alloc(newSize - oldSize)
-  await readAsync(fd, readBuffer, 0, newSize - oldSize, oldSize)
+  const offset = Math.max(newSize - oldSize, 0)
+  const readBuffer = Buffer.alloc(offset)
+  await readAsync(fd, readBuffer, 0, offset, oldSize)
   const messages = readBuffer.toString().split('\r\n').filter(msg => !!msg.trim())
   messages.forEach((message) => {
     client.write(`+msg|${streamName}|${sourceName}|${message}\0`)
@@ -85,17 +86,20 @@ async function startFileWatcher(
   const fileSizes = await initializeFileSizes(inputPath, isDir)
   const watcher = fs.watch(inputPath)
   watcher.on('change', async (eventType: string, fileName: string) => {
+    if (eventType === 'rename') { return }
     const filePath = isDir ? path.join(inputPath, fileName) : inputPath
-    const newSize = (await statAsync(filePath)).size
-    await sendNewMessages(
-      client,
-      streamName,
-      sourceName,
-      filePath,
-      newSize,
-      fileSizes[filePath] || 0,
-    )
-    fileSizes[filePath] = newSize
+    try {
+      const newSize = (await statAsync(filePath)).size
+      await sendNewMessages(
+        client,
+        streamName,
+        sourceName,
+        filePath,
+        newSize,
+        fileSizes[filePath] || 0,
+      )
+      fileSizes[filePath] = newSize
+    } catch {}
   })
 }
 
