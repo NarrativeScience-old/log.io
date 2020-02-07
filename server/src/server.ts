@@ -77,8 +77,11 @@ async function broadcastMessage(
   data: Buffer,
 ): Promise<void> {
   // Parse raw message into parts
-  const msgs = data.toString().split('\0').filter(msg => !!msg.trim())
-  msgs.forEach(async (msg) => {
+  const msgs = data.toString().split('\0')
+  // Ignore messages that don't contain null termination character
+  if (msgs.length === 1) { return }
+  const validMsgs = msgs.filter(msg => !!msg.trim())
+  validMsgs.forEach(async (msg) => {
     const msgParts = msg.split('|')
     const messageHandler = messageHandlers[msgParts[0]]
     if (messageHandler) {
