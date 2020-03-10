@@ -1,0 +1,118 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check {{ '/2.0/language-javascript/' | docs_url }} for more details
+#
+version: 2
+
+defaults: &defaults
+  docker:
+    - image: circleci/node:12.16
+
+jobs:
+  test-server:
+    <<: *defaults
+    working_directory: ~/repo/server
+    steps:
+      - checkout
+          path: ~/repo
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+      # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: npm install
+      - run:
+          name: Run tests
+          command: npm run type-check
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: server
+  deploy-server:
+    <<: *defaults
+    working_directory: ~/repo/server
+    steps:
+      - attach_workspace:
+          at: ~/repo/server
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+  test-ui:
+    <<: *defaults
+    working_directory: ~/repo/ui
+    steps:
+      - checkout
+          path: ~/repo
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+      # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: npm install
+      - run:
+          name: Run tests
+          command: npm test
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: ui
+  deploy-ui:
+    <<: *defaults
+    working_directory: ~/repo/ui
+    steps:
+      - attach_workspace:
+          at: ~/repo/ui
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  test-deploy-server:
+    jobs:
+      - test-server:
+          filters:
+            tags:
+              only: /^v.*/
+      - deploy-server:
+          requires:
+            - test-server
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+  test-deploy-ui:
+    jobs:
+      - test-ui:
+          filters:
+            tags:
+              only: /^v.*/
+      - deploy-ui:
+          requires:
+            - test-ui
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
