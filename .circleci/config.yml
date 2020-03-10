@@ -40,16 +40,16 @@ jobs:
     working_directory: ~/repo/server
     steps:
       - attach_workspace:
-          at: ~/repo/server
+          at: ~/repo
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publish package
           command: npm publish
-  test-ui:
+  test-file-input:
     <<: *defaults
-    working_directory: ~/repo/ui
+    working_directory: ~/repo/inputs/file
     steps:
       - checkout:
           path: ~/repo
@@ -63,7 +63,7 @@ jobs:
       - run: npm install
       - run:
           name: Run tests
-          command: npm test
+          command: npm run type-check
 
       - save_cache:
           paths:
@@ -72,13 +72,13 @@ jobs:
 
       - persist_to_workspace:
           root: ~/repo
-          paths: ui
-  deploy-ui:
+          paths: inputs/file
+  deploy-file-input:
     <<: *defaults
-    working_directory: ~/repo/ui
+    working_directory: ~/repo/inputs/file
     steps:
       - attach_workspace:
-          at: ~/repo/ui
+          at: ~/repo
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
@@ -102,15 +102,15 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-  test-deploy-ui:
+  test-deploy-file-input:
     jobs:
-      - test-ui:
+      - test-file-input:
           filters:
             tags:
               only: /^v.*/
-      - deploy-ui:
+      - deploy-file-input:
           requires:
-            - test-ui
+            - test-file-input
           filters:
             tags:
               only: /^v.*/
