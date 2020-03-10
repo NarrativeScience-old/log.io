@@ -18,23 +18,36 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "~/repo/server/package.json" }}-{{ checksum "~/repo/ui/package.json" }}
       # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: npm install
       - run:
-          name: Run tests
+          name: Install server deps
+          command: npm install
+      - run:
+          name: Run server tests
           command: npm run type-check
+      - run:
+          name: Install UI deps
+          command: npm install
+          working_directory: ~/repo/ui
+      - run:
+          name: Run UI tests
+          command: npm test
+          working_directory: ~/repo/ui
 
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - ~/repo/server/node_modules
+            - ~/repo/ui/node_modules
+          key: v1-dependencies-{{ checksum "~/repo/server/package.json" }}-{{ checksum "~/repo/ui/package.json" }}
 
       - persist_to_workspace:
           root: ~/repo
-          paths: server
+          paths:
+            - server
+            - ui
   deploy-server:
     <<: *defaults
     working_directory: ~/repo/server
