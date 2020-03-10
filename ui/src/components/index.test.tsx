@@ -76,7 +76,7 @@ test('adding more screens', () => {
   const { getByRole, getByTestId, getByText, getByTitle } = render(
     <App socket={socket} initialState={initialTestState} />
   )
-  fireEvent.click(getByText('Add Screen'))
+  fireEvent.click(getByTestId('add-screen-btn'))
   const screen0 = getByTestId('screen-0')
   const screen1 = getByTestId('screen-1')
 })
@@ -85,7 +85,7 @@ test('multiple screens and inputs', () => {
   const { getAllByRole, getByText, getByTestId, getByTitle } = render(
     <App socket={socket} initialState={initialTestState} />
   )
-  fireEvent.click(getByText('Add Screen'))
+  fireEvent.click(getByTestId('add-screen-btn'))
   act(() => {
     testInputs.forEach((testInput) => {
       socket.trigger('+input', testInput)
@@ -118,7 +118,7 @@ test('send stream activation messages to server', () => {
   const { getAllByRole, getByText, getByTestId, getByTitle } = render(
     <App socket={socket} initialState={initialTestState} />
   )
-  fireEvent.click(getByText('Add Screen'))
+  fireEvent.click(getByTestId('add-screen-btn'))
   act(() => {
     testInputs.forEach((testInput) => {
       socket.trigger('+input', testInput)
@@ -138,7 +138,7 @@ test('render messages to screen', () => {
   const { getAllByRole, getByText, getByTestId, getByTitle, queryByText } = render(
     <App socket={socket} initialState={initialTestState} />
   )
-  fireEvent.click(getByText('Add Screen'))
+  fireEvent.click(getByTestId('add-screen-btn'))
   const screen0 = getByTestId('screen-0')
   act(() => {
     testInputs.forEach((testInput) => {

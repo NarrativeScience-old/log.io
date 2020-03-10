@@ -94,6 +94,7 @@ const ScreenManager: React.FC<ScreenManagerProps> = ({
       <div className="screens-controls">
         {screenIds.length < 6 && (
           <button
+            data-testid="add-screen-btn"
             className="add-screen-btn"
             onClick={addScreen}
           >
