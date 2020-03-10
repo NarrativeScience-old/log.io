@@ -13,7 +13,7 @@ jobs:
     <<: *defaults
     working_directory: ~/repo/server
     steps:
-      - checkout
+      - checkout:
           path: ~/repo
 
       - restore_cache:
@@ -51,7 +51,7 @@ jobs:
     <<: *defaults
     working_directory: ~/repo/ui
     steps:
-      - checkout
+      - checkout:
           path: ~/repo
 
       - restore_cache:
