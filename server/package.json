@@ -1,6 +1,6 @@
 {
   "name": "log.io",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "description": "Listens for new messages over TCP and broadcasts to browsers via socket.io",
   "homepage": "http://logio.org",
   "repository": {
