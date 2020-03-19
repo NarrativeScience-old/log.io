@@ -29,29 +29,29 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@babel/cli": "^7.7.4",
-    "@babel/core": "^7.7.4",
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
-    "@babel/plugin-proposal-numeric-separator": "^7.7.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
-    "@babel/plugin-transform-runtime": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
-    "@babel/preset-typescript": "^7.7.4",
-    "@types/express": "^4.17.2",
-    "@types/node": "^12.12.14",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-numeric-separator": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-typescript": "^7.8.3",
+    "@types/express": "^4.17.3",
+    "@types/node": "^12.12.30",
     "@types/socket.io": "^2.1.4",
-    "@typescript-eslint/eslint-plugin": "^2.10.0",
-    "@typescript-eslint/parser": "^2.10.0",
-    "eslint": "^6.7.2",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2",
-    "typescript": "^3.7.2"
+    "@typescript-eslint/eslint-plugin": "^2.24.0",
+    "@typescript-eslint/parser": "^2.24.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "typescript": "^3.8.3"
   },
   "bin": {
     "log.io-server": "./bin/log.io-server"
   },
   "dependencies": {
-    "@babel/runtime": "^7.7.4",
+    "@babel/runtime": "^7.8.7",
     "express": "^4.17.1",
     "socket.io": "^2.3.0"
   }
