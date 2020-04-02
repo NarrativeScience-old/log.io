@@ -21,7 +21,7 @@ export const ScreenReducer = produce((
   switch (action.type) {
     // Create a new screen
     case ScreenActions.ADD_SCREEN: {
-      const screenId = generateScreenId()
+      const screenId = action.screenId || generateScreenId()
       screens[screenId] = {
         id: screenId,
         messages: [],

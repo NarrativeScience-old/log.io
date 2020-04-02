@@ -5,6 +5,7 @@ import MessageReducer, { initialMessageState } from './messages'
 import { InputActionTypes } from './inputs/types'
 import { MessageActionTypes } from './messages/types'
 import socketMiddleware from '../middleware/socket'
+import urlMiddleware from '../middleware/url'
 import ScreenReducer, { initialScreenState } from './screens'
 import { ScreenActionTypes } from './screens/types'
 import { ActionTypes, State } from './types'
@@ -27,6 +28,7 @@ export const Reducer = (state: State, action: ActionTypes): State => {
     socket,
   }
   socketMiddleware(socket, newState, action)
+  urlMiddleware(socket, newState, action)
   return newState
 }
 

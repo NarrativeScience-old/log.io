@@ -14,6 +14,7 @@ export type ScreenState = {
 
 export type AddScreenAction = {
   type: typeof ScreenActions.ADD_SCREEN,
+  screenId?: string,
 }
 
 export type RemoveScreenAction = {

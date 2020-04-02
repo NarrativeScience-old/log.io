@@ -1,7 +1,7 @@
 import produce from 'immer'
 
 import { BindingActions, BindingState, BindingActionTypes } from './types'
-import { InputState } from '../inputs/types'
+import { InputActions, InputState } from '../inputs/types'
 import { ScreenActions } from '../screens/types'
 
 export const initialBindingState: BindingState = {
@@ -209,6 +209,22 @@ export const BindingReducer = produce((
         }
       })
       delete state.screens[screenId]
+      break
+    }
+
+    // Delete associated stream & source screen bindings when a new input arrives
+    case InputActions.ENSURE_INPUT: {
+      const { inputName, stream, source } = action
+      if (state.sources[source] && !inputs.inputs[inputName]) {
+        Object.keys(state.sources[source]).forEach((screenId) => {
+          delete state.sources[source][screenId]
+        })
+      }
+      if (state.streams[stream] && !inputs.inputs[inputName]) {
+        Object.keys(state.streams[stream]).forEach((screenId) => {
+          delete state.streams[stream][screenId]
+        })
+      }
       break
     }
   }

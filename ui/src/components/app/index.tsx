@@ -1,9 +1,9 @@
 import React, { useEffect, useReducer } from 'react'
+import initializeState from './initialize'
 import { DispatchContext, StateContext } from '../../contexts'
 import InputManager from '../inputs'
 import reducer from '../../reducers'
 import { State } from '../../reducers/types'
-import { ScreenActions } from '../../reducers/screens/types'
 import ScreenManager from '../screens'
 import {
   registerNewInput,
@@ -31,8 +31,8 @@ const App: React.FC<AppProps> = ({ initialState, socket }) => {
   useEffect(() => registerPing(socket, dispatch), [dispatch, socket])
   useEffect(() => registerNewMessage(socket, dispatch), [dispatch, socket])
 
-  // Create initial screen
-  useEffect(() => dispatch({ type: ScreenActions.ADD_SCREEN }), [dispatch])
+  // Initialize screens & bindings from URL
+  useEffect(() => initializeState(dispatch, window.location.hash), [dispatch, socket])
 
   return (
     <DispatchContext.Provider value={dispatch}>
