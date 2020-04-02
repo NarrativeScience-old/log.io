@@ -1,4 +1,6 @@
-import React, { Dispatch, useContext, useMemo } from 'react'
+import React, { Dispatch, useContext, useEffect, useMemo, useState } from 'react'
+import { DebounceInput } from 'react-debounce-input'
+
 import { DispatchContext, StateContext } from '../../contexts'
 import { ActionTypes, State } from '../../reducers/types'
 import { MessageActions, MessageState } from '../../reducers/messages/types'
@@ -27,7 +29,51 @@ interface ScreenProps {
   removeScreen: (screenId: string) => void,
 }
 
-const MAX_LOGS = 5000
+interface ScreenMessageProps {
+  message: string,
+  messageFilter: string,
+}
+
+/**
+ * Search a string for filter substring matches.
+ * Returns a list of parts w/ highlight flag.
+ */
+const _parseMessageParts = (str: string, find: string) => {
+  const parts = []
+  let counter = 0
+  let lastMatchIndex = 0
+  const lowerStr = str.toLowerCase()
+  const lowerFind = find.toLowerCase()
+  while (counter < str.length) {
+    const end = counter + find.length
+    if (lowerStr.substring(counter, end) === lowerFind) {
+      parts.push({ highlight: false, text: str.slice(lastMatchIndex, counter)})
+      parts.push({ highlight: true, text: str.slice(counter, end)})
+      counter = end
+      lastMatchIndex = end
+    }
+    counter += 1
+  }
+  parts.push({ highlight: false, text: str.slice(lastMatchIndex, str.length)})
+  return parts
+}
+
+/**
+ * Renders a single message
+ */
+const ScreenMessage: React.FC<ScreenMessageProps> = ({
+  message,
+  messageFilter
+}) => {
+  return (
+    <div>
+      {messageFilter && _parseMessageParts(message, messageFilter).map((part, i) =>
+        <span key={i} className={part.highlight ? 'highlight' : ''}>{part.text}</span>
+      )}
+      {!messageFilter && message}
+    </div>
+  )
+}
 
 /**
  * Renders a single screen
@@ -39,7 +85,17 @@ const Screen: React.FC<ScreenProps> = ({
   screen,
   screenIndex
 }) => {
-  const validMessages = messages.slice(-MAX_LOGS)
+  const [ messageFilter, setMessageFilter ] = useState('')
+  const [ validMessages, setValidMessages ] = useState(messages)
+  // Filter validMessages using messageFilter
+  useEffect(() => {
+    setValidMessages(
+      messages.filter((msg) =>
+        messageFilter === ''
+          ? true
+          : msg.toLowerCase().includes(messageFilter.toLowerCase()))
+    )
+  }, [messages, messageFilter])
   return (
     <>
       <div className="screen-header">
@@ -47,6 +103,12 @@ const Screen: React.FC<ScreenProps> = ({
           Screen {screenIndex + 1}
         </div>
         <div className="controls">
+          <DebounceInput
+            minLength={2}
+            debounceTimeout={200}
+            placeholder="Filter"
+            onChange={e => setMessageFilter(e.target.value)}
+          />
           <button onClick={() => clearMessages(screen.id)}>
             Clear
           </button>
@@ -57,10 +119,8 @@ const Screen: React.FC<ScreenProps> = ({
       </div>
       <div className="screen" data-testid={`screen-${screenIndex}`}>
         <div className="screen-messages">
-          {(validMessages).map((message, i) => (
-            <div key={i}>
-              {message}
-            </div>
+          {validMessages.map((message, i) => (
+            <ScreenMessage key={i} message={message} messageFilter={messageFilter} />
           ))}
         </div>
       </div>
