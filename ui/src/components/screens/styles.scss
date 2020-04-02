@@ -37,11 +37,17 @@
   .controls {
     padding: 1px 4px 3px;
 
-    button {
+    button,
+    input {
       @extend .btn;
       font-size: 9px;
       margin-left: 4px;
       padding: 2px 6px;
+    }
+
+    input {
+      cursor: auto;
+      text-transform: none;
     }
   }
 }
@@ -72,6 +78,11 @@
     line-height: 16px;
     color: #7AEE4F;
     white-space: pre-wrap;
+  }
+
+  .highlight {
+    background-color: #7AEE4F;
+    color: #111;
   }
 }
 

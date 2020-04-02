@@ -6,6 +6,8 @@ export const initialMessageState: MessageState = {
   screens: {},
 }
 
+const MAX_MESSAGES = 10000
+
 /**
  * Manages application state for messages sent from the server
  */
@@ -25,7 +27,13 @@ export const MessageReducer = (
         if (screenBindings[screenId]) {
           const [stream, source] = inputName.split('|')
           const message = `[${stream}] [${source}] - ${msg}`
-          updatedScreens[screenId] = (screens[screenId] || []).concat([message])
+          let updatedMessages = (screens[screenId] || []).concat([message])
+          // Avoid slicing the array on every single update, slice() is expensive.
+          // Allow array to grow beyond the limit by a percentage, then slice.
+          if (updatedMessages.length > MAX_MESSAGES + Math.floor(MAX_MESSAGES * 0.02)) {
+            updatedMessages = updatedMessages.slice(-MAX_MESSAGES)
+          }
+          updatedScreens[screenId] = updatedMessages
         }
       })
       return { screens: updatedScreens }
