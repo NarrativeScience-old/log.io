@@ -1,4 +1,5 @@
 import { ScreenActionTypes } from '../screens/types'
+import { EnsureInputAction } from '../inputs/types'
 
 export const BindingActions = {
   BIND_INPUT_TO_SCREEN: 'BIND_INPUT_TO_SCREEN' as 'BIND_INPUT_TO_SCREEN',
@@ -70,3 +71,4 @@ export type BindingActionTypes = BindInputToScreenAction
   | UnbindSourceFromScreenAction
   | UnbindStreamFromScreenAction
   | ScreenActionTypes
+  | EnsureInputAction
