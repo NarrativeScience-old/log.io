@@ -1,17 +1,16 @@
 import chokidar from 'chokidar'
 import fs from 'fs'
 import { Socket } from 'net'
-import path from 'path'
 import { promisify } from 'util'
 import {
   FileInputConfig,
   FileSizeMap,
   InputConfig,
+  WatcherOptions,
 } from './types'
 
 const openAsync = promisify(fs.open)
 const readAsync = promisify(fs.read)
-const readdirAsync = promisify(fs.readdir)
 const statAsync = promisify(fs.stat)
 
 const fds: {[filePath: string]: number} = {}
@@ -35,7 +34,7 @@ async function sendNewMessages(
   const offset = Math.max(newSize - oldSize, 0)
   const readBuffer = Buffer.alloc(offset)
   await readAsync(fd, readBuffer, 0, offset, oldSize)
-  const messages = readBuffer.toString().split('\r\n').filter(msg => !!msg.trim())
+  const messages = readBuffer.toString().split('\r\n').filter((msg) => !!msg.trim())
   messages.forEach((message) => {
     client.write(`+msg|${streamName}|${sourceName}|${message}\0`)
   })
@@ -59,9 +58,9 @@ async function startFileWatcher(
   streamName: string,
   sourceName: string,
   inputPath: string,
-  watcherOptions: any,
+  watcherOptions: WatcherOptions,
 ): Promise<void> {
-  let fileSizes: FileSizeMap = {}
+  const fileSizes: FileSizeMap = {}
   const watcher = chokidar.watch(inputPath, watcherOptions)
   // Capture byte size of a new file
   watcher.on('add', async (filePath: string) => {

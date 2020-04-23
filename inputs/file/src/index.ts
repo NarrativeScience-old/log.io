@@ -16,8 +16,9 @@ const CONFIG_PATH = process.env.LOGIO_FILE_INPUT_CONFIG_PATH
 
 function loadConfig(configPath: string): InputConfig {
   const config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
-  if (!!ROOT_PATH) {
+  if (ROOT_PATH) {
     config.inputs.forEach((input: FileInputConfig) => {
+      // eslint-disable-next-line no-param-reassign
       input.config.path = path.resolve(ROOT_PATH, input.config.path)
     })
   }

@@ -23,7 +23,12 @@ async function handleNewMessage(
   const msg = msgParts.slice(3).join('|')
   const inputName = inputs.add(stream, source)
   // Broadcast message to input channel
-  io.to(inputName).emit(mtype, { inputName, msg, stream, source })
+  io.to(inputName).emit(mtype, {
+    inputName,
+    msg,
+    stream,
+    source,
+  })
   // Broadcast ping to all browsers
   io.emit('+ping', { inputName, stream, source })
   if (config.debug) {
@@ -82,7 +87,7 @@ async function broadcastMessage(
   const msgs = data.toString()
     .split('\0')
     .slice(0, -1)
-    .filter(msg => !!msg.trim())
+    .filter((msg) => !!msg.trim())
   msgs.forEach(async (msg) => {
     const msgParts = msg.split('|')
     const messageHandler = messageHandlers[msgParts[0]]
