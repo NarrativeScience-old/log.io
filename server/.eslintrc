@@ -3,6 +3,7 @@
   "plugins": ["@typescript-eslint"],
   "extends": ["airbnb-base", "plugin:@typescript-eslint/recommended"],
   "rules": {
+    "import/extensions": "off",
     "import/no-unresolved": "off",
     "semi": "off",
     "@typescript-eslint/member-delimiter-style": "off"

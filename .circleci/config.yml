@@ -27,7 +27,7 @@ jobs:
           command: npm install
       - run:
           name: Run server tests
-          command: npm run type-check
+          command: npm run type-check && npm run lint
       - run:
           name: Install UI deps
           command: npm install
@@ -76,7 +76,7 @@ jobs:
       - run: npm install
       - run:
           name: Run tests
-          command: npm run type-check
+          command: npm run type-check && npm run lint
 
       - save_cache:
           paths:
