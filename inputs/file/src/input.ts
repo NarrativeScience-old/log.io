@@ -7,7 +7,6 @@ import {
   FileInputConfig,
   FileSizeMap,
   InputConfig,
-  WatchedPathsMap,
 } from './types'
 
 const openAsync = promisify(fs.open)

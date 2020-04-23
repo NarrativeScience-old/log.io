@@ -16,7 +16,3 @@ export type InputConfig = {
   },
   inputs: Array<FileInputConfig>,
 }
-
-export type WatchedPathsMap = {
-  [path: string]: Array<string>
-}
