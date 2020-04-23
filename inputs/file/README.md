@@ -45,6 +45,8 @@ log.io-file-input
 
 Inputs are created by associating file paths with stream and source names in a configuration file.  By default, the file input looks for configuration in `~/.log.io/inputs/file.json`, and can be overridden with the environment variable `LOGIO_FILE_INPUT_CONFIG_PATH`.
 
+Input paths can be a file path, directory path or a [glob](https://en.wikipedia.org/wiki/Glob_(programming)).  Additionally, watcher options can be provided for more fine-grained control over file watching mechanics and performance. See the [chokidar](https://github.com/paulmillr/chokidar) documentation for more information.
+
 Sample configuration file:
 
 ```json
@@ -63,23 +65,13 @@ Sample configuration file:
     },
     {
       "source": "server2",
-      "stream": "app1",
+      "stream": "system-logs",
       "config": {
-        "path": "log.io-demo/file-generator/app1-server2.log"
-      }
-    },
-    {
-      "source": "server1",
-      "stream": "app2",
-      "config": {
-        "path": "log.io-demo/file-generator/app2-server1.log"
-      }
-    },
-    {
-      "source": "server2",
-      "stream": "app2",
-      "config": {
-        "path": "log.io-demo/file-generator/app2-server2.log"
+        "path": "/var/log/**/*.log",
+        "watcherOptions": {
+          "ignored": "*.txt",
+          "depth": 99,
+        }
       }
     }
   ]

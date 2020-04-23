@@ -5,6 +5,7 @@ export type FileInputConfig = {
   stream: string,
   config: {
     path: string,
+    watcherOptions: any,
   },
 }
 
@@ -14,4 +15,8 @@ export type InputConfig = {
     port: number,
   },
   inputs: Array<FileInputConfig>,
+}
+
+export type WatchedPathsMap = {
+  [path: string]: Array<string>
 }
