@@ -49,6 +49,7 @@
     "log.io-file-input": "./bin/log.io-file-input"
   },
   "dependencies": {
-    "@babel/runtime": "^7.8.7"
+    "@babel/runtime": "^7.8.7",
+    "chokidar": "^3.3.1"
   }
 }

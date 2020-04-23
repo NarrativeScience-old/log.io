@@ -5,6 +5,7 @@ export type FileInputConfig = {
   stream: string,
   config: {
     path: string,
+    watcherOptions: any,
   },
 }
 

@@ -1,3 +1,4 @@
+import chokidar from 'chokidar'
 import fs from 'fs'
 import { Socket } from 'net'
 import path from 'path'
@@ -14,29 +15,6 @@ const readdirAsync = promisify(fs.readdir)
 const statAsync = promisify(fs.stat)
 
 const fds: {[filePath: string]: number} = {}
-
-/**
- * Get initial byte sizes of each file that will be watched
- */
-async function initializeFileSizes(
-  inputPath: string,
-  isDir: boolean,
-): Promise<FileSizeMap> {
-  const fileSizes: FileSizeMap = {}
-  if (isDir) {
-    const files = await readdirAsync(inputPath)
-    await Promise.all(files.map(async (fileName) => {
-      const filePath = path.join(inputPath, fileName)
-      const fileStat = await statAsync(filePath)
-      if (!fileStat.isDirectory()) {
-        fileSizes[filePath] = fileStat.size
-      }
-    }))
-  } else {
-    fileSizes[inputPath] = (await statAsync(inputPath)).size
-  }
-  return fileSizes
-}
 
 /**
  * Reads new lines from file on disk and sends them to the server
@@ -81,13 +59,18 @@ async function startFileWatcher(
   streamName: string,
   sourceName: string,
   inputPath: string,
+  watcherOptions: any,
 ): Promise<void> {
-  const isDir = (await statAsync(inputPath)).isDirectory()
-  const fileSizes = await initializeFileSizes(inputPath, isDir)
-  const watcher = fs.watch(inputPath)
-  watcher.on('change', async (eventType: string, fileName: string) => {
-    if (eventType === 'rename') { return }
-    const filePath = isDir ? path.join(inputPath, fileName) : inputPath
+  let fileSizes: FileSizeMap = {}
+  const watcher = chokidar.watch(inputPath, watcherOptions)
+  // Capture byte size of a new file
+  watcher.on('add', async (filePath: string) => {
+    // eslint-disable-next-line no-console
+    console.log(`[${streamName}][${sourceName}] Watching: ${filePath}`)
+    fileSizes[filePath] = (await statAsync(filePath)).size
+  })
+  // Send new lines when a file is changed
+  watcher.on('change', async (filePath: string) => {
     try {
       const newSize = (await statAsync(filePath)).size
       await sendNewMessages(
@@ -96,10 +79,13 @@ async function startFileWatcher(
         sourceName,
         filePath,
         newSize,
-        fileSizes[filePath] || 0,
+        fileSizes[filePath],
       )
       fileSizes[filePath] = newSize
-    } catch {}
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err)
+    }
   })
 }
 
@@ -140,7 +126,13 @@ async function main(config: InputConfig): Promise<void> {
   // Connect to server & start watching files for changes
   client.connect(messageServer.port, messageServer.host)
   await Promise.all(inputs.map(async (input) => (
-    startFileWatcher(client, input.stream, input.source, input.config.path)
+    startFileWatcher(
+      client,
+      input.stream,
+      input.source,
+      input.config.path,
+      input.config.watcherOptions || {},
+    )
   )))
 }
 
