@@ -86,6 +86,11 @@ async function startFileWatcher(
       console.error(err)
     }
   })
+  // If a file is removed (or moved), delete its file descriptor & size
+  watcher.on('unlink', (filePath: string) => {
+    delete fileSizes[filePath]
+    delete fds[filePath]
+  })
 }
 
 /**
