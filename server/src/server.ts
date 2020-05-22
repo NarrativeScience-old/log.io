@@ -1,4 +1,5 @@
 import express from 'express'
+import basicAuth from 'express-basic-auth'
 import http from 'http'
 import net from 'net'
 import path from 'path'
@@ -104,12 +105,26 @@ async function broadcastMessage(
  * Start message & web servers
  */
 async function main(config: ServerConfig): Promise<void> {
-  // Create HTTP server w/ static file serving & socket.io bindings
+  // Create HTTP server w/ static file serving, socket.io bindings & basic auth
   const server = express()
-  server.use('/', express.static(UI_BUILD_PATH))
   const httpServer = new http.Server(server)
   const io = socketio(httpServer)
   const inputs = new InputRegistry()
+  if (config.basicAuth) {
+    if (config.basicAuth.users && config.basicAuth.realm) {
+      server.use(basicAuth({
+        ...config.basicAuth,
+        challenge: true,
+      }))
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "Unable to enable basic authentication.\n" +
+        "Basic auth configuration requires the following keys: 'users', 'realm'"
+      )
+    }
+  }
+  server.use('/', express.static(UI_BUILD_PATH))
 
   // Create TCP message server
   const messageServer = net.createServer(async (socket: net.Socket) => {

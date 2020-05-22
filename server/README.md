@@ -65,10 +65,16 @@ Sample configuration file:
     "port": 6688,
     "host": "127.0.0.1"
   },
-  "debug": false
+  "debug": false,
+  "basicAuth": {
+    "realm": "abc123xyz",
+    "users": {
+      "username1": "password1"
+    }
+  }
 }
-
 ```
+`basicAuth` and `debug` are both optional keys that can be omitted.
 
 ## Server TCP interface
 
