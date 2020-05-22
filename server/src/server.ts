@@ -118,10 +118,13 @@ async function main(config: ServerConfig): Promise<void> {
       }))
     } else {
       // eslint-disable-next-line no-console
-      console.warn(
-        "Unable to enable basic authentication.\n" +
-        "Basic auth configuration requires the following keys: 'users', 'realm'"
-      )
+      console.warn(`
+WARNING: Unable to enable basic authentication.
+
+Basic auth configuration requires the following keys: 'users', 'realm'.
+
+See README for more examples.
+      `)
     }
   }
   server.use('/', express.static(UI_BUILD_PATH))
