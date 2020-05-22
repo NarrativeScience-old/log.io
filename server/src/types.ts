@@ -1,7 +1,6 @@
 import InputRegistry from './inputs'
 
 export type ServerConfig = {
-  debug?: boolean,
   messageServer: {
     port: number,
     host: string
@@ -9,6 +8,13 @@ export type ServerConfig = {
   httpServer: {
     port: number,
     host: string
+  },
+  debug?: boolean,
+  basicAuth?: {
+    realm: string,
+    users: {
+      [username: string]: string,
+    }
   },
 }
 

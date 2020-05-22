@@ -53,6 +53,7 @@
   "dependencies": {
     "@babel/runtime": "^7.8.7",
     "express": "^4.17.1",
+    "express-basic-auth": "^1.2.0",
     "socket.io": "^2.3.0"
   }
 }
