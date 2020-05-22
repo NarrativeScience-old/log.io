@@ -1,6 +1,6 @@
 {
   "name": "log.io-ui",
-  "version": "0.4.15",
+  "version": "0.4.16",
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
@@ -43,6 +43,6 @@
     ]
   },
   "devDependencies": {
-    "node-sass": "^4.13.0"
+    "node-sass": "^4.14.1"
   }
 }
