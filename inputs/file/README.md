@@ -70,7 +70,7 @@ Sample configuration file:
         "path": "/var/log/**/*.log",
         "watcherOptions": {
           "ignored": "*.txt",
-          "depth": 99,
+          "depth": 99
         }
       }
     }
